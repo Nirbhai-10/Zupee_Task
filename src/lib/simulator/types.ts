@@ -1,5 +1,6 @@
 import type { LanguageCode } from "@/lib/i18n/languages";
 import type { ScamClassification } from "@/lib/llm/schemas";
+import type { ULIPAuditResult } from "@/domain/investment/ulip-math";
 import type { MessageBubbleVariant } from "@/components/whatsapp-simulator/MessageBubble";
 
 export type PhoneId = "anjali" | "mil" | "husband" | "brother";
@@ -29,6 +30,17 @@ export type SimulatorDefense = {
   classification: ScamClassification;
   language: LanguageCode;
   voiceUrl?: string;
+  matchedPatternName?: string;
+  createdAt: string;
+};
+
+export type SimulatorAudit = {
+  id: string;
+  forPhoneId: PhoneId;
+  audit: ULIPAuditResult;
+  voiceScript: string;
+  voiceUrl?: string;
+  language: LanguageCode;
   createdAt: string;
 };
 
@@ -36,4 +48,5 @@ export type SimulatorState = {
   messages: SimulatorMessage[];
   typing: Partial<Record<PhoneId, boolean>>;
   defenses: SimulatorDefense[];
+  audits: SimulatorAudit[];
 };

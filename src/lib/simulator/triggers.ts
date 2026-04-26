@@ -13,10 +13,62 @@ import type { PhoneId, SimulatorMessage } from "./types";
 export type TriggerStep =
   | { kind: "message"; delayMs: number; message: Omit<SimulatorMessage, "id"> }
   | { kind: "typing"; phoneId: PhoneId; isTyping: boolean; delayMs: number }
-  | { kind: "scam-check"; phoneId: PhoneId; delayMs: number; messageText: string };
+  | { kind: "scam-check"; phoneId: PhoneId; delayMs: number; messageText: string }
+  | { kind: "ulip-audit"; phoneId: PhoneId; delayMs: number };
 
 const KBC_SCAM_TEXT =
   "Mubarak ho! Aap KBC ke lottery mein 25,00,000 jeete hain. Apna lucky number 4509 confirm karne ke liye is number par WhatsApp call karein: +92 3XX XXXXXXX. Yeh offer 24 ghante mein expire ho jayega.";
+
+export function ulipAuditToAnjaliSequence(): TriggerStep[] {
+  return [
+    {
+      kind: "message",
+      delayMs: 0,
+      message: {
+        phoneId: "anjali",
+        direction: "outbound",
+        timestamp: "9:45",
+        status: "delivered",
+        variant: {
+          kind: "text",
+          text: "Saathi, ek policy bech rahe hain bank wale. Brochure bhej rahi hoon — dekh sakte ho?",
+          lang: "hi-IN",
+        },
+      },
+    },
+    {
+      kind: "message",
+      delayMs: 800,
+      message: {
+        phoneId: "anjali",
+        direction: "outbound",
+        timestamp: "9:45",
+        status: "delivered",
+        variant: {
+          kind: "document",
+          fileName: "SuperLife-Wealth-Plus-II.pdf",
+          pages: 28,
+        },
+      },
+    },
+    { kind: "typing", phoneId: "anjali", isTyping: true, delayMs: 600 },
+    {
+      kind: "message",
+      delayMs: 600,
+      message: {
+        phoneId: "anjali",
+        direction: "inbound",
+        timestamp: "9:45",
+        variant: {
+          kind: "text",
+          text: "Document analyze ho raha hai…",
+          lang: "hi-IN",
+        },
+      },
+    },
+    { kind: "ulip-audit", phoneId: "anjali", delayMs: 1200 },
+  ];
+}
 
 export function kbcScamToMilSequence(): TriggerStep[] {
   return [

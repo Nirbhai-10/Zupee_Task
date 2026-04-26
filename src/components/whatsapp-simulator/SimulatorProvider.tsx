@@ -8,6 +8,7 @@ import {
 } from "@/lib/simulator/event-bus";
 import type {
   PhoneId,
+  SimulatorAudit,
   SimulatorDefense,
   SimulatorMessage,
   SimulatorState,
@@ -17,9 +18,10 @@ type Action =
   | { type: "append-message"; message: SimulatorMessage }
   | { type: "set-typing"; phoneId: PhoneId; isTyping: boolean }
   | { type: "append-defense"; defense: SimulatorDefense }
+  | { type: "append-audit"; audit: SimulatorAudit }
   | { type: "reset" };
 
-const INITIAL: SimulatorState = { messages: [], typing: {}, defenses: [] };
+const INITIAL: SimulatorState = { messages: [], typing: {}, defenses: [], audits: [] };
 
 function reducer(state: SimulatorState, action: Action): SimulatorState {
   switch (action.type) {
@@ -29,6 +31,8 @@ function reducer(state: SimulatorState, action: Action): SimulatorState {
       return { ...state, typing: { ...state.typing, [action.phoneId]: action.isTyping } };
     case "append-defense":
       return { ...state, defenses: [action.defense, ...state.defenses] };
+    case "append-audit":
+      return { ...state, audits: [action.audit, ...state.audits] };
     case "reset":
       return INITIAL;
   }
@@ -39,6 +43,7 @@ type Ctx = {
   appendMessage: (m: SimulatorMessage) => void;
   setTyping: (phoneId: PhoneId, isTyping: boolean) => void;
   appendDefense: (d: SimulatorDefense) => void;
+  appendAudit: (a: SimulatorAudit) => void;
   reset: () => void;
   /** All messages targeted at a given phone (inbound + outbound from that phone). */
   messagesForPhone: (phoneId: PhoneId) => SimulatorMessage[];
@@ -88,6 +93,7 @@ export function SimulatorProvider({
         publish({ kind: "typing", payload: { phoneId, isTyping } });
       },
       appendDefense: (d) => dispatch({ type: "append-defense", defense: d }),
+      appendAudit: (a) => dispatch({ type: "append-audit", audit: a }),
       reset: () => {
         dispatch({ type: "reset" });
         publish({ kind: "reset" });

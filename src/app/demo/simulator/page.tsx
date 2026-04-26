@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { SimulatorProvider } from "@/components/whatsapp-simulator/SimulatorProvider";
 import { SimulatorStage } from "@/components/whatsapp-simulator/SimulatorStage";
+import { SimulatorActivityPane } from "@/components/whatsapp-simulator/SimulatorActivityPane";
 import { TriggerPanel } from "@/components/whatsapp-simulator/TriggerPanel";
 
 export const metadata = {
@@ -45,9 +46,10 @@ export default function SimulatorPage() {
 
       <div className="px-6 py-6">
         <SimulatorProvider>
-          <div className="mx-auto max-w-[1200px] space-y-6">
+          <div className="mx-auto max-w-[1200px] space-y-8">
             <TriggerPanel />
             <SimulatorStage />
+            <SimulatorActivityPane />
           </div>
         </SimulatorProvider>
       </div>
