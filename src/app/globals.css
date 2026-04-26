@@ -1,26 +1,158 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
+/*
+ * Saathi design system — see docs/DESIGN.md.
+ * Tokens declared inside @theme become Tailwind v4 utilities
+ * (e.g. bg-saathi-deep-green, text-saathi-ink, text-display).
+ */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* Primary — institutional deep green */
+  --color-saathi-deep-green: #0F4D3F;
+  --color-saathi-deep-green-soft: #1B5C4D;
+  --color-saathi-deep-green-tint: #E5EFEB;
+  --color-saathi-deep-green-line: #C5D7CF;
+
+  /* Secondary — warm gold (never bright) */
+  --color-saathi-gold: #C8973F;
+  --color-saathi-gold-soft: #D9A859;
+  --color-saathi-gold-tint: #F8EFD9;
+  --color-saathi-gold-line: #E8D4A8;
+
+  /* Surface — cream (warmer than off-white) */
+  --color-saathi-cream: #FBF6EB;
+  --color-saathi-cream-deep: #F4ECDA;
+  --color-saathi-paper: #FFFFFF;
+  --color-saathi-paper-edge: #F2EBD9;
+
+  /* Ink */
+  --color-saathi-ink: #1A1A1A;
+  --color-saathi-ink-soft: #4A4A4A;
+  --color-saathi-ink-quiet: #8A8A8A;
+  --color-saathi-ink-whisper: #B5B5B5;
+
+  /* States — restrained, never shouting */
+  --color-saathi-success: #2E7D5A;
+  --color-saathi-success-tint: #E0F0E8;
+  --color-saathi-warning: #B07A3F;
+  --color-saathi-warning-tint: #F5E9D5;
+  --color-saathi-danger: #A33A3A;
+  --color-saathi-danger-tint: #F5E0E0;
+
+  /* Voice / audio */
+  --color-saathi-voice: #5C8A7F;
+  --color-saathi-voice-tint: #DDE9E5;
+
+  /* Font families. The --font-manrope / --font-mukta / --font-jetbrains
+   * variables are emitted by next/font/google in layout.tsx. */
+  --font-sans: var(--font-manrope), ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-deva: var(--font-mukta), var(--font-manrope), ui-sans-serif, sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, "SFMono-Regular", monospace;
+
+  /* Type scale (per Part 5 of brief) */
+  --text-display: 4.5rem;
+  --text-display--line-height: 1.05;
+  --text-display--letter-spacing: -0.02em;
+  --text-h1: 3rem;
+  --text-h1--line-height: 1.1;
+  --text-h1--letter-spacing: -0.015em;
+  --text-h2: 2.25rem;
+  --text-h2--line-height: 1.15;
+  --text-h2--letter-spacing: -0.01em;
+  --text-h3: 1.5rem;
+  --text-h3--line-height: 1.25;
+  --text-h3--letter-spacing: -0.005em;
+  --text-body-lg: 1.125rem;
+  --text-body-lg--line-height: 1.55;
+  --text-body: 1rem;
+  --text-body--line-height: 1.6;
+  --text-body-sm: 0.875rem;
+  --text-body-sm--line-height: 1.55;
+  --text-caption: 0.75rem;
+  --text-caption--line-height: 1.5;
+
+  /* Radii */
+  --radius-card: 1rem;
+  --radius-card-sm: 0.75rem;
+  --radius-pill: 9999px;
+
+  /* Shadows — extremely subtle */
+  --shadow-soft: 0 1px 3px rgba(26, 26, 26, 0.04);
+  --shadow-card: 0 2px 8px rgba(26, 26, 26, 0.06);
+  --shadow-lift: 0 4px 16px rgba(26, 26, 26, 0.08);
+
+  /* Easings — confidence, not bounce */
+  --ease-confident: cubic-bezier(0.32, 0.72, 0.4, 1);
+  --ease-money: cubic-bezier(0.45, 0, 0.55, 1);
+  --ease-voice: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  html {
+    font-family: var(--font-sans);
+    color: var(--color-saathi-ink);
+    background: var(--color-saathi-cream);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    background: var(--color-saathi-cream);
+    color: var(--color-saathi-ink);
+    min-height: 100vh;
+  }
+
+  /* Devanagari + Indic scripts: bump size 8%, tighten line-height per brief.
+   * Triggered automatically when an element carries lang="hi" / "mr" / etc. */
+  :lang(hi),
+  :lang(mr),
+  :lang(bn),
+  :lang(gu),
+  :lang(pa),
+  :lang(ta),
+  :lang(te),
+  :lang(kn),
+  :lang(ml),
+  :lang(or),
+  :lang(as) {
+    font-family: var(--font-deva);
+    font-size: 1.08em;
+    line-height: 1.55;
+  }
+
+  /* Tabular numbers for currency / transcripts. */
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum" 1;
+  }
+
+  ::selection {
+    background: var(--color-saathi-gold-tint);
+    color: var(--color-saathi-ink);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Subtle paper texture overlay used on landing hero. */
+.saathi-paper-grain {
+  background-image:
+    radial-gradient(circle at 20% 20%, rgba(200, 151, 63, 0.04) 0%, transparent 60%),
+    radial-gradient(circle at 80% 30%, rgba(15, 77, 63, 0.03) 0%, transparent 50%);
+}
+
+/* Voice waveform rhythm (gentle breathing while preparing). */
+@keyframes saathi-breathe {
+  0%, 100% { opacity: 0.55; transform: scaleY(0.85); }
+  50% { opacity: 1; transform: scaleY(1.05); }
+}
+.saathi-breathe {
+  animation: saathi-breathe 1.6s var(--ease-voice) infinite;
 }
