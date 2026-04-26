@@ -3,6 +3,7 @@
 import { useSimulator } from "./SimulatorProvider";
 import { DefenseCard } from "@/components/defenses/DefenseCard";
 import { AuditCard } from "@/components/defenses/AuditCard";
+import { PlanCard } from "@/components/goals/PlanCard";
 import { Card, CardContent } from "@/components/ui/card";
 import { Currency } from "@/components/shared/Currency";
 import { Badge } from "@/components/ui/badge";
@@ -20,7 +21,7 @@ export function SimulatorActivityPane() {
     state.defenses.reduce((acc, d) => acc + d.classification.estimatedLossInr, 0) +
     state.audits.reduce((acc, a) => acc + a.audit.lifetimeSavingsInr, 0);
 
-  if (state.defenses.length === 0 && state.audits.length === 0) {
+  if (state.defenses.length === 0 && state.audits.length === 0 && state.plans.length === 0) {
     return (
       <Card tone="cream" padding="md" className="text-body-sm text-saathi-ink-soft">
         <CardContent className="!mt-0">
@@ -52,6 +53,16 @@ export function SimulatorActivityPane() {
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
+        {state.plans.map((p) => (
+          <PlanCard
+            key={p.id}
+            plan={p.plan}
+            voiceUrl={p.voiceUrl}
+            voiceTranscript={p.voiceScript}
+            language={p.language}
+            className="lg:col-span-2"
+          />
+        ))}
         {state.audits.map((a) => (
           <AuditCard
             key={a.id}

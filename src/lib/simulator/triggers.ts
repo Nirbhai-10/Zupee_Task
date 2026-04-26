@@ -14,10 +14,48 @@ export type TriggerStep =
   | { kind: "message"; delayMs: number; message: Omit<SimulatorMessage, "id"> }
   | { kind: "typing"; phoneId: PhoneId; isTyping: boolean; delayMs: number }
   | { kind: "scam-check"; phoneId: PhoneId; delayMs: number; messageText: string }
-  | { kind: "ulip-audit"; phoneId: PhoneId; delayMs: number };
+  | { kind: "ulip-audit"; phoneId: PhoneId; delayMs: number }
+  | { kind: "build-plan"; phoneId: PhoneId; delayMs: number };
 
 const KBC_SCAM_TEXT =
   "Mubarak ho! Aap KBC ke lottery mein 25,00,000 jeete hain. Apna lucky number 4509 confirm karne ke liye is number par WhatsApp call karein: +92 3XX XXXXXXX. Yeh offer 24 ghante mein expire ho jayega.";
+
+export function intakeToPlanSequence(): TriggerStep[] {
+  return [
+    {
+      kind: "message",
+      delayMs: 0,
+      message: {
+        phoneId: "anjali",
+        direction: "outbound",
+        timestamp: "10:02",
+        status: "delivered",
+        variant: {
+          kind: "text",
+          text: "Saathi, ab paise ka kya plan banaaye?",
+          lang: "hi-IN",
+        },
+      },
+    },
+    { kind: "typing", phoneId: "anjali", isTyping: true, delayMs: 600 },
+    {
+      kind: "message",
+      delayMs: 700,
+      message: {
+        phoneId: "anjali",
+        direction: "inbound",
+        timestamp: "10:02",
+        variant: {
+          kind: "text",
+          text: "Anjali ji, aapke ghar ke kharch ke baad ₹5,500 bachte hain. Beti ki shaadi 2032, bete ki coaching 2027, mummy ka medical, Diwali fund — yeh saare goals samajhe. Ek minute mein plan ready karta hoon.",
+          lang: "hi-IN",
+        },
+      },
+    },
+    { kind: "typing", phoneId: "anjali", isTyping: true, delayMs: 800 },
+    { kind: "build-plan", phoneId: "anjali", delayMs: 1000 },
+  ];
+}
 
 export function ulipAuditToAnjaliSequence(): TriggerStep[] {
   return [

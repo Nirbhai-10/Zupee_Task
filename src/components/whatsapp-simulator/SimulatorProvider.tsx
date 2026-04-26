@@ -11,6 +11,7 @@ import type {
   SimulatorAudit,
   SimulatorDefense,
   SimulatorMessage,
+  SimulatorPlan,
   SimulatorState,
 } from "@/lib/simulator/types";
 
@@ -19,9 +20,16 @@ type Action =
   | { type: "set-typing"; phoneId: PhoneId; isTyping: boolean }
   | { type: "append-defense"; defense: SimulatorDefense }
   | { type: "append-audit"; audit: SimulatorAudit }
+  | { type: "append-plan"; plan: SimulatorPlan }
   | { type: "reset" };
 
-const INITIAL: SimulatorState = { messages: [], typing: {}, defenses: [], audits: [] };
+const INITIAL: SimulatorState = {
+  messages: [],
+  typing: {},
+  defenses: [],
+  audits: [],
+  plans: [],
+};
 
 function reducer(state: SimulatorState, action: Action): SimulatorState {
   switch (action.type) {
@@ -33,6 +41,8 @@ function reducer(state: SimulatorState, action: Action): SimulatorState {
       return { ...state, defenses: [action.defense, ...state.defenses] };
     case "append-audit":
       return { ...state, audits: [action.audit, ...state.audits] };
+    case "append-plan":
+      return { ...state, plans: [action.plan, ...state.plans] };
     case "reset":
       return INITIAL;
   }
@@ -44,6 +54,7 @@ type Ctx = {
   setTyping: (phoneId: PhoneId, isTyping: boolean) => void;
   appendDefense: (d: SimulatorDefense) => void;
   appendAudit: (a: SimulatorAudit) => void;
+  appendPlan: (p: SimulatorPlan) => void;
   reset: () => void;
   /** All messages targeted at a given phone (inbound + outbound from that phone). */
   messagesForPhone: (phoneId: PhoneId) => SimulatorMessage[];
@@ -94,6 +105,7 @@ export function SimulatorProvider({
       },
       appendDefense: (d) => dispatch({ type: "append-defense", defense: d }),
       appendAudit: (a) => dispatch({ type: "append-audit", audit: a }),
+      appendPlan: (p) => dispatch({ type: "append-plan", plan: p }),
       reset: () => {
         dispatch({ type: "reset" });
         publish({ kind: "reset" });

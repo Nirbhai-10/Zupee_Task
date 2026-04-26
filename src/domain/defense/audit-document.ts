@@ -47,7 +47,7 @@ export async function auditDocument(args: AuditDocumentArgs): Promise<AuditDocum
       system: DOCUMENT_AUDIT_SYSTEM_V1,
       prompt: promptBody,
       temperature: 0.4,
-      maxOutputTokens: 600,
+      maxOutputTokens: 2000,
       userId: args.userId,
     });
     return { audit, voiceScript: result.text.trim(), source: "llm" };

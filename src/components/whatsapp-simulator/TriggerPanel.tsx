@@ -1,18 +1,20 @@
 "use client";
 
 import * as React from "react";
-import { FileSearch, Loader2, Play, RefreshCw, ShieldAlert } from "lucide-react";
+import { FileSearch, Loader2, Play, RefreshCw, ShieldAlert, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useSimulator } from "./SimulatorProvider";
 import {
   kbcScamToMilSequence,
   ulipAuditToAnjaliSequence,
+  intakeToPlanSequence,
   type TriggerStep,
 } from "@/lib/simulator/triggers";
 import type { ScamClassification } from "@/lib/llm/schemas";
 import type { ULIPAuditResult } from "@/domain/investment/ulip-math";
-import type { PhoneId, SimulatorDefense, SimulatorAudit } from "@/lib/simulator/types";
+import type { Plan } from "@/domain/investment/allocator";
+import type { PhoneId, SimulatorDefense, SimulatorAudit, SimulatorPlan } from "@/lib/simulator/types";
 
 const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 
@@ -30,12 +32,19 @@ type DocAuditResponse = {
   voice?: { url: string; durationMs?: number; provider?: string } | null;
 };
 
+type PlanResponse = {
+  plan: Plan;
+  voiceScript: string;
+  source: "llm" | "mock-template";
+  voice?: { url: string; durationMs?: number; provider?: string } | null;
+};
+
 /**
  * Demo presenter strip — sits above the three phones on /demo/simulator.
  * Day 2 ships the KBC scam trigger; days 3-5 add ULIP, intake, salary.
  */
 export function TriggerPanel() {
-  const { appendMessage, setTyping, appendDefense, appendAudit, reset } = useSimulator();
+  const { appendMessage, setTyping, appendDefense, appendAudit, appendPlan, reset } = useSimulator();
   const [running, setRunning] = React.useState(false);
   const [lastSource, setLastSource] = React.useState<string | null>(null);
 
@@ -52,11 +61,63 @@ export function TriggerPanel() {
           await runScamCheck(step.phoneId, step.messageText);
         } else if (step.kind === "ulip-audit") {
           await runUlipAudit(step.phoneId);
+        } else if (step.kind === "build-plan") {
+          await runBuildPlan(step.phoneId);
         }
       }
     } finally {
       setRunning(false);
     }
+  }
+
+  async function runBuildPlan(phoneId: PhoneId) {
+    const response = await fetch("/api/investment/plan", { method: "POST" });
+    if (!response.ok) {
+      console.warn("[plan] non-2xx", response.status);
+      setTyping(phoneId, false);
+      return;
+    }
+    const data = (await response.json()) as PlanResponse;
+    setLastSource(data.source);
+    setTyping(phoneId, false);
+
+    if (data.voice?.url) {
+      appendMessage({
+        id: crypto.randomUUID(),
+        phoneId,
+        direction: "inbound",
+        timestamp: "10:03",
+        variant: {
+          kind: "voice",
+          audioUrl: data.voice.url,
+          durationMs: data.voice.durationMs,
+          transcript: data.voiceScript,
+          lang: "hi-IN",
+        },
+      });
+    }
+    appendMessage({
+      id: crypto.randomUUID(),
+      phoneId,
+      direction: "inbound",
+      timestamp: "10:03",
+      variant: {
+        kind: "text",
+        text: `Plan ready hai — kul ₹${data.plan.monthlyAllocationInr.toLocaleString("en-IN")}/mahina, ${data.plan.goalAllocations.filter((g) => g.monthlyTotalInr > 0).length} goals. UPI Autopay authorize karenge?`,
+        lang: "hi-IN",
+      },
+    });
+
+    const planRecord: SimulatorPlan = {
+      id: crypto.randomUUID(),
+      forPhoneId: phoneId,
+      plan: data.plan,
+      voiceScript: data.voiceScript,
+      voiceUrl: data.voice?.url,
+      language: "hi-IN",
+      createdAt: new Date().toISOString(),
+    };
+    appendPlan(planRecord);
   }
 
   async function runUlipAudit(phoneId: PhoneId) {
@@ -219,6 +280,16 @@ export function TriggerPanel() {
       >
         {running ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileSearch className="h-4 w-4" />}
         <span>ULIP audit → Anjali</span>
+      </Button>
+      <Button
+        type="button"
+        size="sm"
+        variant="outline"
+        disabled={running}
+        onClick={() => void runSequence(intakeToPlanSequence())}
+      >
+        {running ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wallet className="h-4 w-4" />}
+        <span>Plan banwayein</span>
       </Button>
       <Button
         type="button"

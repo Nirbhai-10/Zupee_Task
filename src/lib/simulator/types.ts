@@ -44,9 +44,20 @@ export type SimulatorAudit = {
   createdAt: string;
 };
 
+export type SimulatorPlan = {
+  id: string;
+  forPhoneId: PhoneId;
+  plan: import("@/domain/investment/allocator").Plan;
+  voiceScript: string;
+  voiceUrl?: string;
+  language: LanguageCode;
+  createdAt: string;
+};
+
 export type SimulatorState = {
   messages: SimulatorMessage[];
   typing: Partial<Record<PhoneId, boolean>>;
   defenses: SimulatorDefense[];
   audits: SimulatorAudit[];
+  plans: SimulatorPlan[];
 };
