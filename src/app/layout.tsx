@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Manrope, Mukta, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
+import { Providers } from "./providers";
 
 const manrope = Manrope({
   subsets: ["latin"],
@@ -69,7 +70,7 @@ export default function RootLayout({
       className={`${manrope.variable} ${mukta.variable} ${jetbrainsMono.variable} h-full antialiased`}
     >
       <body className="min-h-full bg-saathi-cream text-saathi-ink font-sans flex flex-col">
-        {children}
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

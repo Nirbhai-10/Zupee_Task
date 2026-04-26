@@ -2,11 +2,12 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
-  // Cache Components / PPR intentionally NOT enabled yet — adds Suspense
-  // overhead we don't need for the prototype. Revisit before production.
+  // Allow HMR + client bundle access from the LAN IP so phones / other
+  // devices on the same wifi can hit the dev server. Add more origins
+  // as needed (e.g. tunneled URLs).
+  allowedDevOrigins: ["192.168.1.12", "192.168.0.0/16", "10.0.0.0/8"],
   experimental: {},
   images: {
-    // Stylized illustrations are local SVGs; remote sources go here later.
     remotePatterns: [],
   },
   async headers() {

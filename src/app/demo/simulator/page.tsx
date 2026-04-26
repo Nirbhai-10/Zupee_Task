@@ -5,6 +5,9 @@ import { SimulatorProvider } from "@/components/whatsapp-simulator/SimulatorProv
 import { SimulatorStage } from "@/components/whatsapp-simulator/SimulatorStage";
 import { SimulatorActivityPane } from "@/components/whatsapp-simulator/SimulatorActivityPane";
 import { TriggerPanel } from "@/components/whatsapp-simulator/TriggerPanel";
+import { T } from "@/components/shared/T";
+import { StatusPill } from "@/components/shared/StatusPill";
+import { LanguageToggle } from "@/components/shared/LanguageToggle";
 
 export const metadata = {
   title: "Simulator",
@@ -12,8 +15,8 @@ export const metadata = {
 
 /**
  * /demo/simulator — three live phones, presenter trigger, scam classifier.
- * Default demo flow on Day 2: click "KBC scam → Mummy" and watch the
- * MIL phone receive a scam, forward to Saathi, get a Hindi voice reply.
+ * Click any of the four trigger buttons to play a scripted sequence
+ * against the live LLM (Gemma 4 8B local) and Sarvam voice.
  */
 export default function SimulatorPage() {
   return (
@@ -21,24 +24,36 @@ export default function SimulatorPage() {
       <div className="border-b border-saathi-paper-edge bg-saathi-paper px-6 py-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="space-y-1">
-            <Badge tone="green">Day 2 · Live</Badge>
+            <Badge tone="green">
+              <T hi="लाइव डेमो" en="Live demo" />
+            </Badge>
             <h1 className="text-h3 font-semibold tracking-tight text-saathi-ink">
-              WhatsApp simulator
+              <T hi="WhatsApp सिमुलेटर" en="WhatsApp simulator" />
             </h1>
             <p className="text-body-sm text-saathi-ink-soft">
-              Three faithful phones. Real classifier (or mock heuristic if no LLM key). Hindi
-              voice replies.
+              <T
+                hi="तीन phones, चार trigger buttons। LLM + voice आपके device पर local चल रहा है।"
+                en="Three phones, four trigger buttons. LLM + voice run locally on your machine."
+              />
             </p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <StatusPill className="hidden lg:inline-flex" />
+            <LanguageToggle />
             <Button asChild variant="ghost" size="sm">
-              <Link href="/">Home</Link>
+              <Link href="/">
+                <T hi="Home" en="Home" />
+              </Link>
             </Button>
             <Button asChild variant="secondary" size="sm">
-              <Link href="/defenses">Defenses feed</Link>
+              <Link href="/defenses">
+                <T hi="Defenses feed" en="Defenses feed" />
+              </Link>
             </Button>
             <Button asChild variant="ghost" size="sm">
-              <Link href="/demo/presenter">Presenter panel</Link>
+              <Link href="/demo/presenter">
+                <T hi="Presenter" en="Presenter" />
+              </Link>
             </Button>
           </div>
         </div>

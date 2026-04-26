@@ -94,7 +94,7 @@ export default function DefensesPage() {
   return (
     <main className="flex flex-1 flex-col gap-8 bg-saathi-cream px-6 py-10">
       <header className="mx-auto w-full max-w-3xl space-y-4">
-        <Badge tone="green">Day 2</Badge>
+        <Badge tone="green">Defenses</Badge>
         <h1 className="text-h1 font-semibold tracking-tight text-saathi-ink">
           Defenses feed
         </h1>
