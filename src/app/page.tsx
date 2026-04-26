@@ -5,6 +5,7 @@ import {
   Phone,
   Receipt,
   ShieldAlert,
+  ShieldCheck,
   Sparkles,
 } from "lucide-react";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
@@ -75,38 +76,56 @@ export default function Home() {
       <main className="flex flex-1 flex-col bg-saathi-cream">
         {/* Hero */}
         <section className="saathi-paper-grain relative overflow-hidden">
-          <div className="mx-auto grid max-w-6xl items-center gap-12 px-6 py-20 lg:grid-cols-[3fr_2fr]">
+          <div className="mx-auto grid max-w-6xl items-center gap-12 px-6 pb-16 pt-14 lg:grid-cols-[3fr_2fr] lg:pb-20 lg:pt-20">
             <div className="space-y-6">
               <Badge tone="green">
                 <Sparkles className="h-3 w-3" />
                 AI-native · WhatsApp · Bharat
               </Badge>
-              <p
-                lang="hi"
-                className="text-body-lg font-medium tracking-wide text-saathi-deep-green"
-              >
-                जब बैंक वाले ULIP बेच रहे हैं,
-              </p>
-              <h1
-                lang="hi"
-                className="text-display font-extrabold leading-[1.05] text-saathi-deep-green"
-              >
-                हम सच बताते हैं।
-              </h1>
+
+              {/* The dual-headline USP — pehle bachate, phir badhaate. */}
+              <div className="space-y-1">
+                <p
+                  lang="hi"
+                  className="text-body-lg font-medium tracking-wide text-saathi-deep-green"
+                >
+                  जब बैंक वाले ULIP बेच रहे हैं,
+                </p>
+                <h1
+                  lang="hi"
+                  className="text-display font-extrabold leading-[1.02] text-saathi-deep-green"
+                >
+                  हम सच बताते हैं।
+                </h1>
+              </div>
+
+              {/* Differentiator stripe — impossible to miss. */}
+              <div className="flex flex-col gap-2 rounded-card border border-saathi-deep-green-line bg-saathi-deep-green-tint/70 p-4 sm:flex-row sm:items-center sm:gap-4">
+                <div className="flex items-center gap-2">
+                  <ShieldCheck className="h-5 w-5 shrink-0 text-saathi-deep-green" />
+                  <span className="text-body font-semibold text-saathi-deep-green">Pehle hum aapko bachate hain.</span>
+                </div>
+                <span aria-hidden className="hidden h-5 w-px bg-saathi-deep-green-line sm:inline-block" />
+                <div className="flex items-center gap-2">
+                  <Sparkles className="h-5 w-5 shrink-0 text-saathi-gold" />
+                  <span className="text-body font-semibold text-saathi-gold">Phir aapke paise ko badhaate hain.</span>
+                </div>
+              </div>
+
               <p className="max-w-xl text-body-lg text-saathi-ink-soft">
                 Saathi is your AI advocate for Bharat. Free scam defense for your family.
-                Honest investment plans for your money. Entirely on WhatsApp.
+                Honest investment plans for your money. Entirely on WhatsApp — no app, no English forms.
               </p>
               <div className="flex flex-wrap items-center gap-3">
                 <Button asChild variant="primary" size="lg">
                   <Link href="/demo/simulator">WhatsApp पर शुरू करें</Link>
                 </Button>
-                <Button asChild variant="ghost" size="lg">
+                <Button asChild variant="outline" size="lg">
                   <Link href="#defense">Dekhein kaise kaam karta hai</Link>
                 </Button>
               </div>
               <p className="text-caption text-saathi-ink-quiet">
-                Free for families · No app to download · No data sale · Made for Bharat.
+                Free for families · No app to download · No data sale · Made for 100M+ Bharat households.
               </p>
             </div>
             <ConversationPreview />
@@ -257,10 +276,10 @@ export default function Home() {
             <FooterColumn
               title="Legal"
               links={[
-                { label: "Privacy (DPDP 2023)", href: "#" },
-                { label: "Disclosure stance", href: "#" },
-                { label: "Grievance officer", href: "#" },
-                { label: "RBI Sachet (in process)", href: "#" },
+                { label: "Privacy (DPDP 2023)", href: "/legal/privacy" },
+                { label: "Disclosure stance", href: "/legal/disclosure" },
+                { label: "Grievance officer", href: "/legal/grievance" },
+                { label: "RBI Sachet (in process)", href: "/legal/rbi-sachet" },
               ]}
             />
           </div>
