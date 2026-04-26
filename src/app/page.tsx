@@ -1,5 +1,6 @@
 import Link from "next/link";
 import {
+  ArrowRight,
   CheckCircle2,
   FileSearch,
   Phone,
@@ -9,64 +10,85 @@ import {
   Sparkles,
 } from "lucide-react";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
-import { Wordmark } from "@/components/brand/Wordmark";
+import { Logo } from "@/components/brand/Logo";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Currency } from "@/components/shared/Currency";
+import { T } from "@/components/shared/T";
+import { ScamPlayground } from "@/components/landing/ScamPlayground";
+import { UlipAuditDemo } from "@/components/landing/UlipAuditDemo";
+import { WhatsAppHeroCta } from "@/components/landing/WhatsAppHeroCta";
 
 const DEFENSE_CARDS = [
   {
-    title: "Mummy ke phone par scam",
-    body: "WhatsApp KYC scam. Fake bank calls. Digital arrest. Hum 30 second mein pakad lete hain — unki bhasha mein samjhaate hain, aur aapko bhi inform karte hain.",
-    stat: "12,400 scams roke iss saal",
+    title: { hi: "मम्मी के फ़ोन पर scam", en: "Scams on Mummy's phone" },
+    body: {
+      hi: "WhatsApp KYC scam. Fake bank calls. Digital arrest. हम 30 second में पकड़ लेते हैं — उनकी भाषा में समझाते हैं, और आपको भी inform करते हैं।",
+      en: "WhatsApp KYC. Fake bank calls. Digital arrest. We catch them in 30 seconds — explain in her language, and loop you in.",
+    },
+    stat: { hi: "इस साल 12,400 scams रोके", en: "12,400 scams blocked this year" },
     icon: ShieldAlert,
-    tone: "scam" as const,
   },
   {
-    title: "Bank waale jo policy bech rahe hain",
-    body: "Apna ULIP brochure bhejiye. 60 second mein bata denge real fees, lock-in, aur seedha mutual fund SIP se kitna bachega — actual numbers ke saath.",
-    stat: "Average user ne ₹2.4L bachaaye",
+    title: { hi: "Bank का ULIP push", en: "The bank's ULIP pitch" },
+    body: {
+      hi: "ULIP brochure भेजिए। 60 second में दिखाएँगे real fees, lock-in, और term + SIP से कितना ज़्यादा बनेगा — actual numbers के साथ।",
+      en: "Send us the ULIP brochure. In 60 seconds we show the real fees, lock-in, and how much a term + SIP alternative would build — with real numbers.",
+    },
+    stat: { hi: "औसत बचत: ₹2.4 लाख", en: "Average user saves ₹2.4 lakh" },
     icon: FileSearch,
-    tone: "suspicious" as const,
   },
   {
-    title: "Recovery agents ki dhamki",
-    body: "RBI rules ke khilaaf hain. Hum lawyer-grade letter bhejte hain, RBI Sachet pe complaint karte hain, aapke liye unko phone karte hain.",
-    stat: "94% cases mein 7 din mein band",
+    title: { hi: "Recovery agent की धमकी", en: "Recovery-agent harassment" },
+    body: {
+      hi: "RBI rules के against हैं। हम lawyer-grade letter, RBI Sachet draft, और एजेंट को vernacular voice call ready करते हैं।",
+      en: "These calls violate RBI rules. We draft a cease-and-desist letter, an RBI Sachet complaint, and a vernacular voice call to the agent.",
+    },
+    stat: { hi: "94% cases में 7 दिन में बंद", en: "Stopped in 7 days in 94% of cases" },
     icon: Phone,
-    tone: "scam" as const,
   },
   {
-    title: "Galat bills aur charges",
-    body: "Bill ki photo bhejiye. Hum company ko phone karte hain — aapki tarafse, aapki bhasha mein. Refund milta hai.",
-    stat: "Average refund: ₹1,840 per case",
+    title: { hi: "ग़लत bills और charges", en: "Wrong bills and charges" },
+    body: {
+      hi: "Bill की photo भेजिए। हम company को call करते हैं — आपकी तरफ़ से, आपकी भाषा में। Refund आता है।",
+      en: "Send a photo of the bill. We call the company on your behalf, in your language. Refunds get issued.",
+    },
+    stat: { hi: "औसत refund: ₹1,840 / केस", en: "Average refund: ₹1,840 per case" },
     icon: Receipt,
-    tone: "suspicious" as const,
   },
 ];
 
 const INVESTMENT_PILLARS = [
   {
-    title: "Goals you actually have",
-    body: "Beti ki shaadi 2032 mein 8 lakh. Bete ki coaching 2027 tak 3 lakh. Diwali fund. Maa ka medical buffer. Bharosa yeh sab samjhta hai — kyunki yeh aapke real goals hain, retirement nahi.",
+    title: { hi: "वो लक्ष्य जो आपके वाक़ई हैं", en: "Goals you actually have" },
+    body: {
+      hi: "बेटी की शादी 2032 में 8 लाख। बेटे की coaching 2027 तक 3 लाख। Diwali fund. माँ का medical buffer. Bharosa यह सब समझता है — क्योंकि यह आपके real goals हैं, retirement नहीं।",
+      en: "Daughter's wedding 2032: ₹8L. Son's coaching by 2027: ₹3L. Diwali fund. Medical buffer for an elder. Bharosa understands these as goals, not abstract retirement targets.",
+    },
   },
   {
-    title: "Trusted instruments first",
-    body: "Aapke FD aur gold ko respect karte hain. Mutual fund mein paisa tab daalte hain jab aap comfortable ho — 6 mahine baad, ya saal baad, ya kabhi nahi. Aapki marzi.",
+    title: { hi: "Trusted instruments first", en: "Trusted instruments first" },
+    body: {
+      hi: "आपके FD और gold को respect करते हैं। Mutual fund में पैसा तब डालते हैं जब आप comfortable हों — 6 महीने बाद, या साल बाद, या कभी नहीं। आपकी मर्ज़ी।",
+      en: "We respect your FDs and gold. Mutual funds enter only when you're comfortable — six months later, a year later, or never. Your call.",
+    },
   },
   {
-    title: "Family stays informed",
-    body: "Pati ko goal progress milta hai. Mummy ko protection alerts. Bachhon ko unke savings dikhte hain. Aap sab kuch dekhti hain. Privacy aapke control mein.",
+    title: { hi: "परिवार जुड़ा रहता है", en: "Family stays in the loop" },
+    body: {
+      hi: "पति को goal progress, मम्मी को protection alerts, बच्चों को उनकी savings। Privacy आपके control में।",
+      en: "Husband gets goal progress, your mother-in-law sees protection alerts, kids see their own savings. Privacy stays in your hands.",
+    },
   },
 ];
 
 const TRUST_BADGES = [
-  "DPDP Act 2023 compliant",
-  "Made in India",
-  "Zero ads · Zero data sale",
-  "11 भारतीय भाषाएं",
-  "RBI Sachet integration *",
+  { hi: "DPDP Act 2023 compliant", en: "DPDP Act 2023 compliant" },
+  { hi: "Made in India", en: "Made in India" },
+  { hi: "Zero ads · zero data sale", en: "Zero ads · zero data sale" },
+  { hi: "11 भारतीय भाषाएं", en: "11 Indian languages" },
+  { hi: "RBI Sachet integration *", en: "RBI Sachet integration *" },
 ];
 
 export default function Home() {
@@ -76,96 +98,136 @@ export default function Home() {
       <main className="flex flex-1 flex-col bg-saathi-cream">
         {/* Hero */}
         <section className="saathi-paper-grain relative overflow-hidden">
-          <div className="mx-auto grid max-w-6xl items-center gap-12 px-6 pb-16 pt-14 lg:grid-cols-[3fr_2fr] lg:pb-20 lg:pt-20">
+          <div className="mx-auto grid max-w-6xl items-center gap-12 px-6 pb-16 pt-12 lg:grid-cols-[3fr_2fr] lg:pb-20 lg:pt-16">
             <div className="space-y-6">
               <Badge tone="green">
                 <Sparkles className="h-3 w-3" />
-                AI-native · WhatsApp · Bharat
+                <T hi="AI-native · WhatsApp · Bharat" en="AI-native · WhatsApp · Bharat" />
               </Badge>
 
-              {/* The dual-headline USP — pehle bachate, phir badhaate. */}
               <div className="space-y-1">
-                <p
-                  lang="hi"
+                <T
+                  as="p"
+                  hi="जब बैंक वाले ULIP बेच रहे हैं,"
+                  en="When the bank is selling you a ULIP,"
                   className="text-body-lg font-medium tracking-wide text-saathi-deep-green"
-                >
-                  जब बैंक वाले ULIP बेच रहे हैं,
-                </p>
-                <h1
-                  lang="hi"
+                />
+                <T
+                  as="h1"
+                  hi="हम सच बताते हैं।"
+                  en="we tell you the truth."
                   className="text-display font-extrabold leading-[1.02] text-saathi-deep-green"
-                >
-                  हम सच बताते हैं।
-                </h1>
+                />
               </div>
 
-              {/* Differentiator stripe — impossible to miss. */}
               <div className="flex flex-col gap-2 rounded-card border border-saathi-deep-green-line bg-saathi-deep-green-tint/70 p-4 sm:flex-row sm:items-center sm:gap-4">
                 <div className="flex items-center gap-2">
                   <ShieldCheck className="h-5 w-5 shrink-0 text-saathi-deep-green" />
-                  <span className="text-body font-semibold text-saathi-deep-green">Pehle hum aapko bachate hain.</span>
+                  <T
+                    hi="पहले हम आपको बचाते हैं।"
+                    en="First we defend you."
+                    className="text-body font-semibold text-saathi-deep-green"
+                  />
                 </div>
                 <span aria-hidden className="hidden h-5 w-px bg-saathi-deep-green-line sm:inline-block" />
                 <div className="flex items-center gap-2">
                   <Sparkles className="h-5 w-5 shrink-0 text-saathi-gold" />
-                  <span className="text-body font-semibold text-saathi-gold">Phir aapke paise ko badhaate hain.</span>
+                  <T
+                    hi="फिर आपके पैसे को बढ़ाते हैं।"
+                    en="Then we grow your money."
+                    className="text-body font-semibold text-saathi-gold"
+                  />
                 </div>
               </div>
 
-              <p className="max-w-xl text-body-lg text-saathi-ink-soft">
-                Bharosa is your AI advocate for Bharat. Free scam defense for your family.
-                Honest investment plans for your money. Entirely on WhatsApp — no app, no English forms.
-              </p>
+              <T
+                as="p"
+                hi="Bharosa आपका AI advocate है — Bharat के लिए। Family के लिए free scam defense. पैसे के लिए honest investment plans. WhatsApp pe — कोई app नहीं, कोई English form नहीं।"
+                en="Bharosa is your AI advocate for Bharat. Free scam defense for your family. Honest investment plans for your money. On WhatsApp — no app, no English forms."
+                className="max-w-xl text-body-lg text-saathi-ink-soft"
+              />
+
               <div className="flex flex-wrap items-center gap-3">
-                <Button asChild variant="primary" size="lg">
-                  <Link href="/demo/simulator">WhatsApp पर शुरू करें</Link>
-                </Button>
+                <WhatsAppHeroCta />
                 <Button asChild variant="outline" size="lg">
-                  <Link href="#defense">Dekhein kaise kaam karta hai</Link>
+                  <Link href="/api/demo/login">
+                    <T hi="Anjali का dashboard देखें" en="See Anjali's dashboard" />
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </Button>
+                <Button asChild variant="ghost" size="lg">
+                  <Link href="#playground">
+                    <T hi="Live classifier try करें" en="Try the live classifier" />
+                  </Link>
                 </Button>
               </div>
-              <p className="text-caption text-saathi-ink-quiet">
-                Free for families · No app to download · No data sale · Made for 100M+ Bharat households.
-              </p>
+
+              <T
+                as="p"
+                hi="Free for families · No app to download · No data sale · Made for Bharat."
+                en="Free for families · No app to download · No data sale · Made for Bharat."
+                className="text-caption text-saathi-ink-quiet"
+              />
             </div>
+
             <ConversationPreview />
           </div>
         </section>
 
-        {/* Differentiator section */}
+        {/* CHANGE 2: Live scam playground */}
+        <ScamPlayground />
+
+        {/* Defense cards */}
         <section id="defense" className="border-y border-saathi-paper-edge bg-saathi-paper">
-          <div className="mx-auto max-w-6xl px-6 py-20">
-            <div className="max-w-3xl space-y-4">
-              <Badge tone="green">Defense first</Badge>
-              <h2
-                lang="hi"
+          <div className="mx-auto max-w-6xl px-6 py-16">
+            <div className="max-w-3xl space-y-3">
+              <Badge tone="green">
+                <T hi="Defense first" en="Defense first" />
+              </Badge>
+              <T
+                as="h2"
+                hi="हम जिन-जिन हमलों को रोकते हैं।"
+                en="The four classes of harm we defend against."
                 className="text-h1 font-semibold tracking-tight text-saathi-ink"
-              >
-                पहले हम आपको बचाते हैं। फिर आपके पैसे को बढ़ाते हैं।
-              </h2>
-              <p className="text-body-lg text-saathi-ink-soft">
-                Har Indian fintech aapko product bechta hai. Bharosa pehle aapko products se
-                bachata hai. Phir aapke paise ko sambhalta hai. Trust pehle, products baad mein.
-              </p>
+              />
+              <T
+                as="p"
+                hi="हर Indian fintech आपको product बेचता है। Bharosa पहले आपको products से बचाता है। फिर आपके पैसे को सम्भालता है। Trust पहले, products बाद में।"
+                en="Every Indian fintech sells you a product. Bharosa defends you from products first, then helps you grow money. Trust before products."
+                className="text-body-lg text-saathi-ink-soft"
+              />
             </div>
             <div className="mt-10 grid gap-5 md:grid-cols-2">
               {DEFENSE_CARDS.map((card) => {
                 const Icon = card.icon;
                 return (
-                  <Card key={card.title} tone="paper" padding="lg" className="group transition-transform hover:-translate-y-1">
+                  <Card
+                    key={card.title.en}
+                    tone="paper"
+                    padding="lg"
+                    className="group transition-transform hover:-translate-y-1"
+                  >
                     <div className="flex items-start gap-4">
                       <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-pill bg-saathi-deep-green-tint text-saathi-deep-green">
                         <Icon className="h-5 w-5" />
                       </div>
                       <div className="min-w-0 space-y-2">
-                        <h3 className="text-h3 font-semibold text-saathi-ink">{card.title}</h3>
-                        <p lang="hi" className="font-deva text-body-sm text-saathi-ink-soft">
-                          {card.body}
-                        </p>
+                        <T
+                          as="h3"
+                          hi={card.title.hi}
+                          en={card.title.en}
+                          className="text-h3 font-semibold text-saathi-ink"
+                        />
+                        <T
+                          as="p"
+                          hi={card.body.hi}
+                          en={card.body.en}
+                          className="text-body-sm text-saathi-ink-soft"
+                        />
                       </div>
                     </div>
                     <div className="mt-5 rounded-card-sm bg-saathi-gold-tint px-3 py-2 text-caption font-medium text-saathi-gold">
-                      {card.stat}
+                      <T hi={card.stat.hi} en={card.stat.en} />
                     </div>
                   </Card>
                 );
@@ -174,61 +236,97 @@ export default function Home() {
           </div>
         </section>
 
+        {/* CHANGE 3: ULIP audit demo */}
+        <UlipAuditDemo />
+
         {/* Investment side */}
-        <section id="investments" className="bg-saathi-cream">
-          <div className="mx-auto max-w-6xl px-6 py-20">
-            <div className="max-w-3xl space-y-4">
-              <Badge tone="gold">Investment</Badge>
-              <h2
-                lang="hi"
+        <section id="investments" className="border-t border-saathi-paper-edge bg-saathi-cream">
+          <div className="mx-auto max-w-6xl px-6 py-16">
+            <div className="max-w-3xl space-y-3">
+              <Badge tone="gold">
+                <T hi="निवेश" en="Investments" />
+              </Badge>
+              <T
+                as="h2"
+                hi="फिर आपके पैसे को सम्भालते हैं।"
+                en="Then we grow your money."
                 className="text-h1 font-semibold tracking-tight text-saathi-ink"
-              >
-                फिर हम आपके पैसे को सम्हालते हैं।
-              </h2>
-              <p className="text-body-lg text-saathi-ink-soft">
-                Aapke goals. Aapki bhasha. Real automation — UPI Autopay pe, har mahine.
-              </p>
+              />
+              <T
+                as="p"
+                hi="आपके goals. आपकी भाषा. Real automation — UPI Autopay पर, हर महीने।"
+                en="Your goals. Your language. Real automation — UPI Autopay, every month."
+                className="text-body-lg text-saathi-ink-soft"
+              />
             </div>
             <div className="mt-10 grid gap-5 md:grid-cols-3">
               {INVESTMENT_PILLARS.map((pillar) => (
-                <Card key={pillar.title} tone="paper" padding="lg" className="space-y-3">
+                <Card key={pillar.title.en} tone="paper" padding="lg" className="space-y-3">
                   <div className="flex h-10 w-10 items-center justify-center rounded-pill bg-saathi-gold-tint text-saathi-gold">
                     <CheckCircle2 className="h-5 w-5" />
                   </div>
-                  <h3 className="text-h3 font-semibold text-saathi-ink">{pillar.title}</h3>
-                  <p lang="hi" className="font-deva text-body-sm text-saathi-ink-soft">
-                    {pillar.body}
-                  </p>
+                  <T
+                    as="h3"
+                    hi={pillar.title.hi}
+                    en={pillar.title.en}
+                    className="text-h3 font-semibold text-saathi-ink"
+                  />
+                  <T
+                    as="p"
+                    hi={pillar.body.hi}
+                    en={pillar.body.en}
+                    className="text-body-sm text-saathi-ink-soft"
+                  />
                 </Card>
               ))}
             </div>
 
             <Card tone="green" padding="lg" className="mt-10 grid gap-6 md:grid-cols-2 md:items-center">
               <div className="space-y-3 text-white">
-                <Badge tone="gold">Anjali ka demo</Badge>
-                <h3 className="text-h2 font-semibold">
-                  ₹5,500 surplus, 4 goals, ek mandate.
-                </h3>
-                <p className="text-body-lg text-white/80">
-                  {`Anjali Sharma — government school teacher, Lucknow. Hindi-first. Bharosa ne uska plan banaaya: Sukanya Samriddhi for daughter's wedding, short-debt fund for son's coaching, liquid fund for mummy's medical buffer, RD for Diwali — sab ek hi UPI Autopay pe.`}
-                </p>
+                <Badge tone="gold">
+                  <T hi="Anjali का demo" en="Anjali's demo" />
+                </Badge>
+                <T
+                  as="h3"
+                  hi="₹5,500 surplus, 4 goals, एक mandate."
+                  en="₹5,500 surplus, 4 goals, one mandate."
+                  className="text-h2 font-semibold"
+                />
+                <T
+                  as="p"
+                  hi="Anjali Sharma — Lucknow की government school teacher. Bharosa ने plan बनाया: Sukanya Samriddhi बेटी की शादी के लिए, short-debt बेटे की coaching के लिए, liquid fund माँ के medical के लिए, RD Diwali के लिए — एक UPI Autopay पर."
+                  en="Anjali Sharma — a government school teacher in Lucknow. Bharosa built her plan: Sukanya Samriddhi for her daughter's wedding, a short-debt fund for her son's coaching, a liquid fund for her mother-in-law's medical buffer, an RD for Diwali — all on a single UPI Autopay."
+                  className="text-body-lg text-white/85"
+                />
                 <Button asChild variant="gold" size="md">
-                  <Link href="/demo/simulator">Live simulator chalayein →</Link>
+                  <Link href="/api/demo/login">
+                    <T hi="Dashboard खोलें" en="Open the dashboard" />
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
                 </Button>
               </div>
               <div className="space-y-3 rounded-card-sm bg-saathi-paper p-5 text-saathi-ink shadow-soft">
                 <div className="flex items-baseline justify-between">
-                  <span className="text-caption uppercase tracking-wide text-saathi-ink-quiet">Monthly mandate</span>
-                  <Currency amount={5500} variant="full" language="en-IN" className="text-h3 font-semibold text-saathi-deep-green" />
+                  <T
+                    hi="मासिक mandate"
+                    en="Monthly mandate"
+                    className="text-caption uppercase tracking-wide text-saathi-ink-quiet"
+                  />
+                  <Currency
+                    amount={5500}
+                    variant="full"
+                    language="en-IN"
+                    className="text-h3 font-semibold text-saathi-deep-green"
+                  />
                 </div>
                 {[
-                  { label: "Mummy ka medical (liquid)", amount: 2200 },
-                  { label: "Aarav coaching (debt + FD)", amount: 1900 },
-                  { label: "Priya shaadi (SSY + gold + FD)", amount: 800 },
-                  { label: "Diwali fund (RD)", amount: 500 },
+                  { hi: "मम्मी का medical (liquid)", en: "Mother-in-law's medical (liquid)", amount: 2200 },
+                  { hi: "Aarav coaching (debt + FD)", en: "Aarav's coaching (debt + FD)", amount: 1900 },
+                  { hi: "Priya की शादी (SSY + gold + FD)", en: "Priya's wedding (SSY + gold + FD)", amount: 800 },
+                  { hi: "Diwali fund (RD)", en: "Diwali fund (RD)", amount: 500 },
                 ].map((row) => (
-                  <div key={row.label} className="flex items-center justify-between text-body-sm">
-                    <span className="text-saathi-ink-soft">{row.label}</span>
+                  <div key={row.en} className="flex items-center justify-between text-body-sm">
+                    <T hi={row.hi} en={row.en} className="text-saathi-ink-soft" />
                     <Currency amount={row.amount} variant="full" language="en-IN" className="font-medium" />
                   </div>
                 ))}
@@ -241,7 +339,7 @@ export default function Home() {
         <section className="border-y border-saathi-paper-edge bg-saathi-paper">
           <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-6 py-6 text-caption text-saathi-ink-quiet">
             {TRUST_BADGES.map((badge) => (
-              <span key={badge}>{badge}</span>
+              <T key={badge.en} hi={badge.hi} en={badge.en} />
             ))}
           </div>
         </section>
@@ -250,45 +348,52 @@ export default function Home() {
         <footer className="bg-saathi-cream-deep">
           <div className="mx-auto grid max-w-6xl gap-8 px-6 py-12 md:grid-cols-4">
             <div className="space-y-2">
-              <Wordmark className="text-h2" />
-              <p className="text-caption text-saathi-ink-quiet">
-                Made in Bengaluru with care. <br />For 100M+ Bharat households.
-              </p>
+              <Logo variant="lockup" size={32} />
+              <T
+                as="p"
+                hi="Bengaluru में बना। 100M+ Bharat households के लिए।"
+                en="Made in Bengaluru. For 100M+ Bharat households."
+                className="text-caption text-saathi-ink-quiet"
+              />
             </div>
             <FooterColumn
-              title="Product"
+              title={{ hi: "Product", en: "Product" }}
               links={[
-                { label: "Live simulator", href: "/demo/simulator" },
-                { label: "Defenses feed", href: "/defenses" },
-                { label: "Goals", href: "/goals" },
-                { label: "Family", href: "/family" },
-                { label: "Investments", href: "/investments" },
+                { hi: "Live simulator", en: "Live simulator", href: "/demo/simulator" },
+                { hi: "Defenses", en: "Defenses", href: "/defenses" },
+                { hi: "Goals", en: "Goals", href: "/goals" },
+                { hi: "Family", en: "Family", href: "/family" },
+                { hi: "Investments", en: "Investments", href: "/investments" },
               ]}
             />
             <FooterColumn
-              title="System"
+              title={{ hi: "System", en: "System" }}
               links={[
-                { label: "Health", href: "/api/health" },
-                { label: "Admin · Costs", href: "/admin/costs" },
-                { label: "Admin · Patterns", href: "/admin/scam-patterns" },
+                { hi: "Health", en: "Health", href: "/api/health" },
+                { hi: "Costs admin", en: "Costs admin", href: "/admin/costs" },
+                { hi: "Pattern bank", en: "Pattern bank", href: "/admin/scam-patterns" },
               ]}
             />
             <FooterColumn
-              title="Legal"
+              title={{ hi: "Legal", en: "Legal" }}
               links={[
-                { label: "Privacy (DPDP 2023)", href: "/legal/privacy" },
-                { label: "Disclosure stance", href: "/legal/disclosure" },
-                { label: "Grievance officer", href: "/legal/grievance" },
-                { label: "RBI Sachet (in process)", href: "/legal/rbi-sachet" },
+                { hi: "Privacy (DPDP 2023)", en: "Privacy (DPDP 2023)", href: "/legal/privacy" },
+                { hi: "AI disclosure", en: "AI disclosure", href: "/legal/disclosure" },
+                { hi: "Grievance officer", en: "Grievance officer", href: "/legal/grievance" },
+                { hi: "RBI Sachet", en: "RBI Sachet", href: "/legal/rbi-sachet" },
               ]}
             />
           </div>
           <div className="border-t border-saathi-paper-edge py-4">
             <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2 px-6 text-caption text-saathi-ink-quiet">
-              <span>© 2026 Bharosa. Prototype — submission for Zupee.</span>
-              <span lang="hi" className="font-deva">
-                विश्वास, हमारे काम का पहला नियम है।
-              </span>
+              <T
+                hi="© 2026 Bharosa. प्रोटोटाइप — Zupee submission."
+                en="© 2026 Bharosa. Prototype — Zupee submission."
+              />
+              <T
+                hi="विश्वास, हमारे काम का पहला नियम है।"
+                en="Trust is the first rule of our work."
+              />
             </div>
           </div>
         </footer>
@@ -301,20 +406,24 @@ function FooterColumn({
   title,
   links,
 }: {
-  title: string;
-  links: { label: string; href: string }[];
+  title: { hi: string; en: string };
+  links: { hi: string; en: string; href: string }[];
 }) {
   return (
     <div className="space-y-2">
-      <div className="text-caption uppercase tracking-wide text-saathi-ink-quiet">{title}</div>
+      <T
+        hi={title.hi}
+        en={title.en}
+        className="text-caption uppercase tracking-wide text-saathi-ink-quiet"
+      />
       <ul className="space-y-1.5">
         {links.map((l) => (
-          <li key={l.label}>
+          <li key={l.en}>
             <Link
               href={l.href}
               className="text-body-sm text-saathi-ink-soft transition-colors hover:text-saathi-deep-green"
             >
-              {l.label}
+              <T hi={l.hi} en={l.en} />
             </Link>
           </li>
         ))}
@@ -328,24 +437,25 @@ function ConversationPreview() {
     <div className="relative mx-auto w-full max-w-sm rotate-1 rounded-[28px] bg-[#101820] p-2 shadow-lift transition-transform hover:rotate-0">
       <div className="flex flex-col gap-2 rounded-[22px] bg-[#ECE5DD] p-4">
         <Bubble inbound highlight>
-          <span lang="hi" className="font-deva">
-            Mummy ko KBC scam aaya — humne abhi pakad liya, unhe Hindi mein bata diya.
-          </span>
+          <T
+            hi="मम्मी को KBC scam आया — अभी पकड़ लिया, उन्हें Hindi में बता दिया।"
+            en="Caught a KBC scam aimed at Mummy — explained to her in Hindi."
+          />
         </Bubble>
         <Bubble outbound>
-          <span lang="hi" className="font-deva">
-            Bachaaya kitna?
-          </span>
+          <T hi="कितना बचा?" en="How much did we save?" />
         </Bubble>
         <Bubble inbound>
-          <span lang="hi" className="font-deva">
-            ₹8,500 ka risk roka. Iss saal yeh 13th catch hai.
-          </span>
+          <T
+            hi="₹8,500 का risk रोका. इस साल यह 13वाँ catch है।"
+            en="Blocked ₹8,500 of risk. That's the 13th catch this year."
+          />
         </Bubble>
         <Bubble outbound>
-          <span lang="hi" className="font-deva">
-            Bharosa, ab paise ka kya plan banaaye?
-          </span>
+          <T
+            hi="Bharosa, अब पैसे का क्या plan बनाएँ?"
+            en="Bharosa, what's the plan for the money?"
+          />
         </Bubble>
         <Bubble inbound voice>
           🎙️ Bharosa · 0:48

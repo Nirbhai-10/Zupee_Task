@@ -1,11 +1,18 @@
 "use client";
 
 import { LanguageProvider } from "@/lib/i18n/language-context";
+import { ChatWidget } from "@/components/landing/ChatWidget";
 
 /**
- * Root client providers. Currently just language; add more (theme,
- * toast, query client) here as they land.
+ * Root client providers. The ChatWidget mounts here so the floating
+ * button is available on every marketing surface; it self-hides on
+ * authenticated routes via usePathname().
  */
 export function Providers({ children }: { children: React.ReactNode }) {
-  return <LanguageProvider>{children}</LanguageProvider>;
+  return (
+    <LanguageProvider>
+      {children}
+      <ChatWidget />
+    </LanguageProvider>
+  );
 }

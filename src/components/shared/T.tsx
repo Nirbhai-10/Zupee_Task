@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { useLanguage } from "@/lib/i18n/language-context";
+import { detectScript } from "@/lib/i18n/scripts";
 import { cn } from "@/lib/utils/cn";
 
 type TProps = {
@@ -12,21 +13,34 @@ type TProps = {
 };
 
 /**
- * Bilingual text component. Reads the current app language (`hi` | `en`)
- * from `<LanguageProvider/>` and renders the matching slot. Sets the
- * right `lang` attribute so the Indic font stack applies for Hindi.
+ * Bilingual text component. Reads the current app language from
+ * <LanguageProvider/> and renders the matching slot. Sets `lang` and
+ * `data-script` so globals.css applies the right typography metrics —
+ * keeps EN ↔ HI switches visually consistent in weight and rhythm.
  *
- * Usage: <T hi="हम सच बताते हैं।" en="We tell you the truth." />
+ * Convention:
+ *   - `en` should be **fully English** (no romanised Hindi like "Saathi"
+ *     or "Maaji"). Brand names are the only exception.
+ *   - `hi` is Hindi or Hinglish — fintech terms (SIP, FD, RBI, ULIP)
+ *     stay in Latin script per Anjali's natural register.
  */
 export function T({ hi, en, as: Tag = "span", className }: TProps) {
   const { lang } = useLanguage();
   const Component = Tag as React.ElementType;
+  const isHi = lang === "hi";
+  const text = isHi ? hi : en;
+  // Detect script from string content where possible — the en slot may
+  // contain inline ₹ or names, the hi slot may be Hinglish.
+  const scriptHint =
+    typeof text === "string" && text ? detectScript(text) : isHi ? "devanagari" : "latin";
+
   return (
     <Component
-      lang={lang === "hi" ? "hi" : "en"}
-      className={cn(lang === "hi" ? "font-deva" : "font-sans", className)}
+      lang={isHi ? "hi" : "en"}
+      data-script={scriptHint}
+      className={cn(scriptHint === "latin" ? "font-sans" : "font-deva", className)}
     >
-      {lang === "hi" ? hi : en}
+      {text}
     </Component>
   );
 }

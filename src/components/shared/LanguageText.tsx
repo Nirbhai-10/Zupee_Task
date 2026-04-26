@@ -1,10 +1,10 @@
 import {
   htmlLang,
-  isIndicScript,
   PRIMARY_LANGUAGE,
   type LanguageCode,
 } from "@/lib/i18n/languages";
 import { resolveString, type StringId } from "@/lib/i18n/strings";
+import { scriptForLanguage } from "@/lib/i18n/scripts";
 import { cn } from "@/lib/utils/cn";
 
 type LanguageTextProps = {
@@ -15,8 +15,8 @@ type LanguageTextProps = {
 };
 
 /**
- * Renders a UI string with the right `lang` attribute so the Indic font
- * stack and per-script line-height kick in via globals.css.
+ * Renders a UI string from the i18n registry with the right `lang`
+ * attribute + `data-script` so globals.css applies per-script metrics.
  */
 export function LanguageText({
   id,
@@ -26,10 +26,12 @@ export function LanguageText({
 }: LanguageTextProps) {
   const Component = Tag as React.ElementType;
   const value = resolveString(id, language);
+  const script = scriptForLanguage(language);
   return (
     <Component
       lang={htmlLang(language)}
-      className={cn(isIndicScript(language) ? "font-deva" : "font-sans", className)}
+      data-script={script}
+      className={cn(script === "latin" ? "font-sans" : "font-deva", className)}
     >
       {value}
     </Component>

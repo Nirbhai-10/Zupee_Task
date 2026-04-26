@@ -102,8 +102,13 @@
     min-height: 100vh;
   }
 
-  /* Devanagari + Indic scripts: bump size 8%, tighten line-height per brief.
-   * Triggered automatically when an element carries lang="hi" / "mr" / etc. */
+  /* Script-aware typography. Apply via data-script="<script>" on any node
+   * (set by the <T/> component, the <LanguageText/> component, and the
+   * Logo/Wordmark). Falls back to :lang(...) for raw markup. The metric
+   * adjustments below counter the natural extra height that Devanagari
+   * ascenders/descenders add — without them, switching EN ↔ HI causes
+   * a noticeable visual-weight shift. */
+
   :lang(hi),
   :lang(mr),
   :lang(bn),
@@ -114,10 +119,38 @@
   :lang(kn),
   :lang(ml),
   :lang(or),
-  :lang(as) {
+  :lang(as),
+  [data-script="devanagari"],
+  [data-script="indic"] {
     font-family: var(--font-deva);
-    font-size: 1.08em;
-    line-height: 1.55;
+  }
+
+  [data-script="devanagari"] {
+    font-size: 1.06em;
+    line-height: 1.42;
+    letter-spacing: -0.005em;
+  }
+  [data-script="tamil"] {
+    font-size: 1.04em;
+    line-height: 1.45;
+    letter-spacing: 0;
+  }
+  [data-script="telugu"],
+  [data-script="kannada"] {
+    font-size: 1.05em;
+    line-height: 1.45;
+    letter-spacing: 0;
+  }
+  [data-script="bengali"],
+  [data-script="oriya"] {
+    font-size: 1.06em;
+    line-height: 1.42;
+    letter-spacing: -0.005em;
+  }
+  [data-script="latin"] {
+    font-size: 1em;
+    line-height: 1.5;
+    letter-spacing: 0;
   }
 
   /* Tabular numbers for currency / transcripts. */
