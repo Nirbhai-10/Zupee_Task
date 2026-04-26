@@ -20,7 +20,7 @@ import { logLLMEvent } from "@/lib/observability/llm-events";
  */
 
 export type LLMTier = "sonnet" | "haiku";
-export type LLMProvider = "anthropic" | "openai" | "grok";
+export type LLMProvider = "anthropic" | "openai" | "grok" | "ollama";
 export type LLMFeature =
   | "scam-classify"
   | "scam-explain"
@@ -35,6 +35,10 @@ export type LLMFeature =
   | "salary-recap"
   | (string & {});
 
+function ollamaModelId(): string {
+  return process.env.OLLAMA_MODEL ?? "gemma4:e4b";
+}
+
 const PROVIDER_MODELS: Record<LLMProvider, Record<LLMTier, string>> = {
   anthropic: {
     sonnet: "claude-sonnet-4-6",
@@ -48,9 +52,17 @@ const PROVIDER_MODELS: Record<LLMProvider, Record<LLMTier, string>> = {
     sonnet: "grok-4",
     haiku: "grok-4-fast-reasoning",
   },
+  ollama: {
+    // Single local model for both tiers — `OLLAMA_MODEL` overrides per-tier
+    // (`OLLAMA_MODEL_SONNET` / `OLLAMA_MODEL_HAIKU`) once we have multiple
+    // local models worth swapping between.
+    get sonnet() { return process.env.OLLAMA_MODEL_SONNET ?? ollamaModelId(); },
+    get haiku() { return process.env.OLLAMA_MODEL_HAIKU ?? ollamaModelId(); },
+  },
 };
 
-/** Approximate paise per 1k tokens. Refresh when provider pricing shifts. */
+/** Approximate paise per 1k tokens. Refresh when provider pricing shifts.
+ *  Ollama is local → 0. */
 const PROVIDER_PRICING: Record<
   LLMProvider,
   Record<LLMTier, { input: number; output: number }>
@@ -67,6 +79,10 @@ const PROVIDER_PRICING: Record<
     sonnet: { input: 24.9, output: 124.5 },
     haiku: { input: 2.49, output: 4.15 },
   },
+  ollama: {
+    sonnet: { input: 0, output: 0 },
+    haiku: { input: 0, output: 0 },
+  },
 };
 
 let grokProviderCache: ReturnType<typeof createOpenAI> | null = null;
@@ -78,6 +94,27 @@ function grokProvider() {
     });
   }
   return grokProviderCache;
+}
+
+let ollamaProviderCache: ReturnType<typeof createOpenAI> | null = null;
+function ollamaProvider() {
+  if (!ollamaProviderCache) {
+    ollamaProviderCache = createOpenAI({
+      baseURL: process.env.OLLAMA_BASE_URL ?? "http://localhost:11434/v1",
+      apiKey: process.env.OLLAMA_API_KEY ?? "ollama",
+    });
+  }
+  return ollamaProviderCache;
+}
+
+/** Local Ollama is opted into either by setting LLM_PROVIDER=ollama or
+ *  by setting OLLAMA_BASE_URL. We don't auto-discover by pinging localhost
+ *  on every request — that would slow the cold path and make tests flaky. */
+function ollamaConfigured(): boolean {
+  return (
+    process.env.LLM_PROVIDER?.toLowerCase().trim() === "ollama" ||
+    Boolean(process.env.OLLAMA_BASE_URL)
+  );
 }
 
 export class MissingLLMCredentialsError extends Error {
@@ -98,6 +135,9 @@ export type DetectedProvider = {
 export function detectProvider(): DetectedProvider | null {
   const explicit = process.env.LLM_PROVIDER?.toLowerCase().trim();
   if (explicit && explicit !== "auto") {
+    if (explicit === "ollama") {
+      return { provider: "ollama", source: "explicit" };
+    }
     if (explicit === "anthropic" || explicit === "openai" || explicit === "grok") {
       const keyName = `${explicit.toUpperCase()}_API_KEY`;
       if (process.env[keyName]) {
@@ -108,6 +148,7 @@ export function detectProvider(): DetectedProvider | null {
   if (process.env.ANTHROPIC_API_KEY) return { provider: "anthropic", source: "auto" };
   if (process.env.OPENAI_API_KEY) return { provider: "openai", source: "auto" };
   if (process.env.GROK_API_KEY) return { provider: "grok", source: "auto" };
+  if (ollamaConfigured()) return { provider: "ollama", source: "auto" };
   return null;
 }
 
@@ -116,6 +157,7 @@ export function listAvailableProviders(): LLMProvider[] {
   if (process.env.ANTHROPIC_API_KEY) out.push("anthropic");
   if (process.env.OPENAI_API_KEY) out.push("openai");
   if (process.env.GROK_API_KEY) out.push("grok");
+  if (ollamaConfigured()) out.push("ollama");
   return out;
 }
 
@@ -130,8 +172,10 @@ function resolveModel(
     model = anthropic(modelId);
   } else if (detected.provider === "openai") {
     model = openai(modelId);
-  } else {
+  } else if (detected.provider === "grok") {
     model = grokProvider()(modelId);
+  } else {
+    model = ollamaProvider()(modelId);
   }
   return { provider: detected.provider, modelId, model };
 }
@@ -223,6 +267,15 @@ export async function generateObject<T extends z.ZodType>(
 ): Promise<GenerateObjectResult<z.infer<T>>> {
   const tier = args.tier ?? "sonnet";
   const { provider, modelId, model } = resolveModel(tier);
+
+  // Smaller local models (Ollama / Gemma) don't produce reliable tool calls,
+  // which is what aiGenerateObject defaults to. Use a JSON-via-text path
+  // for Ollama: append the schema to the prompt, ask for JSON-only output,
+  // parse + Zod-validate. One retry on parse failure with a stricter prompt.
+  if (provider === "ollama") {
+    return generateObjectViaJsonText(args, { provider, modelId, model, tier });
+  }
+
   const started = Date.now();
   const result = await aiGenerateObject({
     model,
@@ -261,6 +314,119 @@ export async function generateObject<T extends z.ZodType>(
     costPaise,
     latencyMs,
   };
+}
+
+export class LLMOutputParseError extends Error {
+  constructor(
+    message: string,
+    public readonly rawText: string,
+  ) {
+    super(message);
+    this.name = "LLMOutputParseError";
+  }
+}
+
+async function generateObjectViaJsonText<T extends z.ZodType>(
+  args: GenerateObjectArgs<T>,
+  resolved: { provider: LLMProvider; modelId: string; model: LanguageModel; tier: LLMTier },
+): Promise<GenerateObjectResult<z.infer<T>>> {
+  const { provider, modelId, model, tier } = resolved;
+  let jsonSchemaText: string;
+  try {
+    // Zod 4 ships JSON Schema generation natively.
+    jsonSchemaText = JSON.stringify(z.toJSONSchema(args.schema), null, 2);
+  } catch {
+    jsonSchemaText = "(JSON schema unavailable — infer fields from system prompt)";
+  }
+
+  const baseSystem = [
+    args.system ?? "",
+    "",
+    "OUTPUT FORMAT — STRICT:",
+    "Respond with ONLY a single valid JSON object. No prose, no markdown code fences, no commentary before or after.",
+    "Match this JSON Schema exactly:",
+    jsonSchemaText,
+  ].join("\n");
+
+  const started = Date.now();
+  let lastError: unknown = null;
+  let totalIn = 0;
+  let totalOut = 0;
+
+  for (let attempt = 0; attempt < 2; attempt++) {
+    const system =
+      attempt === 0
+        ? baseSystem
+        : baseSystem +
+          "\n\nThe previous attempt did not return valid JSON. Try again. Output ONLY the JSON object, starting with `{` and ending with `}`. No other characters.";
+
+    const result = await aiGenerateText({
+      model,
+      system,
+      prompt: args.prompt,
+      temperature: args.temperature ?? 0.1,
+      ...(args.maxOutputTokens ? { maxOutputTokens: args.maxOutputTokens } : {}),
+    });
+    totalIn += result.usage.inputTokens ?? 0;
+    totalOut += result.usage.outputTokens ?? 0;
+
+    try {
+      const extracted = extractJsonObject(result.text);
+      const parsed = JSON.parse(extracted);
+      const validated = args.schema.parse(parsed);
+      const latencyMs = Date.now() - started;
+      const costPaise = computeCostPaise(provider, tier, totalIn, totalOut);
+      await logLLMEvent({
+        feature: args.feature,
+        provider,
+        modelId,
+        tier,
+        inputTokens: totalIn,
+        outputTokens: totalOut,
+        costPaise,
+        latencyMs,
+        userId: args.userId,
+        meta: { ...args.meta, attempts: attempt + 1, mode: "json-via-text" },
+      });
+      return {
+        object: validated as z.infer<T>,
+        provider,
+        modelId,
+        inputTokens: totalIn,
+        outputTokens: totalOut,
+        costPaise,
+        latencyMs,
+      };
+    } catch (error) {
+      lastError = error;
+    }
+  }
+
+  throw new LLMOutputParseError(
+    `Ollama (${modelId}) failed to produce valid JSON for ${args.feature} after 2 attempts: ${(lastError as Error).message}`,
+    "",
+  );
+}
+
+function extractJsonObject(text: string): string {
+  const trimmed = text.trim();
+  if (trimmed.startsWith("{") && trimmed.endsWith("}")) return trimmed;
+
+  // Strip ```json … ``` fences.
+  const fenceMatch = trimmed.match(/```(?:json)?\s*([\s\S]*?)```/);
+  if (fenceMatch && fenceMatch[1]) {
+    const inner = fenceMatch[1].trim();
+    if (inner.startsWith("{")) return inner;
+  }
+
+  // Last-resort: take everything between the first "{" and the matching last "}".
+  const firstBrace = trimmed.indexOf("{");
+  const lastBrace = trimmed.lastIndexOf("}");
+  if (firstBrace !== -1 && lastBrace > firstBrace) {
+    return trimmed.slice(firstBrace, lastBrace + 1);
+  }
+
+  return trimmed;
 }
 
 export const ROUTER_DEBUG_INFO = {
