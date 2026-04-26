@@ -19,7 +19,7 @@ export async function GET() {
 
   return NextResponse.json(
     {
-      app: "saathi",
+      app: "bharosa",
       env: process.env.APP_ENV ?? "development",
       time: new Date().toISOString(),
       llm: {
