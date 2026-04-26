@@ -54,10 +54,27 @@ export type SimulatorPlan = {
   createdAt: string;
 };
 
+export type SimulatorHarassment = {
+  id: string;
+  agentName: string;
+  agencyName: string;
+  letter: string;
+  callScript: string;
+  voiceUrl?: string;
+  sachetDraft: {
+    portal: string;
+    referenceUrl: string;
+    fields: Record<string, string>;
+  };
+  language: LanguageCode;
+  createdAt: string;
+};
+
 export type SimulatorState = {
   messages: SimulatorMessage[];
   typing: Partial<Record<PhoneId, boolean>>;
   defenses: SimulatorDefense[];
   audits: SimulatorAudit[];
   plans: SimulatorPlan[];
+  harassments: SimulatorHarassment[];
 };

@@ -14,7 +14,7 @@ import { isLanguageCode } from "@/lib/i18n/languages";
  *   POST https://api.sarvam.ai/speech-to-text
  *
  * Speaker mapping is intentionally narrow — we use "anushka" (warm
- * female) for Saathi's default voice, and "abhilash" (male) for husband
+ * female) for Bharosa's default voice, and "abhilash" (male) for husband
  * notifications. Adjust per Sarvam's current speaker catalogue.
  *
  * NOTE: For Day 1 we only stub the integration. The class shape is

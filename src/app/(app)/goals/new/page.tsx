@@ -90,8 +90,8 @@ export default function NewGoalPage() {
         </h1>
         <p className="text-body-lg text-saathi-ink-soft">
           <T
-            hi="वॉइस से बताइए, या नीचे form भरिए। Saathi instrument चुन लेगा।"
-            en="Speak it, or fill the form below. Saathi will pick the instrument."
+            hi="वॉइस से बताइए, या नीचे form भरिए। Bharosa instrument चुन लेगा।"
+            en="Speak it, or fill the form below. Bharosa will pick the instrument."
           />
         </p>
       </header>

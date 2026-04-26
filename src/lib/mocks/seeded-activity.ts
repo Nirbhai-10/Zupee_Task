@@ -95,8 +95,8 @@ export const SEEDED_ACTIVITY: SeededActivity[] = [
       en: "UPPCL over-billed ₹1,840 — refund credited",
     },
     subtitle: {
-      hi: "Saathi ने आपकी तरफ से कॉल किया, बिल correct हुआ।",
-      en: "Saathi called UPPCL on your behalf; bill corrected.",
+      hi: "Bharosa ने आपकी तरफ से कॉल किया, बिल correct हुआ।",
+      en: "Bharosa called UPPCL on your behalf; bill corrected.",
     },
     amountInr: 1_840,
     tag: { hi: "बिल", en: "Bill" },
@@ -206,8 +206,8 @@ export const SEEDED_ANJALI_THREAD: SeededMessage[] = [
     phone: "anjali",
     direction: "outbound",
     timestamp: "9:42",
-    textHi: "Saathi, mummy ke phone par koi message aaya tha. Sahi nahi lag raha.",
-    textEn: "Saathi, Mummy got a message that doesn't look right.",
+    textHi: "Bharosa, mummy ke phone par koi message aaya tha. Sahi nahi lag raha.",
+    textEn: "Bharosa, Mummy got a message that doesn't look right.",
   },
   {
     id: "m2",

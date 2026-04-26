@@ -9,8 +9,8 @@ const PAGES = {
     title: "Privacy notice",
     badge: "DPDP Act 2023",
     body: [
-      "Saathi runs on the principle of data minimisation. We store only what is needed to defend you and execute your goals — phone, name, language, family relationships you have explicitly added, and the structured outcomes of LLM analyses (verdicts, audit results, plan).",
-      "Voice notes are processed via your configured provider (Sarvam in production; browser fallback in dev). Audio is stored only when you ask Saathi to keep it; otherwise it is held just long enough to play it back.",
+      "Bharosa runs on the principle of data minimisation. We store only what is needed to defend you and execute your goals — phone, name, language, family relationships you have explicitly added, and the structured outcomes of LLM analyses (verdicts, audit results, plan).",
+      "Voice notes are processed via your configured provider (Sarvam in production; browser fallback in dev). Audio is stored only when you ask Bharosa to keep it; otherwise it is held just long enough to play it back.",
       "We do not sell data. We do not run ad networks. We do not enrich your profile from third-party data brokers. The only outbound data flows are: the LLM provider you have configured, your bank for UPI Autopay (when you authorise a mandate), and RBI Sachet (only when you file a harassment complaint).",
       "You can request deletion at any time. We honour grievance complaints under the DPDP Act timeline (30 days).",
     ],
@@ -19,25 +19,25 @@ const PAGES = {
     title: "AI disclosure stance",
     badge: "Honest framing",
     body: [
-      "Saathi sometimes communicates on your authorised behalf — most notably in the harassment defense flow, where Saathi places a recorded outbound call to a recovery agent to enforce RBI rules.",
-      "When Saathi makes such a communication, the script begins: \"Calling on Anjali Sharma's authorised behalf.\" We never say \"I am Anjali.\" This is a deliberate, conservative position that we believe is both legally defensible today and easy to evolve into explicit AI disclosure when regulation tightens.",
-      "Inside the product, every voice and text message you receive is plainly attributed to Saathi. There is no attempt to mimic a human counsellor or hide the AI surface.",
+      "Bharosa sometimes communicates on your authorised behalf — most notably in the harassment defense flow, where Bharosa places a recorded outbound call to a recovery agent to enforce RBI rules.",
+      "When Bharosa makes such a communication, the script begins: \"Calling on Anjali Sharma's authorised behalf.\" We never say \"I am Anjali.\" This is a deliberate, conservative position that we believe is both legally defensible today and easy to evolve into explicit AI disclosure when regulation tightens.",
+      "Inside the product, every voice and text message you receive is plainly attributed to Bharosa. There is no attempt to mimic a human counsellor or hide the AI surface.",
     ],
   },
   grievance: {
     title: "Grievance officer",
     badge: "Reach us in 7 days",
     body: [
-      "If something Saathi did upset you — a wrong scam call, a notification you did not authorise, a billing dispute — write to our grievance officer at grievance@saathi.example. We respond within 7 working days under the DPDP Act.",
-      "For complaints about how Saathi handles your data specifically, you may also escalate to the Data Protection Board of India once it is operational.",
+      "If something Bharosa did upset you — a wrong scam call, a notification you did not authorise, a billing dispute — write to our grievance officer at grievance@saathi.example. We respond within 7 working days under the DPDP Act.",
+      "For complaints about how Bharosa handles your data specifically, you may also escalate to the Data Protection Board of India once it is operational.",
     ],
   },
   "rbi-sachet": {
     title: "RBI Sachet integration",
     badge: "In process",
     body: [
-      "RBI's Sachet portal (sachet.rbi.org.in) is the official complaint channel for harassment by recovery agents and other regulated-entity misconduct. Saathi's harassment defense flow drafts a complaint based on the agent's behaviour you describe, and (with your consent) auto-files it on your behalf.",
-      "Integration is in process. Until then, Saathi generates the complaint document and shows you the Sachet form fields pre-filled — you submit the form yourself with one click of a Confirm button.",
+      "RBI's Sachet portal (sachet.rbi.org.in) is the official complaint channel for harassment by recovery agents and other regulated-entity misconduct. Bharosa's harassment defense flow drafts a complaint based on the agent's behaviour you describe, and (with your consent) auto-files it on your behalf.",
+      "Integration is in process. Until then, Bharosa generates the complaint document and shows you the Sachet form fields pre-filled — you submit the form yourself with one click of a Confirm button.",
     ],
   },
 } as const;

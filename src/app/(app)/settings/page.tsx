@@ -89,8 +89,8 @@ export default function SettingsPage() {
             </CardTitle>
             <CardDescription>
               <T
-                hi="यह जानकारी Saathi इस्तेमाल करता है आपके लिए सही plan बनाने में।"
-                en="What Saathi uses to build a plan for you."
+                hi="यह जानकारी Bharosa इस्तेमाल करता है आपके लिए सही plan बनाने में।"
+                en="What Bharosa uses to build a plan for you."
               />
             </CardDescription>
           </CardHeader>
@@ -119,8 +119,8 @@ export default function SettingsPage() {
             </CardTitle>
             <CardDescription>
               <T
-                hi="UI और CTAs के लिए। Saathi की voice आपकी पसंद की भाषा में रहती है।"
-                en="Affects UI chrome and CTAs. Saathi's voice stays in your preferred language."
+                hi="UI और CTAs के लिए। Bharosa की voice आपकी पसंद की भाषा में रहती है।"
+                en="Affects UI chrome and CTAs. Bharosa's voice stays in your preferred language."
               />
             </CardDescription>
           </CardHeader>
@@ -256,8 +256,8 @@ export default function SettingsPage() {
             </CardTitle>
             <CardDescription>
               <T
-                hi="साथी आपके साथ बढ़ता है — पहले एक scam catch, फिर पूरा plan, फिर experienced निवेशक।"
-                en="Saathi grows with you — one scam catch, then full plan, then seasoned investor."
+                hi="भरोसा आपके साथ बढ़ता है — पहले एक scam catch, फिर पूरा plan, फिर experienced निवेशक।"
+                en="Bharosa grows with you — one scam catch, then full plan, then seasoned investor."
               />
             </CardDescription>
           </CardHeader>

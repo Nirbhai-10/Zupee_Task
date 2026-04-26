@@ -2,7 +2,7 @@ import { Cpu, IndianRupee, Timer, Wand2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { T } from "@/components/shared/T";
-import { getSupabaseAdminClient } from "@/lib/db/supabase";
+import { getSupabaseDemoClient } from "@/lib/db/server-anon";
 
 export const metadata = { title: "Admin · Costs" };
 export const dynamic = "force-dynamic";
@@ -21,7 +21,7 @@ type LlmEventRow = {
 };
 
 async function fetchEvents(): Promise<LlmEventRow[]> {
-  const supabase = getSupabaseAdminClient();
+  const supabase = getSupabaseDemoClient();
   if (!supabase) return [];
   const { data, error } = await supabase
     .from("llm_events")

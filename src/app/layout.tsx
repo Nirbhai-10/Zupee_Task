@@ -26,13 +26,13 @@ const jetbrainsMono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Saathi — Pehle hum aapko bachate hain. Phir aapke paise ko badhaate hain.",
-    template: "%s · Saathi",
+    default: "Bharosa — Pehle hum aapko bachate hain. Phir aapke paise ko badhaate hain.",
+    template: "%s · Bharosa",
   },
   description:
-    "Saathi is your AI advocate for Bharat. Free scam defense for your family. Honest investment plans for your money. Entirely on WhatsApp.",
-  applicationName: "Saathi",
-  authors: [{ name: "Saathi" }],
+    "Bharosa is your AI advocate for Bharat. Free scam defense for your family. Honest investment plans for your money. Entirely on WhatsApp.",
+  applicationName: "Bharosa",
+  authors: [{ name: "Bharosa" }],
   keywords: [
     "AI",
     "WhatsApp",
@@ -46,8 +46,8 @@ export const metadata: Metadata = {
   ],
   openGraph: {
     type: "website",
-    siteName: "Saathi",
-    title: "Saathi — your AI advocate for Bharat",
+    siteName: "Bharosa",
+    title: "Bharosa — your AI advocate for Bharat",
     description:
       "Free scam defense for your family. Honest investment plans for your money. WhatsApp-native, voice-first, vernacular by default.",
   },

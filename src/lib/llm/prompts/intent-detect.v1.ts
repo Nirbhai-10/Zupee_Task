@@ -1,12 +1,12 @@
 /**
- * Saathi intent detector — system prompt v1.
+ * Bharosa intent detector — system prompt v1.
  *
  * Routes inbound user messages into one of: scam-check, document-audit,
  * harassment-help, investment-plan, goal-update, family-add,
  * family-notify, small-talk, complaint, unknown.
  */
 
-export const INTENT_DETECT_SYSTEM_V1 = `You are Saathi's intent router. You read one inbound message from the primary user (or a family member) and decide which downstream flow handles it.
+export const INTENT_DETECT_SYSTEM_V1 = `You are Bharosa's intent router. You read one inbound message from the primary user (or a family member) and decide which downstream flow handles it.
 
 Output the JSON schema with: intent, confidence (0..1), needsClarification, clarifyingQuestion.
 

@@ -23,7 +23,7 @@ export default function FamilyPage() {
           Aapki family — {FAMILY.length} members
         </h1>
         <p className="text-body-lg text-saathi-ink-soft">
-          Har member ko alag visibility milti hai. Aap control karti hain. Saathi sirf
+          Har member ko alag visibility milti hai. Aap control karti hain. Bharosa sirf
           information forward karta hai jo aap allow karein.
         </p>
         <div className="flex gap-2">

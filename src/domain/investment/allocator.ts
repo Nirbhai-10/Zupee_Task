@@ -8,7 +8,7 @@ import type {
 import { INVESTMENT_PRODUCTS } from "@/lib/mocks/investment-products";
 
 /**
- * Saathi portfolio allocator. Deterministic, rule-based. The plan-explain
+ * Bharosa portfolio allocator. Deterministic, rule-based. The plan-explain
  * LLM step *describes* what this engine produces; it does not invent
  * allocations.
  *

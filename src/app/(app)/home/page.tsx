@@ -76,7 +76,7 @@ export default function HomePage() {
           <CardHeader>
             <Badge tone="scam">SCAM · KBC lottery</Badge>
             <CardTitle>Mummy ko abhi pakad liya</CardTitle>
-            <CardDescription>1 ghanta pehle · WhatsApp forward → Saathi</CardDescription>
+            <CardDescription>1 ghanta pehle · WhatsApp forward → Bharosa</CardDescription>
           </CardHeader>
           <CardContent className="space-y-2 text-body-sm text-saathi-ink-soft">
             <p>

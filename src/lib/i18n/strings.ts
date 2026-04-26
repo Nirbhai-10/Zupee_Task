@@ -62,9 +62,9 @@ export const STRINGS: Record<StringId, StringEntry> = {
   },
   "brand.tagline.subhead": {
     "hi-IN":
-      "Saathi aapka AI advocate hai Bharat ke liye. Family ke liye scam defense free. Paise ke liye honest investment plan. Sab WhatsApp pe.",
+      "Bharosa aapka AI advocate hai Bharat ke liye. Family ke liye scam defense free. Paise ke liye honest investment plan. Sab WhatsApp pe.",
     "en-IN":
-      "Saathi is your AI advocate for Bharat. Free scam defense for your family. Honest investment plans for your money. Entirely on WhatsApp.",
+      "Bharosa is your AI advocate for Bharat. Free scam defense for your family. Honest investment plans for your money. Entirely on WhatsApp.",
   },
   "nav.home": { "hi-IN": "घर", "en-IN": "Home" },
   "nav.family": { "hi-IN": "परिवार", "en-IN": "Family" },
@@ -111,8 +111,8 @@ export const STRINGS: Record<StringId, StringEntry> = {
     "en-IN": "Analysing your document…",
   },
   "loading.thinking": {
-    "hi-IN": "Saathi soch raha hai…",
-    "en-IN": "Saathi is thinking…",
+    "hi-IN": "Bharosa soch raha hai…",
+    "en-IN": "Bharosa is thinking…",
   },
   "empty.feed": {
     "hi-IN": "अभी कुछ नहीं है। हम तैयार हैं।",

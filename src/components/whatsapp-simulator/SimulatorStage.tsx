@@ -16,21 +16,21 @@ const PHONES: Array<{
 }> = [
   {
     id: "mil",
-    contactName: "Saathi",
+    contactName: "Bharosa",
     contactStatus: "online",
     ownerLabel: "Sushma Maaji",
     ownerSubLabel: "68 · saas (mother-in-law)",
   },
   {
     id: "anjali",
-    contactName: "Saathi",
+    contactName: "Bharosa",
     contactStatus: "online",
     ownerLabel: "Anjali",
     ownerSubLabel: "34 · primary user",
   },
   {
     id: "husband",
-    contactName: "Saathi",
+    contactName: "Bharosa",
     contactStatus: "online",
     ownerLabel: "Rajesh",
     ownerSubLabel: "39 · pati (Dubai)",

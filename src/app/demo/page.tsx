@@ -13,8 +13,8 @@ const FLOWS = [
     icon: ShieldAlert,
     title: { hi: "1. Scam catch", en: "1. Scam catch" },
     body: {
-      hi: "मम्मी को KBC scam आता है, Saathi को forward करती हैं। 30 sec में Hindi voice reply।",
-      en: "Mummy gets a KBC scam, forwards to Saathi. 30-second Hindi voice reply.",
+      hi: "मम्मी को KBC scam आता है, Bharosa को forward करती हैं। 30 sec में Hindi voice reply।",
+      en: "Mummy gets a KBC scam, forwards to Bharosa. 30-second Hindi voice reply.",
     },
     duration: "T+0 → T+28s",
     tone: "scam" as const,
@@ -129,8 +129,8 @@ export default function DemoPage() {
             <div className="flex flex-wrap items-center justify-between gap-4">
               <p className="max-w-xl text-body text-saathi-ink-soft">
                 <T
-                  hi="साथी पहले रक्षा करता है, फिर निवेश। यह demo उसी sequence में चलता है।"
-                  en="Saathi defends first, then invests. The demo runs in that order."
+                  hi="भरोसा पहले रक्षा करता है, फिर निवेश। यह demo उसी sequence में चलता है।"
+                  en="Bharosa defends first, then invests. The demo runs in that order."
                 />
               </p>
               <Button asChild variant="primary" size="md">

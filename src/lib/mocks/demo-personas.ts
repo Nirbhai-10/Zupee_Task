@@ -1,7 +1,7 @@
 import type { DemoFamilyMember, DemoGoal, DemoPersona } from "@/domain/types";
 
 /**
- * Anjali Sharma — the hero persona for the Saathi demo. The shape mirrors
+ * Anjali Sharma — the hero persona for the Bharosa demo. The shape mirrors
  * what Day 5's Account Aggregator stub will produce, so we can swap to
  * live data without touching call-sites.
  *

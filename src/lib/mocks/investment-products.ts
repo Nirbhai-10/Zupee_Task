@@ -1,7 +1,7 @@
 import type { Instrument } from "@/domain/types";
 
 /**
- * Catalogue of instruments Saathi will allocate to. Real product partners
+ * Catalogue of instruments Bharosa will allocate to. Real product partners
  * are pinned per instrument so the dashboard can render "Bharat AMC" /
  * "SBI" labels without mid-flight LLM calls.
  *

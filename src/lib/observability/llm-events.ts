@@ -1,4 +1,4 @@
-import { getSupabaseAdminClient } from "@/lib/db/supabase";
+import { getSupabaseDemoClient } from "@/lib/db/server-anon";
 
 export type LLMEventInput = {
   feature: string;
@@ -27,7 +27,7 @@ export async function logLLMEvent(event: LLMEventInput): Promise<void> {
     );
   }
 
-  const supabase = getSupabaseAdminClient();
+  const supabase = getSupabaseDemoClient();
   if (!supabase) return; // Mock mode: stay silent (already logged above).
 
   const { error } = await supabase.from("llm_events").insert({

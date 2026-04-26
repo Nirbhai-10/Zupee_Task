@@ -4,9 +4,29 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Currency } from "@/components/shared/Currency";
 import { DefenseCard } from "@/components/defenses/DefenseCard";
+import { T } from "@/components/shared/T";
 import type { ScamClassification } from "@/lib/llm/schemas";
+import { getSupabaseDemoClient, DEMO_USER_ID } from "@/lib/db/server-anon";
 
 export const metadata = { title: "Defenses" };
+export const dynamic = "force-dynamic";
+
+type DefenseRow = {
+  id: string;
+  category: string;
+  verdict: ScamClassification["verdict"];
+  scam_category: string | null;
+  confidence: number | null;
+  identifying_signals: string[] | null;
+  payload_type: string | null;
+  estimated_savings_inr: number | string | null;
+  receiver_explanation: string | null;
+  primary_user_alert: string | null;
+  language_used: string | null;
+  voice_response_url: string | null;
+  family_member_id: string | null;
+  created_at: string;
+};
 
 type SeededDefense = {
   id: string;
@@ -58,7 +78,7 @@ const SEEDED_DEFENSES: SeededDefense[] = [
       receiverExplanation:
         "Anjali ji, yeh ULIP mahangi hai. Pehle 5 saal mein hi 29% premium fees mein chala jaata hai. 10 saal mein effective return ~4.8% hoga. Term insurance + direct mutual fund SIP karein toh ₹2,40,000 zyada bachaayenge.",
       primaryUserAlert:
-        "Bank RM ne phir ULIP push ki. Audit dikhata hai 10 saal mein ₹2,40,000 ka loss agar yeh policy lo. Saathi ne haan na bolne ke liye script bhi taiyaar ki hai.",
+        "Bank RM ne phir ULIP push ki. Audit dikhata hai 10 saal mein ₹2,40,000 ka loss agar yeh policy lo. Bharosa ne haan na bolne ke liye script bhi taiyaar ki hai.",
     },
   },
   {
@@ -85,55 +105,130 @@ const SEEDED_DEFENSES: SeededDefense[] = [
   },
 ];
 
-const totalSavings = SEEDED_DEFENSES.reduce(
-  (acc, d) => acc + d.classification.estimatedLossInr,
-  0,
-);
+async function fetchLiveDefenses(): Promise<{
+  classification: ScamClassification;
+  receiverName: string;
+  matchedPatternName?: string;
+  minutesAgo: number;
+  voiceUrl?: string;
+}[]> {
+  const supabase = getSupabaseDemoClient();
+  if (!supabase) return [];
+  const { data, error } = await supabase
+    .from("defenses")
+    .select(
+      "id, category, verdict, scam_category, confidence, identifying_signals, payload_type, estimated_savings_inr, receiver_explanation, primary_user_alert, language_used, voice_response_url, family_member_id, created_at",
+    )
+    .eq("user_id", DEMO_USER_ID)
+    .order("created_at", { ascending: false })
+    .limit(20);
+  if (error) return [];
+  const rows = (data ?? []) as unknown as DefenseRow[];
+  return rows.map((row) => {
+    const minutes = Math.max(
+      0,
+      Math.floor((Date.now() - new Date(row.created_at).getTime()) / 60_000),
+    );
+    return {
+      classification: {
+        verdict: row.verdict,
+        category: (row.scam_category ?? "other") as ScamClassification["category"],
+        confidence: Number(row.confidence ?? 0),
+        identifyingSignals: row.identifying_signals ?? [],
+        payloadType: (row.payload_type ?? "unknown") as ScamClassification["payloadType"],
+        estimatedLossInr: Number(row.estimated_savings_inr ?? 0),
+        receiverExplanation: row.receiver_explanation ?? "",
+        primaryUserAlert: row.primary_user_alert ?? "",
+      },
+      receiverName: row.family_member_id ? "Sushma Maaji" : "Anjali",
+      matchedPatternName: undefined,
+      minutesAgo: minutes,
+      voiceUrl: row.voice_response_url ?? undefined,
+    };
+  });
+}
 
-export default function DefensesPage() {
+export default async function DefensesPage() {
+  const live = await fetchLiveDefenses();
+
+  // Compose: live first, then seeded fillers if we have fewer than 3.
+  const composed =
+    live.length >= 3
+      ? live
+      : [
+          ...live,
+          ...SEEDED_DEFENSES.slice(0, 3 - live.length).map((d) => ({
+            classification: d.classification,
+            receiverName: d.receiverName,
+            matchedPatternName: d.matchedPatternName,
+            minutesAgo: d.minutesAgo,
+            voiceUrl: undefined as string | undefined,
+          })),
+        ];
+
+  const totalSavings = composed.reduce(
+    (acc, d) => acc + (d.classification.estimatedLossInr ?? 0),
+    0,
+  );
+
   return (
     <main className="flex flex-1 flex-col gap-8 bg-saathi-cream px-6 py-10">
       <header className="mx-auto w-full max-w-3xl space-y-4">
-        <Badge tone="green">Defenses</Badge>
+        <Badge tone="green">
+          <T hi="सुरक्षा" en="Defenses" />
+        </Badge>
         <h1 className="text-h1 font-semibold tracking-tight text-saathi-ink">
-          Defenses feed
+          <T hi="रोके गए हमले" en="Threats blocked" />
         </h1>
         <p className="text-body-lg text-saathi-ink-soft">
-          Iss saal humne aapke{" "}
-          <Currency amount={totalSavings} variant="compact" language="hi-IN" className="font-semibold text-saathi-gold" />{" "}
-          bachaaye{" "}
+          <T
+            hi="इस अकाउंट पर अब तक "
+            en="This account has saved you "
+          />
+          <Currency amount={totalSavings} variant="compact" language="hi-IN" className="font-semibold text-saathi-gold" />
+          <T hi=" बच चुके हैं · " en=" so far · " />
           <span className="text-saathi-ink-quiet">
-            ({SEEDED_DEFENSES.length} cases shown — seeded for the build week)
+            <T
+              hi={`${live.length} लाइव · ${composed.length - live.length} seeded`}
+              en={`${live.length} live · ${composed.length - live.length} seeded`}
+            />
           </span>
         </p>
         <div className="flex flex-wrap gap-2">
           <Button asChild variant="primary" size="sm">
-            <Link href="/demo/simulator">Run a live trigger →</Link>
+            <Link href="/demo/simulator">
+              <T hi="लाइव trigger चलाएँ →" en="Run a live trigger →" />
+            </Link>
           </Button>
           <Button asChild variant="secondary" size="sm">
-            <Link href="/home">Dashboard</Link>
+            <Link href="/home">
+              <T hi="डैशबोर्ड" en="Dashboard" />
+            </Link>
           </Button>
         </div>
       </header>
 
       <section className="mx-auto grid w-full max-w-3xl gap-4">
-        {SEEDED_DEFENSES.map((d) => (
+        {composed.map((d, i) => (
           <DefenseCard
-            key={d.id}
+            key={i}
             classification={d.classification}
             receiverName={d.receiverName}
             language="hi-IN"
             matchedPatternName={d.matchedPatternName}
             minutesAgo={d.minutesAgo}
-            showVoice={false}
+            voiceUrl={d.voiceUrl}
+            showVoice={Boolean(d.voiceUrl)}
           />
         ))}
       </section>
 
       <Card tone="cream" padding="md" className="mx-auto w-full max-w-3xl text-body-sm text-saathi-ink-soft">
         <CardContent className="!mt-0">
-          Seeded data above. Trigger a fresh scam-check from the simulator to exercise the
-          live LLM/voice pipeline; live defenses will replace this list once Supabase is wired.
+          <T
+            hi="लाइव simulator से कोई trigger चलाइए — defense feed में नई entry यहीं Supabase से आ जाएगी।"
+            en="Run a trigger from the live simulator — new entries flow into this feed straight from Supabase."
+          />
         </CardContent>
       </Card>
     </main>

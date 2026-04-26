@@ -5,7 +5,7 @@ import { Battery, Signal, Wifi, ChevronLeft, MoreVertical, Phone, Video } from "
 import { cn } from "@/lib/utils/cn";
 
 type PhoneFrameProps = {
-  /** Display name above the chat — usually a contact like "Saathi" or family member. */
+  /** Display name above the chat — usually a contact like "Bharosa" or family member. */
   contactName: string;
   /** Hindi/English status line — "online", "typing…", "last seen 2 min ago" etc. */
   contactStatus?: string;

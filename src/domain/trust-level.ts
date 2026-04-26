@@ -1,7 +1,7 @@
 import type { TrustLevel } from "./types";
 
 /**
- * Trust ladder: how a Saathi relationship deepens over time.
+ * Trust ladder: how a Bharosa relationship deepens over time.
  *
  *   new                 → first message arrives, no defenses yet
  *   first_defense       → 1 defense (usually a scam) caught
@@ -35,7 +35,7 @@ export function trustLevelLabel(level: TrustLevel, language: "hi-IN" | "en-IN" =
     return {
       new: "नए हैं",
       first_defense: "पहली बार बचाए गए",
-      multiple_defenses: "पुराने साथी",
+      multiple_defenses: "पुराने भरोसा",
       invested: "निवेशक",
       seasoned: "अनुभवी निवेशक",
     }[level];

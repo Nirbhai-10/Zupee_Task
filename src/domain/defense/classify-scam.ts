@@ -123,7 +123,7 @@ function mockClassifyHeuristic(args: ClassifyScamArgs): ClassifyScamResult {
         payloadType: "unknown",
         estimatedLossInr: 0,
         receiverExplanation:
-          "Yeh message thoda alag hai. Saathi LLM se confirm karega jaldi. Tab tak link mat dabaayein, koi paisa mat bhejein.",
+          "Yeh message thoda alag hai. Bharosa LLM se confirm karega jaldi. Tab tak link mat dabaayein, koi paisa mat bhejein.",
         primaryUserAlert:
           "Anjali ji, ek message aaya hai jo humare pattern bank mein clearly match nahi hua. LLM se classify hone tak intezaar karein.",
       },
@@ -177,13 +177,13 @@ function buildReceiverExplanation(
     "phishing-link":
       "Yeh phishing link hai. Click karne se aapka account hack ho sakta hai. Delete kar dijiye.",
     "ulip-misselling":
-      "Yeh policy mahangi hai aur charges chhupaaye gaye hain. Saathi 60 second mein full audit dikhayega — tab tak haan mat boliye.",
+      "Yeh policy mahangi hai aur charges chhupaaye gaye hain. Bharosa 60 second mein full audit dikhayega — tab tak haan mat boliye.",
     "tax-refund":
       "Yeh fake Income Tax refund hai. Asli IT Department aise SMS nahi bhejta. Delete kar dijiye.",
   };
   const body =
     blurb[pattern.category] ??
-    "Yeh suspicious message hai. Reply mat dijiye, message delete kar dijiye. Saathi aapke saath hai.";
+    "Yeh suspicious message hai. Reply mat dijiye, message delete kar dijiye. Bharosa aapke saath hai.";
   return `${salutation} ${body} Thande dimaag se rahiye, sab theek hai.`;
 }
 

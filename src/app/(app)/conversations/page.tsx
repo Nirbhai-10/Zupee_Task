@@ -53,7 +53,7 @@ export default function ConversationsPage() {
           <T hi="बातचीत" en="Conversations" />
         </Badge>
         <h1 className="text-h2 font-semibold tracking-tight text-saathi-ink">
-          <T hi="साथी से बातचीत" en="Your thread with Saathi" />
+          <T hi="भरोसा से बातचीत" en="Your thread with Bharosa" />
         </h1>
         <p className="text-body-sm text-saathi-ink-soft">
           <T
@@ -69,7 +69,7 @@ export default function ConversationsPage() {
             <CircleUser className="h-5 w-5" />
           </div>
           <div className="min-w-0 flex-1">
-            <div className="text-body font-semibold text-saathi-ink">Saathi</div>
+            <div className="text-body font-semibold text-saathi-ink">Bharosa</div>
             <div className="text-caption text-saathi-success flex items-center gap-1">
               <span className="inline-block h-1.5 w-1.5 rounded-full bg-saathi-success" />
               <T hi="online · हिन्दी, English" en="online · Hindi, English" />
@@ -97,7 +97,7 @@ export default function ConversationsPage() {
                 send();
               }
             }}
-            placeholder={t("Saathi से कुछ पूछिए…", "Ask Saathi anything…")}
+            placeholder={t("Bharosa से कुछ पूछिए…", "Ask Bharosa anything…")}
             rows={1}
             className="max-h-32 flex-1 resize-none rounded-card-sm border border-saathi-paper-edge bg-saathi-cream px-3 py-2 text-body-sm leading-snug outline-none placeholder:text-saathi-ink-quiet focus:border-saathi-deep-green/40"
           />

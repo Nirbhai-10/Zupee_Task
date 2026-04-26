@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { generatePlan } from "@/domain/investment/generate-plan";
 import { ANJALI, FAMILY, GOALS } from "@/lib/mocks/demo-personas";
 import { getVoiceProvider } from "@/lib/voice";
+import { persistPlan } from "@/lib/db/persist";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -34,6 +35,13 @@ export async function POST() {
   } catch (error) {
     console.warn("[plan] voice synth failed:", (error as Error).message);
   }
+
+  await persistPlan({
+    plan: result.plan,
+    voiceUrl: voice?.url ?? null,
+    voiceScript: result.voiceScript,
+    source: result.source,
+  });
 
   return NextResponse.json({
     plan: result.plan,

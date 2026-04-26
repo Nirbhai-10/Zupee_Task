@@ -1,5 +1,5 @@
 /**
- * Saathi language registry. The first 4 ship with the prototype; the
+ * Bharosa language registry. The first 4 ship with the prototype; the
  * remaining 7 stubs let us drop in translations without code changes.
  */
 

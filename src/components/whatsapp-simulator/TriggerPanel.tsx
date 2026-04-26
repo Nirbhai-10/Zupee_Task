@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Banknote, FileSearch, Loader2, Play, RefreshCw, ShieldAlert, Wallet } from "lucide-react";
+import { Banknote, FileSearch, Gavel, Loader2, Play, RefreshCw, ShieldAlert, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useSimulator } from "./SimulatorProvider";
@@ -10,12 +10,19 @@ import {
   ulipAuditToAnjaliSequence,
   intakeToPlanSequence,
   salaryDaySequence,
+  recoveryAgentSequence,
   type TriggerStep,
 } from "@/lib/simulator/triggers";
 import type { ScamClassification } from "@/lib/llm/schemas";
 import type { ULIPAuditResult } from "@/domain/investment/ulip-math";
 import type { Plan } from "@/domain/investment/allocator";
-import type { PhoneId, SimulatorDefense, SimulatorAudit, SimulatorPlan } from "@/lib/simulator/types";
+import type {
+  PhoneId,
+  SimulatorDefense,
+  SimulatorAudit,
+  SimulatorPlan,
+  SimulatorHarassment,
+} from "@/lib/simulator/types";
 
 const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 
@@ -36,6 +43,18 @@ type DocAuditResponse = {
 type PlanResponse = {
   plan: Plan;
   voiceScript: string;
+  source: "llm" | "mock-template";
+  voice?: { url: string; durationMs?: number; provider?: string } | null;
+};
+
+type HarassmentResponse = {
+  letter: string;
+  callScript: string;
+  sachetDraft: {
+    portal: string;
+    referenceUrl: string;
+    fields: Record<string, string>;
+  };
   source: "llm" | "mock-template";
   voice?: { url: string; durationMs?: number; provider?: string } | null;
 };
@@ -66,7 +85,7 @@ const FAMILY_TO_PHONE: Record<string, PhoneId> = {
  * Day 2 ships the KBC scam trigger; days 3-5 add ULIP, intake, salary.
  */
 export function TriggerPanel() {
-  const { appendMessage, setTyping, appendDefense, appendAudit, appendPlan, reset } = useSimulator();
+  const { appendMessage, setTyping, appendDefense, appendAudit, appendPlan, appendHarassment, reset } = useSimulator();
   const [running, setRunning] = React.useState(false);
   const [lastSource, setLastSource] = React.useState<string | null>(null);
 
@@ -87,11 +106,70 @@ export function TriggerPanel() {
           await runBuildPlan(step.phoneId);
         } else if (step.kind === "salary-day") {
           await runSalaryDay();
+        } else if (step.kind === "harassment") {
+          await runHarassment(step.phoneId);
         }
       }
     } finally {
       setRunning(false);
     }
+  }
+
+  async function runHarassment(phoneId: PhoneId) {
+    const response = await fetch("/api/defense/harassment", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({}),
+    });
+    if (!response.ok) {
+      console.warn("[harassment] non-2xx", response.status);
+      setTyping(phoneId, false);
+      return;
+    }
+    const data = (await response.json()) as HarassmentResponse;
+    setLastSource(data.source);
+    setTyping(phoneId, false);
+
+    if (data.voice?.url) {
+      appendMessage({
+        id: crypto.randomUUID(),
+        phoneId,
+        direction: "inbound",
+        timestamp: "10:16",
+        variant: {
+          kind: "voice",
+          audioUrl: data.voice.url,
+          durationMs: data.voice.durationMs,
+          transcript: data.callScript,
+          lang: "hi-IN",
+        },
+      });
+    }
+    appendMessage({
+      id: crypto.randomUUID(),
+      phoneId,
+      direction: "inbound",
+      timestamp: "10:16",
+      highlight: "scam",
+      variant: {
+        kind: "text",
+        text: "Negotiator call ho gayi. Cease-and-desist letter aur Sachet draft taiyaar hai — aapke dashboard pe.",
+        lang: "hi-IN",
+      },
+    });
+
+    const harassment: SimulatorHarassment = {
+      id: crypto.randomUUID(),
+      agentName: "Mr. Sharma",
+      agencyName: "Default Recovery Pvt. Ltd.",
+      letter: data.letter,
+      callScript: data.callScript,
+      voiceUrl: data.voice?.url,
+      sachetDraft: data.sachetDraft,
+      language: "hi-IN",
+      createdAt: new Date().toISOString(),
+    };
+    appendHarassment(harassment);
   }
 
   async function runSalaryDay() {
@@ -310,7 +388,7 @@ export function TriggerPanel() {
 
     setTyping(phoneId, false);
 
-    // Voice reply from Saathi → MIL.
+    // Voice reply from Bharosa → MIL.
     if (data.voice?.url) {
       appendMessage({
         id: crypto.randomUUID(),
@@ -326,7 +404,7 @@ export function TriggerPanel() {
         },
       });
     }
-    // Text caption from Saathi (always present).
+    // Text caption from Bharosa (always present).
     appendMessage({
       id: crypto.randomUUID(),
       phoneId,
@@ -397,6 +475,16 @@ export function TriggerPanel() {
       >
         {running ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wallet className="h-4 w-4" />}
         <span>Plan banwayein</span>
+      </Button>
+      <Button
+        type="button"
+        size="sm"
+        variant="danger"
+        disabled={running}
+        onClick={() => void runSequence(recoveryAgentSequence())}
+      >
+        {running ? <Loader2 className="h-4 w-4 animate-spin" /> : <Gavel className="h-4 w-4" />}
+        <span>Recovery agent → silenced</span>
       </Button>
       <Button
         type="button"

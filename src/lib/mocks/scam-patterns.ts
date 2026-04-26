@@ -1,7 +1,7 @@
 import type { ScamPatternSeed } from "@/domain/types";
 
 /**
- * Saathi scam pattern bank — Day 1 starter set.
+ * Bharosa scam pattern bank — Day 1 starter set.
  *
  * The brief calls for 100 variants. This file ships ~30 high-fidelity
  * exemplars across all major categories Bharat households actually

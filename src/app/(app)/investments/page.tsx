@@ -13,11 +13,11 @@ export default function InvestmentsPage() {
       <header className="mx-auto w-full max-w-4xl space-y-4">
         <Badge tone="green">Investments</Badge>
         <h1 className="text-h1 font-semibold tracking-tight text-saathi-ink">
-          Saathi ka instrument catalogue
+          Bharosa ka instrument catalogue
         </h1>
         <p className="text-body-lg text-saathi-ink-soft">
           Trust-ladder pe arranged: foundation (gold, FD) → trusted (SSY, PPF, debt) →
-          graduated (equity, sirf jab aap ready hon). Saathi sirf direct mutual funds use
+          graduated (equity, sirf jab aap ready hon). Bharosa sirf direct mutual funds use
           karta hai — koi commission nahi.
         </p>
         <div className="flex gap-2">

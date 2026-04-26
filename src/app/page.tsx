@@ -49,7 +49,7 @@ const DEFENSE_CARDS = [
 const INVESTMENT_PILLARS = [
   {
     title: "Goals you actually have",
-    body: "Beti ki shaadi 2032 mein 8 lakh. Bete ki coaching 2027 tak 3 lakh. Diwali fund. Maa ka medical buffer. Saathi yeh sab samjhta hai — kyunki yeh aapke real goals hain, retirement nahi.",
+    body: "Beti ki shaadi 2032 mein 8 lakh. Bete ki coaching 2027 tak 3 lakh. Diwali fund. Maa ka medical buffer. Bharosa yeh sab samjhta hai — kyunki yeh aapke real goals hain, retirement nahi.",
   },
   {
     title: "Trusted instruments first",
@@ -113,7 +113,7 @@ export default function Home() {
               </div>
 
               <p className="max-w-xl text-body-lg text-saathi-ink-soft">
-                Saathi is your AI advocate for Bharat. Free scam defense for your family.
+                Bharosa is your AI advocate for Bharat. Free scam defense for your family.
                 Honest investment plans for your money. Entirely on WhatsApp — no app, no English forms.
               </p>
               <div className="flex flex-wrap items-center gap-3">
@@ -144,7 +144,7 @@ export default function Home() {
                 पहले हम आपको बचाते हैं। फिर आपके पैसे को बढ़ाते हैं।
               </h2>
               <p className="text-body-lg text-saathi-ink-soft">
-                Har Indian fintech aapko product bechta hai. Saathi pehle aapko products se
+                Har Indian fintech aapko product bechta hai. Bharosa pehle aapko products se
                 bachata hai. Phir aapke paise ko sambhalta hai. Trust pehle, products baad mein.
               </p>
             </div>
@@ -210,7 +210,7 @@ export default function Home() {
                   ₹5,500 surplus, 4 goals, ek mandate.
                 </h3>
                 <p className="text-body-lg text-white/80">
-                  {`Anjali Sharma — government school teacher, Lucknow. Hindi-first. Saathi ne uska plan banaaya: Sukanya Samriddhi for daughter's wedding, short-debt fund for son's coaching, liquid fund for mummy's medical buffer, RD for Diwali — sab ek hi UPI Autopay pe.`}
+                  {`Anjali Sharma — government school teacher, Lucknow. Hindi-first. Bharosa ne uska plan banaaya: Sukanya Samriddhi for daughter's wedding, short-debt fund for son's coaching, liquid fund for mummy's medical buffer, RD for Diwali — sab ek hi UPI Autopay pe.`}
                 </p>
                 <Button asChild variant="gold" size="md">
                   <Link href="/demo/simulator">Live simulator chalayein →</Link>
@@ -285,7 +285,7 @@ export default function Home() {
           </div>
           <div className="border-t border-saathi-paper-edge py-4">
             <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2 px-6 text-caption text-saathi-ink-quiet">
-              <span>© 2026 Saathi. Prototype — submission for Zupee.</span>
+              <span>© 2026 Bharosa. Prototype — submission for Zupee.</span>
               <span lang="hi" className="font-deva">
                 विश्वास, हमारे काम का पहला नियम है।
               </span>
@@ -344,11 +344,11 @@ function ConversationPreview() {
         </Bubble>
         <Bubble outbound>
           <span lang="hi" className="font-deva">
-            Saathi, ab paise ka kya plan banaaye?
+            Bharosa, ab paise ka kya plan banaaye?
           </span>
         </Bubble>
         <Bubble inbound voice>
-          🎙️ Saathi · 0:48
+          🎙️ Bharosa · 0:48
         </Bubble>
       </div>
     </div>

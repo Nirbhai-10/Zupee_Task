@@ -51,7 +51,7 @@ export function AppShellNav({ statusPill, languageToggle }: AppShellNavProps) {
           <Link href="/" className="flex items-center gap-2">
             <Wordmark className="text-h2" />
             <span className="text-caption uppercase tracking-wider text-saathi-ink-quiet">
-              Saathi
+              Bharosa
             </span>
           </Link>
           {languageToggle}

@@ -16,7 +16,8 @@ export type TriggerStep =
   | { kind: "scam-check"; phoneId: PhoneId; delayMs: number; messageText: string }
   | { kind: "ulip-audit"; phoneId: PhoneId; delayMs: number }
   | { kind: "build-plan"; phoneId: PhoneId; delayMs: number }
-  | { kind: "salary-day"; delayMs: number };
+  | { kind: "salary-day"; delayMs: number }
+  | { kind: "harassment"; phoneId: PhoneId; delayMs: number };
 
 const KBC_SCAM_TEXT =
   "Mubarak ho! Aap KBC ke lottery mein 25,00,000 jeete hain. Apna lucky number 4509 confirm karne ke liye is number par WhatsApp call karein: +92 3XX XXXXXXX. Yeh offer 24 ghante mein expire ho jayega.";
@@ -57,6 +58,42 @@ export function salaryDaySequence(): TriggerStep[] {
   ];
 }
 
+export function recoveryAgentSequence(): TriggerStep[] {
+  return [
+    {
+      kind: "message",
+      delayMs: 0,
+      message: {
+        phoneId: "anjali",
+        direction: "outbound",
+        timestamp: "10:15",
+        status: "delivered",
+        variant: {
+          kind: "text",
+          text: "Bharosa, devar ke credit card pe recovery agent baar baar raat 9:45 ko phone kar raha hai, dhamkiyaan de raha hai.",
+          lang: "hi-IN",
+        },
+      },
+    },
+    { kind: "typing", phoneId: "anjali", isTyping: true, delayMs: 600 },
+    {
+      kind: "message",
+      delayMs: 700,
+      message: {
+        phoneId: "anjali",
+        direction: "inbound",
+        timestamp: "10:15",
+        variant: {
+          kind: "text",
+          text: "RBI Master Circular ke against hai. Letter, Sachet draft, aur agent ko negotiator call ready kar raha hoon.",
+          lang: "hi-IN",
+        },
+      },
+    },
+    { kind: "harassment", phoneId: "anjali", delayMs: 1200 },
+  ];
+}
+
 export function intakeToPlanSequence(): TriggerStep[] {
   return [
     {
@@ -69,7 +106,7 @@ export function intakeToPlanSequence(): TriggerStep[] {
         status: "delivered",
         variant: {
           kind: "text",
-          text: "Saathi, ab paise ka kya plan banaaye?",
+          text: "Bharosa, ab paise ka kya plan banaaye?",
           lang: "hi-IN",
         },
       },
@@ -106,7 +143,7 @@ export function ulipAuditToAnjaliSequence(): TriggerStep[] {
         status: "delivered",
         variant: {
           kind: "text",
-          text: "Saathi, ek policy bech rahe hain bank wale. Brochure bhej rahi hoon — dekh sakte ho?",
+          text: "Bharosa, ek policy bech rahe hain bank wale. Brochure bhej rahi hoon — dekh sakte ho?",
           lang: "hi-IN",
         },
       },
@@ -159,7 +196,7 @@ export function kbcScamToMilSequence(): TriggerStep[] {
         variant: { kind: "text", text: KBC_SCAM_TEXT, lang: "hi-IN" },
       },
     },
-    // Step 2: MIL forwards to Saathi — outbound from MIL.
+    // Step 2: MIL forwards to Bharosa — outbound from MIL.
     {
       kind: "message",
       delayMs: 2400,
@@ -175,7 +212,7 @@ export function kbcScamToMilSequence(): TriggerStep[] {
         },
       },
     },
-    // Step 3: Saathi shows typing.
+    // Step 3: Bharosa shows typing.
     { kind: "typing", phoneId: "mil", isTyping: true, delayMs: 600 },
     // Step 4: Run the actual scam-check API call. The orchestrator handles
     //          the response and pushes the resulting voice + text bubbles.

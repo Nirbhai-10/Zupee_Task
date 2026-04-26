@@ -13,7 +13,7 @@ export function MarketingNav() {
         <Link href="/" className="flex items-center gap-2">
           <Wordmark className="text-h2" />
           <span className="hidden text-caption uppercase tracking-wider text-saathi-ink-quiet sm:inline">
-            Saathi
+            Bharosa
           </span>
         </Link>
         <MarketingNavCenterLinks />

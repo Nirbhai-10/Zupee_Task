@@ -100,7 +100,7 @@ export default function PresenterPage() {
             <CardContent className="!mt-0 p-0">
               <iframe
                 src="/demo/simulator"
-                title="Saathi simulator"
+                title="Bharosa simulator"
                 className="h-[1200px] w-full border-0"
               />
             </CardContent>

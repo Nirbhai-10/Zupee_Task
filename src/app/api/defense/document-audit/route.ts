@@ -5,6 +5,7 @@ import { ULIPFeeSchedule } from "@/lib/llm/schemas";
 import { SAMPLE_ULIP } from "@/lib/mocks/ulip-sample";
 import { isLanguageCode } from "@/lib/i18n/languages";
 import { getVoiceProvider } from "@/lib/voice";
+import { persistAuditDefense } from "@/lib/db/persist";
 
 const RequestBody = z.object({
   /** When omitted, uses the seeded SAMPLE_ULIP. Useful for the demo's
@@ -62,6 +63,14 @@ export async function POST(req: Request) {
       console.warn("[document-audit] voice synth failed:", (error as Error).message);
     }
   }
+
+  await persistAuditDefense({
+    audit: result.audit,
+    voiceUrl: voice?.url ?? null,
+    voiceScript: result.voiceScript,
+    language,
+    source: result.source,
+  });
 
   return NextResponse.json({
     audit: result.audit,

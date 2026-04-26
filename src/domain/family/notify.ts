@@ -3,7 +3,7 @@ import type { Plan } from "@/domain/investment/allocator";
 import { findProduct } from "@/lib/mocks/investment-products";
 
 /**
- * Saathi's family notification copywriter (deterministic).
+ * Bharosa's family notification copywriter (deterministic).
  *
  * Uses templates per relationship/visibility combination. The matching
  * LLM-driven rewriter (`family-notify.v1.ts`) is a Day 6 polish layer
@@ -67,14 +67,14 @@ export function notifyFamilyForSalaryDay(
         language: member.language,
         content: `Rajesh ji, ${context.monthName} ${context.yearNumber} ka mahine ka update. ${inr(
           context.plan.monthlyAllocationInr,
-        )} invest hua hai — ${top}.${progressLine} Sab government-backed instruments mein, equity zero. Saathi.`,
+        )} invest hua hai — ${top}.${progressLine} Sab government-backed instruments mein, equity zero. Bharosa.`,
       });
     } else if (member.relationship === "brother" && member.visibility.sees.includes("college_fee_transfers_only")) {
       notifications.push({
         familyMemberId: member.id,
         channel: "text",
         language: member.language,
-        content: `Vikas, bhabhi se ${inr(3000)} college fees aa gaye. Saathi.`,
+        content: `Vikas, bhabhi se ${inr(3000)} college fees aa gaye. Bharosa.`,
       });
     } else if (member.visibility.sees.includes("aggregate_goal_progress")) {
       notifications.push({

@@ -9,7 +9,7 @@ export function Wordmark({ className }: { className?: string }) {
         className,
       )}
     >
-      साथी
+      भरोसा
     </span>
   );
 }

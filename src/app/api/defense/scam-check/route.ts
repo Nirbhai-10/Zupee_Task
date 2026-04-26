@@ -4,6 +4,7 @@ import { classifyScam } from "@/domain/defense/classify-scam";
 import type { LanguageCode } from "@/lib/i18n/languages";
 import { isLanguageCode } from "@/lib/i18n/languages";
 import { getVoiceProvider } from "@/lib/voice";
+import { persistScamDefense } from "@/lib/db/persist";
 
 const RequestBody = z.object({
   message: z.string().min(2).max(8000),
@@ -68,6 +69,15 @@ export async function POST(req: Request) {
       console.warn("[scam-check] voice synth failed:", (error as Error).message);
     }
   }
+
+  // Best-effort persistence; never blocks the response.
+  await persistScamDefense({
+    classification: result.classification,
+    voiceUrl: voiceUrl ?? null,
+    matchedPatternName: result.matchedPatternName ?? null,
+    language,
+    source: result.source,
+  });
 
   return NextResponse.json({
     classification: result.classification,
