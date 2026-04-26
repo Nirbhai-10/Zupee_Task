@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { FileSearch, Loader2, Play, RefreshCw, ShieldAlert, Wallet } from "lucide-react";
+import { Banknote, FileSearch, Loader2, Play, RefreshCw, ShieldAlert, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useSimulator } from "./SimulatorProvider";
@@ -9,6 +9,7 @@ import {
   kbcScamToMilSequence,
   ulipAuditToAnjaliSequence,
   intakeToPlanSequence,
+  salaryDaySequence,
   type TriggerStep,
 } from "@/lib/simulator/triggers";
 import type { ScamClassification } from "@/lib/llm/schemas";
@@ -39,6 +40,27 @@ type PlanResponse = {
   voice?: { url: string; durationMs?: number; provider?: string } | null;
 };
 
+type SalaryDayResponse = {
+  plan: Plan;
+  hisaab: { script: string; voice: { url: string; durationMs?: number } | null };
+  familyNotifications: Array<{
+    familyMemberId: string;
+    channel: "voice" | "text";
+    language: string;
+    content: string;
+    voiceUrl?: string;
+    voiceDurationMs?: number;
+  }>;
+  monthName: string;
+  yearNumber: number;
+};
+
+const FAMILY_TO_PHONE: Record<string, PhoneId> = {
+  "22222222-2222-2222-2222-222222222201": "mil",
+  "22222222-2222-2222-2222-222222222202": "husband",
+  "22222222-2222-2222-2222-222222222203": "brother",
+};
+
 /**
  * Demo presenter strip — sits above the three phones on /demo/simulator.
  * Day 2 ships the KBC scam trigger; days 3-5 add ULIP, intake, salary.
@@ -63,10 +85,95 @@ export function TriggerPanel() {
           await runUlipAudit(step.phoneId);
         } else if (step.kind === "build-plan") {
           await runBuildPlan(step.phoneId);
+        } else if (step.kind === "salary-day") {
+          await runSalaryDay();
         }
       }
     } finally {
       setRunning(false);
+    }
+  }
+
+  async function runSalaryDay() {
+    const response = await fetch("/api/investment/execute-salary-day", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ monthName: "Apr", yearNumber: 2026, generateVoice: true }),
+    });
+    if (!response.ok) {
+      console.warn("[salary-day] non-2xx", response.status);
+      return;
+    }
+    const data = (await response.json()) as SalaryDayResponse;
+    setLastSource("salary-day");
+
+    const funded = data.plan.goalAllocations.filter((g) => g.monthlyTotalInr > 0);
+    for (let i = 0; i < funded.length; i++) {
+      const goal = funded[i];
+      await sleep(220);
+      appendMessage({
+        id: crypto.randomUUID(),
+        phoneId: "anjali",
+        direction: "inbound",
+        timestamp: "9:01",
+        highlight: "savings",
+        variant: {
+          kind: "text",
+          text: `✓ UPI Autopay · ${goal.goalName} · ${goal.splits[0]?.partnerName ?? goal.splits[0]?.instrument} · ₹${goal.monthlyTotalInr.toLocaleString("en-IN")}`,
+          lang: "en-IN",
+        },
+      });
+    }
+
+    if (data.hisaab.voice?.url) {
+      await sleep(500);
+      appendMessage({
+        id: crypto.randomUUID(),
+        phoneId: "anjali",
+        direction: "inbound",
+        timestamp: "9:02",
+        variant: {
+          kind: "voice",
+          audioUrl: data.hisaab.voice.url,
+          durationMs: data.hisaab.voice.durationMs,
+          transcript: data.hisaab.script,
+          lang: "hi-IN",
+        },
+      });
+    }
+
+    // Family fan-out — 250ms apart per recipient.
+    for (const notification of data.familyNotifications) {
+      await sleep(250);
+      const phoneId = FAMILY_TO_PHONE[notification.familyMemberId];
+      if (!phoneId) continue;
+      if (notification.channel === "voice" && notification.voiceUrl) {
+        appendMessage({
+          id: crypto.randomUUID(),
+          phoneId,
+          direction: "inbound",
+          timestamp: "9:02",
+          variant: {
+            kind: "voice",
+            audioUrl: notification.voiceUrl,
+            durationMs: notification.voiceDurationMs,
+            transcript: notification.content,
+            lang: notification.language as "hi-IN",
+          },
+        });
+      } else {
+        appendMessage({
+          id: crypto.randomUUID(),
+          phoneId,
+          direction: "inbound",
+          timestamp: "9:02",
+          variant: {
+            kind: "text",
+            text: notification.content,
+            lang: notification.language as "hi-IN",
+          },
+        });
+      }
     }
   }
 
@@ -290,6 +397,16 @@ export function TriggerPanel() {
       >
         {running ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wallet className="h-4 w-4" />}
         <span>Plan banwayein</span>
+      </Button>
+      <Button
+        type="button"
+        size="sm"
+        variant="primary"
+        disabled={running}
+        onClick={() => void runSequence(salaryDaySequence())}
+      >
+        {running ? <Loader2 className="h-4 w-4 animate-spin" /> : <Banknote className="h-4 w-4" />}
+        <span>Salary day</span>
       </Button>
       <Button
         type="button"

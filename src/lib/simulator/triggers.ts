@@ -15,10 +15,47 @@ export type TriggerStep =
   | { kind: "typing"; phoneId: PhoneId; isTyping: boolean; delayMs: number }
   | { kind: "scam-check"; phoneId: PhoneId; delayMs: number; messageText: string }
   | { kind: "ulip-audit"; phoneId: PhoneId; delayMs: number }
-  | { kind: "build-plan"; phoneId: PhoneId; delayMs: number };
+  | { kind: "build-plan"; phoneId: PhoneId; delayMs: number }
+  | { kind: "salary-day"; delayMs: number };
 
 const KBC_SCAM_TEXT =
   "Mubarak ho! Aap KBC ke lottery mein 25,00,000 jeete hain. Apna lucky number 4509 confirm karne ke liye is number par WhatsApp call karein: +92 3XX XXXXXXX. Yeh offer 24 ghante mein expire ho jayega.";
+
+export function salaryDaySequence(): TriggerStep[] {
+  return [
+    {
+      kind: "message",
+      delayMs: 0,
+      message: {
+        phoneId: "anjali",
+        direction: "inbound",
+        timestamp: "9:00",
+        highlight: "savings",
+        variant: {
+          kind: "text",
+          text: "💰 SALARY CR — UP GOVT ₹38,000 to A/C XXXX9023",
+          lang: "en-IN",
+        },
+      },
+    },
+    { kind: "typing", phoneId: "anjali", isTyping: true, delayMs: 600 },
+    {
+      kind: "message",
+      delayMs: 700,
+      message: {
+        phoneId: "anjali",
+        direction: "inbound",
+        timestamp: "9:00",
+        variant: {
+          kind: "text",
+          text: "Salary aayi hai. Plan execute kar rahe hain.",
+          lang: "hi-IN",
+        },
+      },
+    },
+    { kind: "salary-day", delayMs: 700 },
+  ];
+}
 
 export function intakeToPlanSequence(): TriggerStep[] {
   return [
