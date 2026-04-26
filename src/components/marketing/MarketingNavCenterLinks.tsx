@@ -11,6 +11,7 @@ const SECTIONS = [
 const ROUTES = [
   { href: "/demo/simulator", hi: "लाइव डेमो", en: "Live demo" },
   { href: "/family", hi: "परिवार", en: "Family" },
+  { href: "/for-zupee", hi: "Thesis", en: "Thesis" },
 ];
 
 export function MarketingNavCenterLinks() {

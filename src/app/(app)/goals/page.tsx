@@ -50,31 +50,37 @@ export default function GoalsPage() {
             (new Date(g.targetDate).getFullYear() - new Date().getFullYear()),
           );
           return (
-            <Card key={g.id} tone="paper" padding="md">
-              <CardHeader className="flex flex-row items-start justify-between gap-3 space-y-0">
-                <div className="flex items-start gap-3 min-w-0">
-                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-pill bg-saathi-deep-green-tint">
-                    <Icon className="h-5 w-5 text-saathi-deep-green" />
-                  </div>
-                  <div className="min-w-0">
-                    <div className="text-h3 font-semibold text-saathi-ink truncate">{g.name}</div>
-                    <div className="text-caption text-saathi-ink-quiet">
-                      Priority {g.priority} · target {formatDate(g.targetDate)}{" "}
-                      ({yearsToTarget} saal baaki)
+            <Link
+              key={g.id}
+              href={`/goals/${g.id}`}
+              className="block transition-transform hover:-translate-y-0.5"
+            >
+              <Card tone="paper" padding="md" className="hover:shadow-card transition-shadow">
+                <CardHeader className="flex flex-row items-start justify-between gap-3 space-y-0">
+                  <div className="flex items-start gap-3 min-w-0">
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-pill bg-saathi-deep-green-tint">
+                      <Icon className="h-5 w-5 text-saathi-deep-green" />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="text-h3 font-semibold text-saathi-ink truncate">{g.name}</div>
+                      <div className="text-caption text-saathi-ink-quiet">
+                        Priority {g.priority} · target {formatDate(g.targetDate)}{" "}
+                        ({yearsToTarget} saal baaki)
+                      </div>
                     </div>
                   </div>
-                </div>
-                <Currency
-                  amount={g.targetInr}
-                  variant="compact"
-                  language="hi-IN"
-                  className="text-body font-semibold text-saathi-gold"
-                />
-              </CardHeader>
-              <CardContent className="!mt-3 text-body-sm text-saathi-ink-soft">
-                {g.rationale}
-              </CardContent>
-            </Card>
+                  <Currency
+                    amount={g.targetInr}
+                    variant="compact"
+                    language="hi-IN"
+                    className="text-body font-semibold text-saathi-gold"
+                  />
+                </CardHeader>
+                <CardContent className="!mt-3 text-body-sm text-saathi-ink-soft">
+                  {g.rationale}
+                </CardContent>
+              </Card>
+            </Link>
           );
         })}
       </section>

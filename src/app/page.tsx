@@ -19,6 +19,8 @@ import { T } from "@/components/shared/T";
 import { ScamPlayground } from "@/components/landing/ScamPlayground";
 import { UlipAuditDemo } from "@/components/landing/UlipAuditDemo";
 import { WhatsAppHeroCta } from "@/components/landing/WhatsAppHeroCta";
+import { LiveTrustCounter } from "@/components/landing/LiveTrustCounter";
+import { ZupeeAttribution } from "@/components/brand/ZupeeAttribution";
 
 const DEFENSE_CARDS = [
   {
@@ -173,6 +175,9 @@ export default function Home() {
             <ConversationPreview />
           </div>
         </section>
+
+        {/* Live trust counter — animated scale numbers on scroll */}
+        <LiveTrustCounter />
 
         {/* CHANGE 2: Live scam playground */}
         <ScamPlayground />
@@ -385,11 +390,8 @@ export default function Home() {
             />
           </div>
           <div className="border-t border-saathi-paper-edge py-4">
-            <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2 px-6 text-caption text-saathi-ink-quiet">
-              <T
-                hi="© 2026 Bharosa. प्रोटोटाइप — Zupee submission."
-                en="© 2026 Bharosa. Prototype — Zupee submission."
-              />
+            <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-6 text-caption text-saathi-ink-quiet">
+              <ZupeeAttribution variant="footer" />
               <T
                 hi="विश्वास, हमारे काम का पहला नियम है।"
                 en="Trust is the first rule of our work."

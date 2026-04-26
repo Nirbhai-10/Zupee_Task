@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Currency } from "@/components/shared/Currency";
 import { T } from "@/components/shared/T";
 import { useT } from "@/lib/i18n/language-context";
+import { UpiMandateModal } from "@/components/goals/UpiMandateModal";
 import type { GoalCategory } from "@/domain/types";
 import { cn } from "@/lib/utils/cn";
 
@@ -35,6 +36,7 @@ export default function NewGoalPage() {
   const [target, setTarget] = React.useState<number | "">("");
   const [date, setDate] = React.useState("");
   const [submitted, setSubmitted] = React.useState(false);
+  const [mandateOpen, setMandateOpen] = React.useState(false);
 
   function applyPreset(preset: (typeof PRESETS)[number]) {
     setCategory(preset.category);
@@ -45,23 +47,35 @@ export default function NewGoalPage() {
 
   function submit(e: React.FormEvent) {
     e.preventDefault();
-    setSubmitted(true);
+    setMandateOpen(true);
   }
+
+  // Pull a sensible monthly figure from the target + horizon (rough).
+  const monthlySuggestion = React.useMemo(() => {
+    if (typeof target !== "number" || !date) return 1500;
+    // eslint-disable-next-line react-hooks/purity
+    const now = Date.now();
+    const months = Math.max(
+      1,
+      Math.round((new Date(date).getTime() - now) / (1000 * 60 * 60 * 24 * 30)),
+    );
+    return Math.max(500, Math.round(target / months / 100) * 100);
+  }, [target, date]);
 
   if (submitted) {
     return (
       <main className="flex flex-1 flex-col items-center justify-center px-6 py-16">
         <Card tone="paper" padding="lg" className="w-full max-w-md text-center">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-pill bg-saathi-deep-green-tint">
-            <Sparkles className="h-6 w-6 text-saathi-deep-green" />
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-pill bg-saathi-success-tint">
+            <Sparkles className="h-6 w-6 text-saathi-success" />
           </div>
           <h2 className="mt-4 text-h3 font-semibold text-saathi-ink">
-            <T hi="लक्ष्य जोड़ दिया गया" en="Goal added" />
+            <T hi="लक्ष्य जोड़ दिया गया · UPI mandate live" en="Goal added · UPI mandate active" />
           </h2>
           <p className="mt-2 text-body-sm text-saathi-ink-soft">
             <T
-              hi="अब प्लान बनाने के लिए लाइव सिमुलेटर पर 'Plan banwayein' दबाएँ।"
-              en="Now hit 'Plan banwayein' on the live simulator to generate a fresh allocation."
+              hi="हर महीने auto-debit होगा। अगले salary day पर simulator में पूरी cascade देखिए।"
+              en="Auto-debit each month. Watch the full cascade in the simulator on the next salary day."
             />
           </p>
           <div className="mt-4 flex justify-center gap-2">
@@ -197,7 +211,7 @@ export default function NewGoalPage() {
 
               <div className="flex flex-wrap gap-2 pt-1">
                 <Button type="submit" variant="primary" size="md">
-                  <T hi="लक्ष्य जोड़ें" en="Add goal" />
+                  <T hi="लक्ष्य जोड़ें · UPI Autopay" en="Add goal · authorize UPI" />
                 </Button>
                 <Button type="button" variant="ghost" size="md" onClick={() => { setName(""); setTarget(""); setDate(""); }}>
                   <T hi="रीसेट" en="Reset" />
@@ -225,6 +239,17 @@ export default function NewGoalPage() {
           </Card>
         </form>
       </section>
+
+      <UpiMandateModal
+        open={mandateOpen}
+        onClose={() => setMandateOpen(false)}
+        onComplete={() => {
+          setMandateOpen(false);
+          setSubmitted(true);
+        }}
+        monthlyInr={monthlySuggestion}
+        merchantLabel={`Bharosa · ${name || "New goal"}`}
+      />
     </main>
   );
 }
