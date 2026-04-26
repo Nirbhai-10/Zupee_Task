@@ -1,36 +1,53 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Saathi
 
-## Getting Started
+> Pehle hum aapko bachate hain. Phir aapke paise ko badhaate hain.
+> *(First we defend you. Then we grow your money.)*
 
-First, run the development server:
+Saathi is an AI-native product for Bharat households — WhatsApp-native, voice-first, vernacular by default. The defense layer (free, forever) catches scams, audits mis-sold ULIPs, fights recovery agent harassment, and challenges over-charging. The investment layer (paid AUM) generates goal-anchored portfolios anchored in instruments Bharat already trusts — gold, FD, Sukanya Samriddhi, PPF — and only graduates to mutual funds when the family is ready.
+
+Built as a thesis-style submission for Zupee's AI-native product brief.
+
+## Status
+
+This is the prototype. Day-by-day build per `progress/`.
+
+## Stack
+
+- **Framework**: Next.js 16 (App Router, Turbopack, React 19)
+- **Styling**: Tailwind CSS v4
+- **Database**: Supabase (Postgres + pgvector + Realtime + Storage), Mumbai region
+- **LLM router**: AI SDK v6 with auto-detection across Anthropic / OpenAI / Grok
+- **Voice**: Sarvam (when key present) → browser Web Speech API fallback
+- **Hosting**: Vercel
+
+## Quick start
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+pnpm install
+cp .env.example .env.local
+# Fill at least one LLM key + Supabase URL/keys.
 pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+If credentials are missing the app boots with mocks and writes to
+`MISSING_CREDENTIALS.md` so you know exactly what to fill.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Important notes for AI agents working on this repo
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- Next.js 16 has breaking changes from training data. Read
+  `node_modules/next/dist/docs/` before writing route handlers, layouts,
+  or middleware. Notably: `params`/`searchParams` are Promises;
+  `cookies()`/`headers()` are async; middleware lives in `proxy.ts`, not
+  `middleware.ts`.
+- All LLM calls flow through `src/lib/llm/router.ts`. No direct SDK use
+  outside the router. Every call is logged to the `llm_events` table.
+- Disclosure stance for outbound communication: "calling on Anjali
+  Sharma's authorized behalf." Never "I am Anjali."
 
-## Learn More
+## Core docs
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — system map
+- [`docs/DESIGN.md`](docs/DESIGN.md) — visual system spec
+- [`docs/PROMPTS.md`](docs/PROMPTS.md) — versioned LLM system prompts
+- [`docs/COPY.md`](docs/COPY.md) — every user-facing string
+- [`DEMO.md`](DEMO.md) — demo-day runbook
