@@ -215,15 +215,18 @@ function resolveModel(
   const modelId = PROVIDER_MODELS[detected.provider][tier];
   let model: LanguageModel;
   if (detected.provider === "sarvam") {
-    model = sarvamProvider()(modelId);
+    // Sarvam exposes chat-completions only (no OpenAI Responses API).
+    model = sarvamProvider().chat(modelId);
   } else if (detected.provider === "anthropic") {
     model = anthropic(modelId);
   } else if (detected.provider === "openai") {
     model = openai(modelId);
   } else if (detected.provider === "grok") {
-    model = grokProvider()(modelId);
+    // Grok speaks chat-completions — bypass the Responses API.
+    model = grokProvider().chat(modelId);
   } else {
-    model = ollamaProvider()(modelId);
+    // Ollama exposes chat-completions only.
+    model = ollamaProvider().chat(modelId);
   }
   return { provider: detected.provider, modelId, model };
 }
