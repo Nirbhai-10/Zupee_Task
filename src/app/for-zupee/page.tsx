@@ -45,6 +45,41 @@ const FLOWS = [
   { icon: HeartHandshake, title: { hi: "Recovery-agent negotiator", en: "Recovery-agent negotiator" }, count: "60s" },
 ];
 
+const MOAT_STACK = [
+  {
+    icon: ShieldCheck,
+    title: { hi: "Outcome ledger", en: "Outcome ledger" },
+    body: {
+      hi: "हर blocked scam, refused ULIP और corrected charge एक household-specific proof history बनता है.",
+      en: "Every blocked scam, refused ULIP, and corrected charge becomes household-specific proof history.",
+    },
+  },
+  {
+    icon: TrendingUp,
+    title: { hi: "Salary-day behavior", en: "Salary-day behavior" },
+    body: {
+      hi: "Monthly execution creates a habit: money moves into goals before anxiety or mis-selling can intercept it.",
+      en: "Monthly execution creates a habit: money moves into goals before anxiety or mis-selling can intercept it.",
+    },
+  },
+  {
+    icon: Database,
+    title: { hi: "Personal timing data", en: "Personal timing data" },
+    body: {
+      hi: "Incidents, festivals, fees और remittance timing future nudges को one-household-specific बनाते हैं.",
+      en: "Incidents, festivals, fees, and remittance timing make future nudges specific to one household.",
+    },
+  },
+  {
+    icon: HeartHandshake,
+    title: { hi: "Private layer, not front door", en: "Private layer, not the front door" },
+    body: {
+      hi: "Vault emotional context देता है, पर customer story का front professional defense और execution है.",
+      en: "Vault adds emotional context, but the customer story leads with professional defense and execution.",
+    },
+  },
+];
+
 export default function ForZupeePage() {
   return (
     <>
@@ -154,6 +189,45 @@ export default function ForZupeePage() {
                   <div className="mt-1 text-caption">{p.lock}</div>
                 </div>
               ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="bg-saathi-cream">
+          <div className="mx-auto max-w-5xl px-6 py-14">
+            <T
+              as="h2"
+              hi="Real moat — feature list नहीं, compounding history।"
+              en="The real moat — compounding history, not a feature list."
+              className="text-h2 font-semibold text-saathi-ink"
+            />
+            <T
+              as="p"
+              hi="Bharosa का front-door promise professional है: risk रोकना, product truth दिखाना, और salary-day execution. Private reflection पीछे की signal layer है; customer को overwhelm नहीं करती."
+              en="Bharosa's front-door promise is professional: stop risk, reveal product truth, and execute on salary day. Private reflection stays as a background signal layer; it does not overwhelm the customer."
+              className="mt-3 max-w-3xl text-body-lg text-saathi-ink-soft"
+            />
+            <div className="mt-8 grid gap-4 md:grid-cols-2">
+              {MOAT_STACK.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <Card key={item.title.en} tone="paper" padding="md" className="space-y-2">
+                    <Icon className="h-5 w-5 text-saathi-deep-green" />
+                    <T
+                      as="h3"
+                      hi={item.title.hi}
+                      en={item.title.en}
+                      className="text-body font-semibold text-saathi-ink"
+                    />
+                    <T
+                      as="p"
+                      hi={item.body.hi}
+                      en={item.body.en}
+                      className="text-body-sm text-saathi-ink-soft"
+                    />
+                  </Card>
+                );
+              })}
             </div>
           </div>
         </section>

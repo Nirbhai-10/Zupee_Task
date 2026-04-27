@@ -21,7 +21,7 @@ export function MarketingNav() {
         <MarketingNavCenterLinks />
         <div className="ml-auto flex min-w-0 items-center justify-end gap-2.5">
           <ZupeeAttribution variant="header" className="hidden xl:inline-flex" />
-          <LanguageToggle className="hidden sm:inline-flex" />
+          <LanguageToggle className="inline-flex" />
           <Button asChild variant="primary" size="sm" className="shrink-0 px-3.5 sm:px-4">
             <Link href="/demo/simulator">
               <MessageCircle className="h-4 w-4" />

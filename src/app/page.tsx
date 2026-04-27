@@ -8,6 +8,7 @@ import {
   ShieldAlert,
   ShieldCheck,
   Sparkles,
+  Target,
 } from "lucide-react";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
 import { Logo } from "@/components/brand/Logo";
@@ -93,6 +94,41 @@ const TRUST_BADGES = [
   { hi: "RBI Sachet integration *", en: "RBI Sachet integration *" },
 ];
 
+const PRODUCT_STORY = [
+  {
+    icon: ShieldCheck,
+    title: { hi: "1. Family defense", en: "1. Family defense" },
+    body: {
+      hi: "WhatsApp scams, fake KYC, digital arrest, recovery harassment — Bharosa catches and explains the risk clearly.",
+      en: "WhatsApp scams, fake KYC, digital arrest, recovery harassment — Bharosa catches and explains the risk clearly.",
+    },
+  },
+  {
+    icon: FileSearch,
+    title: { hi: "2. Product truth", en: "2. Product truth" },
+    body: {
+      hi: "ULIP और policy brochures की real fees, lock-in और better alternative math सामने आती है।",
+      en: "ULIP and policy brochures are audited for real fees, lock-ins, and better alternatives.",
+    },
+  },
+  {
+    icon: Target,
+    title: { hi: "3. Goal execution", en: "3. Goal execution" },
+    body: {
+      hi: "Salary day पर पैसा बेटी की शादी, coaching, medical और festival funds में split होता है।",
+      en: "On salary day, money moves into wedding, coaching, medical, and festival funds.",
+    },
+  },
+  {
+    icon: Sparkles,
+    title: { hi: "4. Compounding moat", en: "4. Compounding moat" },
+    body: {
+      hi: "हर scam catch, audit और transfer household history बनाता है — अगली सलाह ज्यादा personal होती है।",
+      en: "Every catch, audit, and transfer builds household history, so the next recommendation is more personal.",
+    },
+  },
+];
+
 export default function Home() {
   return (
     <>
@@ -175,6 +211,52 @@ export default function Home() {
             </div>
 
             <ConversationPreview />
+          </div>
+        </section>
+
+        <section className="border-y border-saathi-paper-edge bg-saathi-paper">
+          <div className="mx-auto max-w-6xl px-6 py-12">
+            <div className="max-w-3xl space-y-3">
+              <Badge tone="green">
+                <T hi="To the point" en="To the point" />
+              </Badge>
+              <T
+                as="h2"
+                hi="Bharosa चार काम करता है — बस।"
+                en="Bharosa does four things — clearly."
+                className="text-h2 font-semibold tracking-tight text-saathi-ink"
+              />
+              <T
+                as="p"
+                hi="Customer को feature maze नहीं दिखता। पहले बचाव, फिर product truth, फिर monthly execution. Private reflection पीछे की layer है, front door नहीं।"
+                en="The customer does not see a maze of features. First defense, then product truth, then monthly execution. Private reflection is a quiet layer, not the front door."
+                className="text-body-lg text-saathi-ink-soft"
+              />
+            </div>
+            <div className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+              {PRODUCT_STORY.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <Card key={item.title.en} tone="paper" padding="md" className="h-full">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-pill bg-saathi-deep-green-tint text-saathi-deep-green">
+                      <Icon className="h-5 w-5" />
+                    </div>
+                    <T
+                      as="h3"
+                      hi={item.title.hi}
+                      en={item.title.en}
+                      className="mt-4 text-body font-semibold text-saathi-ink"
+                    />
+                    <T
+                      as="p"
+                      hi={item.body.hi}
+                      en={item.body.en}
+                      className="mt-2 text-body-sm text-saathi-ink-soft"
+                    />
+                  </Card>
+                );
+              })}
+            </div>
           </div>
         </section>
 

@@ -1,7 +1,8 @@
-import { generateText, MissingLLMCredentialsError } from "@/lib/llm/router";
+import { generateText, isRecoverableLLMError } from "@/lib/llm/router";
 import { PLAN_EXPLAIN_SYSTEM_V1 } from "@/lib/llm/prompts/plan-explain.v1";
 import { buildPlan, type AllocatorInput, type Plan } from "./allocator";
 import { findProduct } from "@/lib/mocks/investment-products";
+import type { LanguageCode } from "@/lib/i18n/languages";
 
 export type GeneratePlanResult = {
   plan: Plan;
@@ -51,14 +52,33 @@ export async function generatePlan(input: AllocatorInput): Promise<GeneratePlanR
     });
     return { plan, voiceScript: result.text.trim(), source: "llm" };
   } catch (error) {
-    if (error instanceof MissingLLMCredentialsError) {
-      return { plan, voiceScript: mockPlanScript(plan), source: "mock-template" };
+    if (isRecoverableLLMError(error)) {
+      return { plan, voiceScript: mockPlanScript(plan, input.user.language), source: "mock-template" };
     }
     throw error;
   }
 }
 
-function mockPlanScript(plan: Plan): string {
+function mockPlanScript(plan: Plan, language: LanguageCode): string {
+  if (language === "en-IN") {
+    const lines = [
+      `Anjali, your plan is ready. This month's total investment is ₹${plan.monthlyAllocationInr.toLocaleString("en-IN")}.`,
+    ];
+    for (const goal of plan.goalAllocations) {
+      if (goal.monthlyTotalInr === 0) continue;
+      const instrumentNames = goal.splits
+        .map((s) => {
+          const product = findProduct(s.instrument);
+          return `₹${s.monthlyAmountInr.toLocaleString("en-IN")} in ${product?.partnerName ?? s.instrument}`;
+        })
+        .join(", ");
+      lines.push(`${goal.goalName}: ₹${goal.monthlyTotalInr.toLocaleString("en-IN")} — ${instrumentNames}.`);
+    }
+    lines.push("Everything is government-backed or regulator-monitored. Equity stays at zero until you are comfortable.");
+    lines.push("Authorize UPI Autopay once, and this will execute every month.");
+    return lines.join(" ");
+  }
+
   const lines = [
     `Anjali ji, plan ready hai. Iss mahine ka kul investment ₹${plan.monthlyAllocationInr.toLocaleString("en-IN")}.`,
   ];

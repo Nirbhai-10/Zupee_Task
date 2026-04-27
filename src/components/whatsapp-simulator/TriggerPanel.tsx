@@ -5,6 +5,7 @@ import { Banknote, FileSearch, Gavel, Loader2, Lock, Play, RefreshCw, ShieldAler
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useSimulator } from "./SimulatorProvider";
+import { useLanguage, useT } from "@/lib/i18n/language-context";
 import {
   kbcScamToMilSequence,
   ulipAuditToAnjaliSequence,
@@ -26,6 +27,7 @@ import type {
   SimulatorVaultConfession,
 } from "@/lib/simulator/types";
 import { createBrowserTTSUrl } from "@/lib/voice/browser-voice";
+import type { LanguageCode } from "@/lib/i18n/languages";
 
 const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 
@@ -79,7 +81,7 @@ type SalaryDayResponse = {
 
 type VaultQuestionResponse = {
   confessionId: string | null;
-  question: { id: string; text: string; language: "hi-IN"; category: string };
+  question: { id: string; text: string; language: LanguageCode; category: string };
   voice: { url: string; durationMs?: number; provider?: string } | null;
 };
 
@@ -105,6 +107,9 @@ const FAMILY_TO_PHONE: Record<string, PhoneId> = {
  * Day 2 ships the KBC scam trigger; days 3-5 add ULIP, intake, salary.
  */
 export function TriggerPanel() {
+  const t = useT();
+  const { lang } = useLanguage();
+  const preferredLanguage = lang === "en" ? "en-IN" : "hi-IN";
   const {
     appendMessage,
     setTyping,
@@ -150,6 +155,7 @@ export function TriggerPanel() {
     const questionResponse = await fetch("/api/vault/send-evening-question", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ preferredLanguage }),
     });
     if (!questionResponse.ok) {
       console.warn("[vault] question non-2xx", questionResponse.status);
@@ -169,7 +175,7 @@ export function TriggerPanel() {
           audioUrl: questionData.voice.url,
           durationMs: questionData.voice.durationMs,
           transcript: questionData.question.text,
-          lang: "hi-IN",
+          lang: preferredLanguage,
         },
       });
     } else {
@@ -178,13 +184,15 @@ export function TriggerPanel() {
         phoneId,
         direction: "inbound",
         timestamp: "9:00",
-        variant: { kind: "text", text: questionData.question.text, lang: "hi-IN" },
+        variant: { kind: "text", text: questionData.question.text, lang: preferredLanguage },
       });
     }
 
     await sleep(1300);
     const transcript =
-      "Aaj Priya ke school project ke liye extra kharcha hua. Sandal leni thi apne liye, purani toot rahi hai, par maine nahi li. Rajesh ko bataungi toh woh bolenge le lo, par mujhe guilt hota hai.";
+      preferredLanguage === "en-IN"
+        ? "Priya had an extra school project expense today. I needed sandals for myself because the old pair is breaking, but I did not buy them. Rajesh would say I should buy them, yet I still feel guilty."
+        : "Aaj Priya ke school project ke liye extra kharcha hua. Sandal leni thi apne liye, purani toot rahi hai, par maine nahi li. Rajesh ko bataungi toh woh bolenge le lo, par mujhe guilt hota hai.";
     appendMessage({
       id: crypto.randomUUID(),
       phoneId,
@@ -195,13 +203,13 @@ export function TriggerPanel() {
         kind: "voice",
         audioUrl: createBrowserTTSUrl({
           text: transcript,
-          lang: "hi-IN",
+          lang: preferredLanguage,
           timbre: "saathi-female",
           speed: 1,
         }),
         durationMs: 18_000,
         transcript,
-        lang: "hi-IN",
+        lang: preferredLanguage,
       },
     });
 
@@ -214,6 +222,7 @@ export function TriggerPanel() {
         questionId: questionData.question.id,
         questionText: questionData.question.text,
         responseTranscript: transcript,
+        preferredLanguage,
         generateVoice: true,
       }),
     });
@@ -234,7 +243,7 @@ export function TriggerPanel() {
           audioUrl: data.reflection.voice.url,
           durationMs: data.reflection.voice.durationMs,
           transcript: data.reflection.text,
-          lang: "hi-IN",
+          lang: preferredLanguage,
         },
       });
     } else {
@@ -243,7 +252,7 @@ export function TriggerPanel() {
         phoneId,
         direction: "inbound",
         timestamp: "9:03",
-        variant: { kind: "text", text: data.reflection.text, lang: "hi-IN" },
+        variant: { kind: "text", text: data.reflection.text, lang: preferredLanguage },
       });
     }
 
@@ -263,7 +272,7 @@ export function TriggerPanel() {
     const response = await fetch("/api/defense/harassment", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({}),
+      body: JSON.stringify({ language: preferredLanguage }),
     });
     if (!response.ok) {
       console.warn("[harassment] non-2xx", response.status);
@@ -285,7 +294,7 @@ export function TriggerPanel() {
           audioUrl: data.voice.url,
           durationMs: data.voice.durationMs,
           transcript: data.callScript,
-          lang: "hi-IN",
+          lang: preferredLanguage,
         },
       });
     }
@@ -297,8 +306,11 @@ export function TriggerPanel() {
       highlight: "scam",
       variant: {
         kind: "text",
-        text: "Negotiator call ho gayi. Cease-and-desist letter aur Sachet draft taiyaar hai — aapke dashboard pe.",
-        lang: "hi-IN",
+        text:
+          preferredLanguage === "en-IN"
+            ? "Negotiator call completed. Cease-and-desist letter and RBI Sachet draft are ready on the dashboard."
+            : "Negotiator call ho gayi. Cease-and-desist letter aur Sachet draft taiyaar hai — aapke dashboard pe.",
+        lang: preferredLanguage,
       },
     });
 
@@ -310,7 +322,7 @@ export function TriggerPanel() {
       callScript: data.callScript,
       voiceUrl: data.voice?.url,
       sachetDraft: data.sachetDraft,
-      language: "hi-IN",
+      language: preferredLanguage,
       createdAt: new Date().toISOString(),
     };
     appendHarassment(harassment);
@@ -320,7 +332,7 @@ export function TriggerPanel() {
     const response = await fetch("/api/investment/execute-salary-day", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ monthName: "Apr", yearNumber: 2026, generateVoice: true }),
+      body: JSON.stringify({ monthName: "Apr", yearNumber: 2026, generateVoice: true, preferredLanguage }),
     });
     if (!response.ok) {
       console.warn("[salary-day] non-2xx", response.status);
@@ -359,7 +371,7 @@ export function TriggerPanel() {
           audioUrl: data.hisaab.voice.url,
           durationMs: data.hisaab.voice.durationMs,
           transcript: data.hisaab.script,
-          lang: "hi-IN",
+          lang: preferredLanguage,
         },
       });
     }
@@ -380,7 +392,7 @@ export function TriggerPanel() {
             audioUrl: notification.voiceUrl,
             durationMs: notification.voiceDurationMs,
             transcript: notification.content,
-            lang: notification.language as "hi-IN",
+            lang: notification.language as LanguageCode,
           },
         });
       } else {
@@ -392,7 +404,7 @@ export function TriggerPanel() {
           variant: {
             kind: "text",
             text: notification.content,
-            lang: notification.language as "hi-IN",
+            lang: notification.language as LanguageCode,
           },
         });
       }
@@ -400,7 +412,11 @@ export function TriggerPanel() {
   }
 
   async function runBuildPlan(phoneId: PhoneId) {
-    const response = await fetch("/api/investment/plan", { method: "POST" });
+    const response = await fetch("/api/investment/plan", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ preferredLanguage }),
+    });
     if (!response.ok) {
       console.warn("[plan] non-2xx", response.status);
       setTyping(phoneId, false);
@@ -421,7 +437,7 @@ export function TriggerPanel() {
           audioUrl: data.voice.url,
           durationMs: data.voice.durationMs,
           transcript: data.voiceScript,
-          lang: "hi-IN",
+          lang: preferredLanguage,
         },
       });
     }
@@ -432,8 +448,11 @@ export function TriggerPanel() {
       timestamp: "10:03",
       variant: {
         kind: "text",
-        text: `Plan ready hai — kul ₹${data.plan.monthlyAllocationInr.toLocaleString("en-IN")}/mahina, ${data.plan.goalAllocations.filter((g) => g.monthlyTotalInr > 0).length} goals. UPI Autopay authorize karenge?`,
-        lang: "hi-IN",
+        text:
+          preferredLanguage === "en-IN"
+            ? `Plan ready — ₹${data.plan.monthlyAllocationInr.toLocaleString("en-IN")}/month across ${data.plan.goalAllocations.filter((g) => g.monthlyTotalInr > 0).length} goals. Authorize UPI Autopay?`
+            : `Plan ready hai — kul ₹${data.plan.monthlyAllocationInr.toLocaleString("en-IN")}/mahina, ${data.plan.goalAllocations.filter((g) => g.monthlyTotalInr > 0).length} goals. UPI Autopay authorize karenge?`,
+        lang: preferredLanguage,
       },
     });
 
@@ -443,7 +462,7 @@ export function TriggerPanel() {
       plan: data.plan,
       voiceScript: data.voiceScript,
       voiceUrl: data.voice?.url,
-      language: "hi-IN",
+      language: preferredLanguage,
       createdAt: new Date().toISOString(),
     };
     appendPlan(planRecord);
@@ -454,7 +473,7 @@ export function TriggerPanel() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        receiver: { name: "Anjali", language: "hi-IN" },
+        receiver: { name: "Anjali", language: preferredLanguage },
         generateVoice: true,
       }),
     });
@@ -478,7 +497,7 @@ export function TriggerPanel() {
           audioUrl: data.voice.url,
           durationMs: data.voice.durationMs,
           transcript: data.voiceScript,
-          lang: "hi-IN",
+          lang: preferredLanguage,
         },
       });
     }
@@ -490,8 +509,11 @@ export function TriggerPanel() {
       highlight: "savings",
       variant: {
         kind: "text",
-        text: `Audit complete. ${data.audit.termYears} saal mein ₹${data.audit.lifetimeSavingsInr.toLocaleString("en-IN")} bachayega ULIP nahi lene se.`,
-        lang: "hi-IN",
+        text:
+          preferredLanguage === "en-IN"
+            ? `Audit complete. Refusing this ULIP saves ₹${data.audit.lifetimeSavingsInr.toLocaleString("en-IN")} over ${data.audit.termYears} years.`
+            : `Audit complete. ${data.audit.termYears} saal mein ₹${data.audit.lifetimeSavingsInr.toLocaleString("en-IN")} bachayega ULIP nahi lene se.`,
+        lang: preferredLanguage,
       },
     });
 
@@ -501,7 +523,7 @@ export function TriggerPanel() {
       audit: data.audit,
       voiceScript: data.voiceScript,
       voiceUrl: data.voice?.url,
-      language: "hi-IN",
+      language: preferredLanguage,
       createdAt: new Date().toISOString(),
     };
     appendAudit(audit);
@@ -516,7 +538,7 @@ export function TriggerPanel() {
         receiver: {
           relationship: "mother-in-law",
           ageBand: "60-75",
-          language: "hi-IN",
+          language: preferredLanguage,
           name: "Mummy",
         },
         generateVoice: true,
@@ -544,7 +566,7 @@ export function TriggerPanel() {
           audioUrl: data.voice.url,
           durationMs: data.voice.durationMs,
           transcript: data.classification.receiverExplanation,
-          lang: "hi-IN",
+          lang: preferredLanguage,
         },
       });
     }
@@ -556,8 +578,11 @@ export function TriggerPanel() {
       timestamp: "9:43",
       variant: {
         kind: "text",
-        text: "Yeh scam hai. Reply na karein, message delete kar dein.",
-        lang: "hi-IN",
+        text:
+          preferredLanguage === "en-IN"
+            ? "This is a scam. Do not reply; delete the message."
+            : "Yeh scam hai. Reply na karein, message delete kar dein.",
+        lang: preferredLanguage,
       },
     });
 
@@ -571,7 +596,7 @@ export function TriggerPanel() {
       variant: {
         kind: "text",
         text: data.classification.primaryUserAlert,
-        lang: "hi-IN",
+        lang: preferredLanguage,
       },
     });
 
@@ -580,7 +605,7 @@ export function TriggerPanel() {
       id: crypto.randomUUID(),
       forPhoneId: phoneId,
       classification: data.classification,
-      language: "hi-IN",
+      language: preferredLanguage,
       voiceUrl: data.voice?.url,
       createdAt: new Date().toISOString(),
     };
@@ -589,7 +614,7 @@ export function TriggerPanel() {
 
   return (
     <div className="flex flex-wrap items-center gap-2 rounded-card-sm border border-saathi-paper-edge bg-saathi-paper px-4 py-3 shadow-soft">
-      <Badge tone="green">Presenter</Badge>
+      <Badge tone="green">{t("Presenter", "Presenter")}</Badge>
       <Button
         type="button"
         size="sm"
@@ -605,7 +630,7 @@ export function TriggerPanel() {
         size="sm"
         variant="gold"
         disabled={running}
-        onClick={() => void runSequence(ulipAuditToAnjaliSequence())}
+        onClick={() => void runSequence(ulipAuditToAnjaliSequence(preferredLanguage))}
       >
         {running ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileSearch className="h-4 w-4" />}
         <span>ULIP audit → Anjali</span>
@@ -615,40 +640,40 @@ export function TriggerPanel() {
         size="sm"
         variant="outline"
         disabled={running}
-        onClick={() => void runSequence(intakeToPlanSequence())}
+        onClick={() => void runSequence(intakeToPlanSequence(preferredLanguage))}
       >
         {running ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wallet className="h-4 w-4" />}
-        <span>Plan banwayein</span>
+        <span>{t("Plan banwayein", "Build plan")}</span>
       </Button>
       <Button
         type="button"
         size="sm"
         variant="danger"
         disabled={running}
-        onClick={() => void runSequence(recoveryAgentSequence())}
+        onClick={() => void runSequence(recoveryAgentSequence(preferredLanguage))}
       >
         {running ? <Loader2 className="h-4 w-4 animate-spin" /> : <Gavel className="h-4 w-4" />}
-        <span>Recovery agent → silenced</span>
+        <span>{t("Recovery agent → silenced", "Recovery agent → silenced")}</span>
       </Button>
       <Button
         type="button"
         size="sm"
         variant="primary"
         disabled={running}
-        onClick={() => void runSequence(vaultEveningQuestionSequence())}
+        onClick={() => void runSequence(vaultEveningQuestionSequence(preferredLanguage))}
       >
         {running ? <Loader2 className="h-4 w-4 animate-spin" /> : <Lock className="h-4 w-4" />}
-        <span>Evening Vault question</span>
+        <span>{t("Evening Vault question", "Evening Vault question")}</span>
       </Button>
       <Button
         type="button"
         size="sm"
         variant="primary"
         disabled={running}
-        onClick={() => void runSequence(salaryDaySequence())}
+        onClick={() => void runSequence(salaryDaySequence(preferredLanguage))}
       >
         {running ? <Loader2 className="h-4 w-4 animate-spin" /> : <Banknote className="h-4 w-4" />}
-        <span>Salary day</span>
+        <span>{t("Salary day", "Salary day")}</span>
       </Button>
       <Button
         type="button"
@@ -658,7 +683,7 @@ export function TriggerPanel() {
         onClick={() => reset()}
       >
         <RefreshCw className="h-4 w-4" />
-        Reset
+        {t("Reset", "Reset")}
       </Button>
       <div className="ml-auto flex items-center gap-2 text-caption text-saathi-ink-quiet">
         <ShieldAlert className="h-3 w-3" />
@@ -666,8 +691,8 @@ export function TriggerPanel() {
           {lastSource === "llm"
             ? "Live LLM (Gemma 4 8B local)"
             : lastSource === "mock-heuristic" || lastSource === "mock-template"
-              ? "Mock fallback active"
-              : "Click a trigger to begin"}
+              ? t("Mock fallback active", "Mock fallback active")
+              : t("Click a trigger to begin", "Click a trigger to begin")}
         </span>
       </div>
     </div>

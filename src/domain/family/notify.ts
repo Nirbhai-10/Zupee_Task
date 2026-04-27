@@ -1,6 +1,7 @@
 import type { DemoFamilyMember } from "@/domain/types";
 import type { Plan } from "@/domain/investment/allocator";
 import { findProduct } from "@/lib/mocks/investment-products";
+import type { LanguageCode } from "@/lib/i18n/languages";
 
 /**
  * Bharosa's family notification copywriter (deterministic).
@@ -22,6 +23,7 @@ export type SalaryDayContext = {
   plan: Plan;
   monthName: string;
   yearNumber: number;
+  primaryLanguage?: LanguageCode;
   /** Optional running totals — used by the husband's update. */
   yearProgress?: {
     weddingPctComplete?: number;
@@ -91,6 +93,26 @@ export function notifyFamilyForSalaryDay(
 
 export function buildHisaabScript(context: SalaryDayContext): string {
   const inr = (v: number) => `₹${v.toLocaleString("en-IN")}`;
+  if (context.primaryLanguage === "en-IN") {
+    const parts = [
+      `Anjali, here is the ${context.monthName} ${context.yearNumber} account update.`,
+      `This month ${inr(context.plan.monthlyAllocationInr)} has been invested —`,
+    ];
+    for (const goal of context.plan.goalAllocations.filter((g) => g.monthlyTotalInr > 0)) {
+      const top = goal.splits[0];
+      const product = findProduct(top.instrument);
+      parts.push(
+        `${inr(goal.monthlyTotalInr)} into ${goal.goalName} through ${product?.partnerName ?? top.instrument},`,
+      );
+    }
+    parts.push("and the rest follows the plan.");
+    if (context.yearProgress?.weddingPctComplete) {
+      parts.push(`Priya's wedding fund is now ${context.yearProgress.weddingPctComplete}% complete.`);
+    }
+    parts.push("The family update has been sent. Everything is on track.");
+    return parts.join(" ");
+  }
+
   const parts = [
     `Anjali ji, ${context.monthName} ${context.yearNumber} ka Hisaab.`,
     `Iss mahine ${inr(context.plan.monthlyAllocationInr)} invest hua —`,

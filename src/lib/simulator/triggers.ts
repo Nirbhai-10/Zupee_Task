@@ -1,4 +1,5 @@
 import type { PhoneId, SimulatorMessage } from "./types";
+import type { LanguageCode } from "@/lib/i18n/languages";
 
 /**
  * Demo-day triggers fire pre-scripted message sequences against the
@@ -23,7 +24,8 @@ export type TriggerStep =
 const KBC_SCAM_TEXT =
   "Mubarak ho! Aap KBC ke lottery mein 25,00,000 jeete hain. Apna lucky number 4509 confirm karne ke liye is number par WhatsApp call karein: +92 3XX XXXXXXX. Yeh offer 24 ghante mein expire ho jayega.";
 
-export function salaryDaySequence(): TriggerStep[] {
+export function salaryDaySequence(language: LanguageCode = "hi-IN"): TriggerStep[] {
+  const isEnglish = language === "en-IN";
   return [
     {
       kind: "message",
@@ -50,8 +52,8 @@ export function salaryDaySequence(): TriggerStep[] {
         timestamp: "9:00",
         variant: {
           kind: "text",
-          text: "Salary aayi hai. Plan execute kar rahe hain.",
-          lang: "hi-IN",
+          text: isEnglish ? "Salary has arrived. Executing the plan now." : "Salary aayi hai. Plan execute kar rahe hain.",
+          lang: language,
         },
       },
     },
@@ -59,7 +61,8 @@ export function salaryDaySequence(): TriggerStep[] {
   ];
 }
 
-export function vaultEveningQuestionSequence(): TriggerStep[] {
+export function vaultEveningQuestionSequence(language: LanguageCode = "hi-IN"): TriggerStep[] {
+  const isEnglish = language === "en-IN";
   return [
     {
       kind: "message",
@@ -70,8 +73,10 @@ export function vaultEveningQuestionSequence(): TriggerStep[] {
         timestamp: "9:00",
         variant: {
           kind: "text",
-          text: "Vault ka 9pm private sawaal aa gaya. Yeh family ko nahi dikhega.",
-          lang: "hi-IN",
+          text: isEnglish
+            ? "Your 9pm private Vault question is here. Family will not see this."
+            : "Vault ka 9pm private sawaal aa gaya. Yeh family ko nahi dikhega.",
+          lang: language,
         },
       },
     },
@@ -79,7 +84,8 @@ export function vaultEveningQuestionSequence(): TriggerStep[] {
   ];
 }
 
-export function recoveryAgentSequence(): TriggerStep[] {
+export function recoveryAgentSequence(language: LanguageCode = "hi-IN"): TriggerStep[] {
+  const isEnglish = language === "en-IN";
   return [
     {
       kind: "message",
@@ -91,8 +97,10 @@ export function recoveryAgentSequence(): TriggerStep[] {
         status: "delivered",
         variant: {
           kind: "text",
-          text: "Bharosa, devar ke credit card pe recovery agent baar baar raat 9:45 ko phone kar raha hai, dhamkiyaan de raha hai.",
-          lang: "hi-IN",
+          text: isEnglish
+            ? "Bharosa, a recovery agent is repeatedly calling at 9:45 PM about my brother-in-law's credit card and using threats."
+            : "Bharosa, devar ke credit card pe recovery agent baar baar raat 9:45 ko phone kar raha hai, dhamkiyaan de raha hai.",
+          lang: language,
         },
       },
     },
@@ -106,8 +114,10 @@ export function recoveryAgentSequence(): TriggerStep[] {
         timestamp: "10:15",
         variant: {
           kind: "text",
-          text: "RBI Master Circular ke against hai. Letter, Sachet draft, aur agent ko negotiator call ready kar raha hoon.",
-          lang: "hi-IN",
+          text: isEnglish
+            ? "This violates RBI recovery rules. I am preparing the letter, Sachet draft, and negotiator call."
+            : "RBI Master Circular ke against hai. Letter, Sachet draft, aur agent ko negotiator call ready kar raha hoon.",
+          lang: language,
         },
       },
     },
@@ -115,7 +125,8 @@ export function recoveryAgentSequence(): TriggerStep[] {
   ];
 }
 
-export function intakeToPlanSequence(): TriggerStep[] {
+export function intakeToPlanSequence(language: LanguageCode = "hi-IN"): TriggerStep[] {
+  const isEnglish = language === "en-IN";
   return [
     {
       kind: "message",
@@ -127,8 +138,8 @@ export function intakeToPlanSequence(): TriggerStep[] {
         status: "delivered",
         variant: {
           kind: "text",
-          text: "Bharosa, ab paise ka kya plan banaaye?",
-          lang: "hi-IN",
+          text: isEnglish ? "Bharosa, what plan should we make for the money now?" : "Bharosa, ab paise ka kya plan banaaye?",
+          lang: language,
         },
       },
     },
@@ -142,8 +153,10 @@ export function intakeToPlanSequence(): TriggerStep[] {
         timestamp: "10:02",
         variant: {
           kind: "text",
-          text: "Anjali ji, aapke ghar ke kharch ke baad ₹5,500 bachte hain. Beti ki shaadi 2032, bete ki coaching 2027, mummy ka medical, Diwali fund — yeh saare goals samajhe. Ek minute mein plan ready karta hoon.",
-          lang: "hi-IN",
+          text: isEnglish
+            ? "Anjali, after household expenses you have ₹5,500 left. I have understood Priya's wedding in 2032, Aarav's coaching in 2027, mother's medical buffer, and Diwali fund. I will prepare the plan in a minute."
+            : "Anjali ji, aapke ghar ke kharch ke baad ₹5,500 bachte hain. Beti ki shaadi 2032, bete ki coaching 2027, mummy ka medical, Diwali fund — yeh saare goals samajhe. Ek minute mein plan ready karta hoon.",
+          lang: language,
         },
       },
     },
@@ -152,7 +165,8 @@ export function intakeToPlanSequence(): TriggerStep[] {
   ];
 }
 
-export function ulipAuditToAnjaliSequence(): TriggerStep[] {
+export function ulipAuditToAnjaliSequence(language: LanguageCode = "hi-IN"): TriggerStep[] {
+  const isEnglish = language === "en-IN";
   return [
     {
       kind: "message",
@@ -164,8 +178,10 @@ export function ulipAuditToAnjaliSequence(): TriggerStep[] {
         status: "delivered",
         variant: {
           kind: "text",
-          text: "Bharosa, ek policy bech rahe hain bank wale. Brochure bhej rahi hoon — dekh sakte ho?",
-          lang: "hi-IN",
+          text: isEnglish
+            ? "Bharosa, the bank is trying to sell me a policy. I am sending the brochure — can you check it?"
+            : "Bharosa, ek policy bech rahe hain bank wale. Brochure bhej rahi hoon — dekh sakte ho?",
+          lang: language,
         },
       },
     },
@@ -194,8 +210,8 @@ export function ulipAuditToAnjaliSequence(): TriggerStep[] {
         timestamp: "9:45",
         variant: {
           kind: "text",
-          text: "Document analyze ho raha hai…",
-          lang: "hi-IN",
+          text: isEnglish ? "Analyzing the document..." : "Document analyze ho raha hai…",
+          lang: language,
         },
       },
     },

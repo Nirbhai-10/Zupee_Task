@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { generateObject, MissingLLMCredentialsError } from "@/lib/llm/router";
+import { generateObject, isRecoverableLLMError } from "@/lib/llm/router";
 import { CHAT_RESPOND_SYSTEM_V1 } from "@/lib/llm/prompts/chat-respond.v1";
 import { detectScript } from "@/lib/i18n/scripts";
 import { isLanguageCode, type LanguageCode } from "@/lib/i18n/languages";
@@ -69,7 +69,7 @@ export async function respondToChat(
       source: "llm",
     };
   } catch (error) {
-    if (error instanceof MissingLLMCredentialsError) {
+    if (isRecoverableLLMError(error)) {
       return mockReply(last.text, preferredLanguage);
     }
     throw error;

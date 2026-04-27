@@ -1,4 +1,4 @@
-import { generateText, MissingLLMCredentialsError } from "@/lib/llm/router";
+import { generateText, isRecoverableLLMError } from "@/lib/llm/router";
 import { DOCUMENT_AUDIT_SYSTEM_V1 } from "@/lib/llm/prompts/document-audit.v1";
 import type { ULIPFeeSchedule } from "@/lib/llm/schemas";
 import { auditULIP, summarizeAuditForPrompt, type ULIPAuditResult } from "@/domain/investment/ulip-math";
@@ -52,8 +52,8 @@ export async function auditDocument(args: AuditDocumentArgs): Promise<AuditDocum
     });
     return { audit, voiceScript: result.text.trim(), source: "llm" };
   } catch (error) {
-    if (error instanceof MissingLLMCredentialsError) {
-      return { audit, voiceScript: mockAuditScript(audit), source: "mock-template" };
+    if (isRecoverableLLMError(error)) {
+      return { audit, voiceScript: mockAuditScript(audit, args.receiver.language), source: "mock-template" };
     }
     throw error;
   }
@@ -61,12 +61,24 @@ export async function auditDocument(args: AuditDocumentArgs): Promise<AuditDocum
 
 /**
  * Template-based fallback for when no LLM key is configured. Plays the
- * audit numbers into a hand-tuned Hindi script. Less expressive than the
+ * audit numbers into a hand-tuned script. Less expressive than the
  * LLM but still factually right.
  */
-function mockAuditScript(audit: ULIPAuditResult): string {
+function mockAuditScript(audit: ULIPAuditResult, language: LanguageCode): string {
   const inr = (v: number) => `₹${v.toLocaleString("en-IN")}`;
   const pct = (v: number) => `${(v * 100).toFixed(1)}%`;
+  if (language === "en-IN") {
+    return [
+      `Anjali, this is the ${audit.productName} policy.`,
+      `You would pay ${inr(audit.ulip.totalPremiumPaid / audit.termYears)} every year for ${audit.termYears} years.`,
+      `Total premium: ${inr(audit.ulip.totalPremiumPaid)}.`,
+      `${inr(audit.ulip.totalChargesPaid)} goes only into charges — allocation, admin, fund management, and mortality.`,
+      `After ${audit.termYears} years, the ULIP fund value is ${inr(audit.ulip.finalFundValue)}, with an effective return of only ${pct(audit.ulip.effectiveAnnualReturn)}.`,
+      `The cleaner alternative is term insurance at ${inr(audit.alternative.termInsuranceAnnualPremium)} per year, plus a monthly SIP of ${inr(audit.alternative.monthlySIP)}.`,
+      `Same money, but the alternative reaches ${inr(audit.alternative.finalFundValue)} with an effective return of ${pct(audit.alternative.effectiveAnnualReturn)}.`,
+      `The difference is ${inr(audit.lifetimeSavingsInr)}. Bharosa recommends not taking this ULIP.`,
+    ].join(" ");
+  }
   return [
     `Anjali ji, yeh ${audit.productName} policy hai.`,
     `Aap ${audit.termYears} saal tak har saal ${inr(audit.ulip.totalPremiumPaid / audit.termYears)} dengi.`,

@@ -5,6 +5,7 @@ import { DEMO_USER_ID } from "@/lib/db/server-anon";
 import { generateVaultReflection } from "@/domain/vault/reflection";
 import { getVaultQuestionById } from "@/domain/vault/questions";
 import { saveVaultResponse } from "@/domain/vault/store";
+import { isLanguageCode, type LanguageCode } from "@/lib/i18n/languages";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -15,6 +16,7 @@ const RequestBody = z.object({
   questionText: z.string().min(1),
   responseTranscript: z.string().min(1).max(3000),
   responseAudioUrl: z.string().nullable().optional(),
+  preferredLanguage: z.string().optional().default("hi-IN"),
   generateVoice: z.boolean().default(true),
 });
 
@@ -29,12 +31,18 @@ export async function POST(req: Request) {
     );
   }
 
+  const preferredLanguage: LanguageCode = isLanguageCode(body.preferredLanguage)
+    ? body.preferredLanguage
+    : "hi-IN";
   const resolvedQuestion = body.questionId ? getVaultQuestionById(body.questionId) : null;
-  const questionText = resolvedQuestion?.text ?? body.questionText;
+  const questionText = preferredLanguage === "en-IN"
+    ? body.questionText
+    : resolvedQuestion?.text ?? body.questionText;
 
   const reflection = await generateVaultReflection({
     questionText,
     responseTranscript: body.responseTranscript,
+    language: preferredLanguage,
   });
 
   let voice: { url: string; durationMs?: number; provider?: string } | null = null;
@@ -42,7 +50,7 @@ export async function POST(req: Request) {
     try {
       const synth = await getVoiceProvider().synthesize({
         text: reflection.reflectionText,
-        language: "hi-IN",
+        language: preferredLanguage,
         timbre: "saathi-warm",
         speed: 0.95,
       });

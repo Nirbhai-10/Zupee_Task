@@ -8,11 +8,13 @@ import {
   type SalaryDayContext,
 } from "@/domain/family/notify";
 import { getVoiceProvider } from "@/lib/voice";
+import { isLanguageCode } from "@/lib/i18n/languages";
 
 const RequestBody = z.object({
   monthName: z.string().default("Apr"),
   yearNumber: z.number().int().min(2024).max(2100).default(2026),
   generateVoice: z.boolean().default(true),
+  preferredLanguage: z.string().optional().default(ANJALI.language),
 });
 
 export const dynamic = "force-dynamic";
@@ -41,7 +43,10 @@ export async function POST(req: Request) {
   }
 
   const planResult = await generatePlan({
-    user: ANJALI,
+    user: {
+      ...ANJALI,
+      language: isLanguageCode(body.preferredLanguage) ? body.preferredLanguage : ANJALI.language,
+    },
     family: FAMILY,
     goals: GOALS,
     todayIso: new Date().toISOString().slice(0, 10),
@@ -51,6 +56,7 @@ export async function POST(req: Request) {
     plan: planResult.plan,
     monthName: body.monthName,
     yearNumber: body.yearNumber,
+    primaryLanguage: isLanguageCode(body.preferredLanguage) ? body.preferredLanguage : ANJALI.language,
     yearProgress: { weddingPctComplete: 18 }, // demo placeholder
   };
 
@@ -72,7 +78,7 @@ export async function POST(req: Request) {
     try {
       const synth = await provider.synthesize({
         text: hisaabScript,
-        language: ANJALI.language,
+        language: context.primaryLanguage ?? ANJALI.language,
         timbre: "saathi-female",
       });
       hisaabVoice = { url: synth.audioUrl, durationMs: synth.durationMs };

@@ -1,7 +1,8 @@
 import { z } from "zod";
-import { generateObject, generateText, MissingLLMCredentialsError } from "@/lib/llm/router";
+import { generateObject, generateText, isRecoverableLLMError } from "@/lib/llm/router";
 import { VAULT_REFLECTION_SYSTEM } from "@/lib/llm/prompts/vault-reflection";
 import { VAULT_MONTHLY_ESSAY_SYSTEM } from "@/lib/llm/prompts/vault-monthly-essay";
+import type { LanguageCode } from "@/lib/i18n/languages";
 
 const ReflectionSchema = z.object({
   reflectionText: z.string().min(1).max(260),
@@ -20,6 +21,7 @@ export async function generateVaultReflection(args: {
   questionText: string;
   responseTranscript: string;
   recentThemes?: string[];
+  language?: LanguageCode;
 }): Promise<VaultReflection> {
   try {
     const { object } = await withTimeout(
@@ -33,8 +35,9 @@ export async function generateVaultReflection(args: {
         prompt: [
           `Evening question: ${args.questionText}`,
           `User voice transcript: ${args.responseTranscript}`,
-          `Recent themes: ${(args.recentThemes ?? []).join(", ") || "none yet"}`,
-          "Return JSON only.",
+        `Recent themes: ${(args.recentThemes ?? []).join(", ") || "none yet"}`,
+        `Output language: ${args.language ?? "hi-IN"}`,
+        "Return JSON only.",
         ].join("\n\n"),
         temperature: 0.45,
         maxOutputTokens: 700,
@@ -49,7 +52,7 @@ export async function generateVaultReflection(args: {
     };
   } catch (error) {
     if (shouldUseVaultFallback(error)) {
-      return mockVaultReflection(args.responseTranscript);
+      return mockVaultReflection(args.responseTranscript, args.language);
     }
     throw error;
   }
@@ -89,11 +92,7 @@ export async function generateMonthlyVaultEssay(args: {
 }
 
 function shouldUseVaultFallback(error: unknown) {
-  return (
-    error instanceof MissingLLMCredentialsError ||
-    error instanceof VaultLLMTimeoutError ||
-    (error instanceof Error && error.name === "LLMOutputParseError")
-  );
+  return isRecoverableLLMError(error) || error instanceof VaultLLMTimeoutError;
 }
 
 class VaultLLMTimeoutError extends Error {
@@ -119,7 +118,7 @@ function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
   });
 }
 
-function mockVaultReflection(transcript: string): VaultReflection {
+function mockVaultReflection(transcript: string, language: LanguageCode = "hi-IN"): VaultReflection {
   const lower = transcript.toLowerCase();
   const emotionTags = [
     lower.includes("pati") || lower.includes("rajesh") ? "husband-money" : null,
@@ -133,7 +132,10 @@ function mockVaultReflection(transcript: string): VaultReflection {
     source: "mock-template",
     responseMode: "warm-reflection",
     emotionTags: emotionTags.length ? emotionTags.slice(0, 4) : ["private-money"],
-    reflectionText: "Suni. Yeh aapki private jagah hai — kahin nahi jaayegi. Bas itna note kar raha hoon ki yeh baat aapke liye halka nahi hai.",
+    reflectionText:
+      language === "en-IN"
+        ? "I heard you. This is your private space and it will not go anywhere. I am only noting that this felt heavier than a normal expense."
+        : "Suni. Yeh aapki private jagah hai — kahin nahi jaayegi. Bas itna note kar raha hoon ki yeh baat aapke liye halka nahi hai.",
   };
 }
 

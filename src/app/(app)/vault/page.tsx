@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { VaultEntryCard } from "@/components/vault/VaultEntryCard";
 import { VaultPrivacyFooter } from "@/components/vault/VaultPrivacyFooter";
+import { T } from "@/components/shared/T";
 import { getVaultStreak, listVaultConfessions } from "@/domain/vault/store";
 
 export const metadata = { title: "Vault" };
@@ -22,7 +23,10 @@ export default async function VaultPage() {
             Private Vault
           </Badge>
           <span className="rounded-pill border border-saathi-gold-line bg-saathi-gold-tint px-3 py-1 text-caption font-medium text-saathi-gold">
-            🤫 {streak.currentStreak} din se aap Vault mein honest hain
+            <T
+              hi={`🤫 ${streak.currentStreak} दिन से private journal active है`}
+              en={`Private journal active for ${streak.currentStreak} days`}
+            />
           </span>
         </div>
         <div className="max-w-3xl space-y-3">
@@ -30,8 +34,10 @@ export default async function VaultPage() {
             Vault
           </h1>
           <p className="text-body-lg text-saathi-ink-soft">
-            Roz raat 9 baje ek private money sawaal. Aap voice mein bolti hain. Saathi sunta
-            hai, judge nahi karta, aur family ko kabhi notify nahi karta.
+            <T
+              hi="रोज रात एक private money सवाल. आप voice में बोलती हैं. Saathi सुनता है, judge नहीं करता, और family को notify नहीं करता."
+              en="A quiet private money journal. Speak in voice; Saathi listens, does not judge, and never notifies family."
+            />
           </p>
         </div>
       </header>
@@ -44,7 +50,10 @@ export default async function VaultPage() {
               Aaj raat ka rhythm
             </CardTitle>
             <CardDescription>
-              Default time: {streak.eveningQuestionTime} · {streak.timezone}
+              <T
+                hi={`Default time: ${streak.eveningQuestionTime} · ${streak.timezone}`}
+                en={`Default time: ${streak.eveningQuestionTime} · ${streak.timezone}`}
+              />
             </CardDescription>
           </CardHeader>
           <CardContent className="flex flex-wrap gap-2">
@@ -67,12 +76,12 @@ export default async function VaultPage() {
               Vault search
             </CardTitle>
             <CardDescription>
-              Find a moment by emotion or topic.
+              <T hi="Emotion या topic से कोई moment खोजें." en="Find a moment by emotion or topic." />
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="rounded-card-sm border border-saathi-paper-edge bg-saathi-cream px-3 py-2 text-body-sm text-saathi-ink-quiet">
-              Try: Diwali, pati, guilt, mummy, Priya
+              <T hi="Try: Diwali, pati, guilt, mummy, Priya" en="Try: Diwali, husband, guilt, parents, Priya" />
             </div>
           </CardContent>
         </Card>
@@ -83,7 +92,10 @@ export default async function VaultPage() {
           <div>
             <h2 className="text-h3 font-semibold text-saathi-ink">Private timeline</h2>
             <p className="text-body-sm text-saathi-ink-soft">
-              {streak.totalConfessions} total confessions · longest streak {streak.longestStreak} days
+              <T
+                hi={`${streak.totalConfessions} private entries · longest streak ${streak.longestStreak} days`}
+                en={`${streak.totalConfessions} private entries · longest streak ${streak.longestStreak} days`}
+              />
             </p>
           </div>
           <Button variant="ghost" size="sm" className="text-saathi-danger hover:bg-saathi-danger-tint">

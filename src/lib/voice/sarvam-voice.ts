@@ -13,17 +13,25 @@ import { isLanguageCode } from "@/lib/i18n/languages";
  *   POST https://api.sarvam.ai/text-to-speech
  *   POST https://api.sarvam.ai/speech-to-text
  *
- * Speaker mapping is intentionally narrow — we use "anushka" (warm
- * female) for Bharosa's default voice, and "abhilash" (male) for husband
- * notifications. Adjust per Sarvam's current speaker catalogue.
- *
- * NOTE: For Day 1 we only stub the integration. The class shape is
- * frozen so flows added Day 2+ can call it without changing call-sites.
+ * Defaults track Sarvam's current production recommendations:
+ * - TTS: bulbul:v3
+ * - STT: saaras:v3
+ * Both can be overridden through env for regression testing.
  */
 
 const SARVAM_API_BASE = "https://api.sarvam.ai";
 
-const SPEAKER_BY_TIMBRE = {
+const DEFAULT_TTS_MODEL = "bulbul:v3";
+const DEFAULT_STT_MODEL = "saaras:v3";
+
+const V3_SPEAKER_BY_TIMBRE = {
+  "saathi-female": "shreya",
+  "saathi-male": "rahul",
+  "saathi-warm": "kavya",
+  "saathi-elder": "roopa",
+} as const;
+
+const V2_SPEAKER_BY_TIMBRE = {
   "saathi-female": "anushka",
   "saathi-male": "abhilash",
   "saathi-warm": "manisha",
@@ -47,9 +55,13 @@ const LANG_TO_SARVAM_CODE: Partial<Record<LanguageCode, string>> = {
 export class SarvamVoiceProvider implements VoiceProvider {
   readonly name = "sarvam" as const;
   private readonly apiKey: string | undefined;
+  private readonly ttsModel: "bulbul:v2" | "bulbul:v3";
+  private readonly sttModel: "saarika:v2.5" | "saaras:v3";
 
   constructor(apiKey: string | undefined = process.env.SARVAM_API_KEY) {
     this.apiKey = apiKey;
+    this.ttsModel = normalizeTTSModel(process.env.SARVAM_TTS_MODEL);
+    this.sttModel = normalizeSTTModel(process.env.SARVAM_STT_MODEL);
   }
 
   isAvailable(): boolean {
@@ -64,25 +76,41 @@ export class SarvamVoiceProvider implements VoiceProvider {
     if (!sarvamLang) {
       throw new Error(`Sarvam: unsupported language ${args.language}`);
     }
-    const speaker = SPEAKER_BY_TIMBRE[args.timbre ?? "saathi-female"];
+    const timbre = args.timbre ?? "saathi-female";
+    const speaker =
+      this.ttsModel === "bulbul:v3"
+        ? V3_SPEAKER_BY_TIMBRE[timbre]
+        : V2_SPEAKER_BY_TIMBRE[timbre];
+    const body =
+      this.ttsModel === "bulbul:v3"
+        ? {
+            text: normalizeSpeechText(args.text),
+            target_language_code: sarvamLang,
+            speaker,
+            pace: clampSpeed(args.speed, "bulbul:v3"),
+            speech_sample_rate: 24000,
+            model: this.ttsModel,
+            temperature: 0.45,
+          }
+        : {
+            text: normalizeSpeechText(args.text),
+            target_language_code: sarvamLang,
+            speaker,
+            pitch: 0,
+            pace: clampSpeed(args.speed, "bulbul:v2"),
+            loudness: 1.0,
+            speech_sample_rate: 22050,
+            enable_preprocessing: true,
+            model: this.ttsModel,
+          };
 
     const response = await fetch(`${SARVAM_API_BASE}/text-to-speech`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "API-Subscription-Key": this.apiKey,
+        "api-subscription-key": this.apiKey,
       },
-      body: JSON.stringify({
-        text: args.text,
-        target_language_code: sarvamLang,
-        speaker,
-        pitch: 0,
-        pace: clampSpeed(args.speed),
-        loudness: 1.0,
-        speech_sample_rate: 22050,
-        enable_preprocessing: true,
-        model: "bulbul:v2",
-      }),
+      body: JSON.stringify(body),
     });
 
     if (!response.ok) {
@@ -96,7 +124,7 @@ export class SarvamVoiceProvider implements VoiceProvider {
 
     const audioUrl = await persistOrInline(base64, args);
     const durationMs = Math.round((args.text.length / 14) * 1000); // rough estimate
-    const costPaise = Math.ceil(args.text.length * 0.06); // Sarvam ~₹0.06/char approx
+    const costPaise = Math.ceil(args.text.length * 0.06); // Best-effort estimate for cost telemetry.
 
     return { audioUrl, durationMs, provider: "sarvam", costPaise };
   }
@@ -114,12 +142,15 @@ export class SarvamVoiceProvider implements VoiceProvider {
 
     const form = new FormData();
     form.append("file", audioBlob, "input.wav");
-    form.append("model", "saarika:v2");
+    form.append("model", this.sttModel);
     form.append("language_code", targetLang);
+    if (this.sttModel === "saaras:v3") {
+      form.append("mode", "transcribe");
+    }
 
     const response = await fetch(`${SARVAM_API_BASE}/speech-to-text`, {
       method: "POST",
-      headers: { "API-Subscription-Key": this.apiKey },
+      headers: { "api-subscription-key": this.apiKey },
       body: form,
     });
     if (!response.ok) {
@@ -143,16 +174,25 @@ export class SarvamVoiceProvider implements VoiceProvider {
   }
 }
 
-function clampSpeed(speed: number | undefined): number {
-  if (!speed) return 1.0;
-  return Math.min(1.5, Math.max(0.5, speed));
+function normalizeTTSModel(model: string | undefined): "bulbul:v2" | "bulbul:v3" {
+  return model === "bulbul:v2" ? "bulbul:v2" : DEFAULT_TTS_MODEL;
 }
 
-/**
- * Day 1 stub: returns a data: URL with the base64 audio. Day 2+ will
- * upload to Supabase Storage and return a signed URL when args.storage
- * is provided.
- */
+function normalizeSTTModel(model: string | undefined): "saarika:v2.5" | "saaras:v3" {
+  return model === "saarika:v2.5" ? "saarika:v2.5" : DEFAULT_STT_MODEL;
+}
+
+function clampSpeed(speed: number | undefined, model: "bulbul:v2" | "bulbul:v3"): number {
+  const value = speed ?? 1.0;
+  return model === "bulbul:v3"
+    ? Math.min(2.0, Math.max(0.5, value))
+    : Math.min(3.0, Math.max(0.3, value));
+}
+
+function normalizeSpeechText(text: string): string {
+  return text.replace(/\b(\d{5,})\b/g, (match) => Number(match).toLocaleString("en-IN"));
+}
+
 async function persistOrInline(
   base64: string,
   _args: SynthesizeArgs,

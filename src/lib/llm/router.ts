@@ -127,6 +127,13 @@ export class MissingLLMCredentialsError extends Error {
   }
 }
 
+export class LLMTimeoutError extends Error {
+  constructor(feature: LLMFeature, ms: number) {
+    super(`LLM call for ${feature} timed out after ${ms}ms.`);
+    this.name = "LLMTimeoutError";
+  }
+}
+
 export type DetectedProvider = {
   provider: LLMProvider;
   source: "explicit" | "auto";
@@ -218,13 +225,17 @@ export async function generateText(args: CommonArgs): Promise<GenerateTextResult
   const tier = args.tier ?? "sonnet";
   const { provider, modelId, model } = resolveModel(tier);
   const started = Date.now();
-  const result = await aiGenerateText({
-    model,
-    system: args.system,
-    prompt: args.prompt,
-    temperature: args.temperature ?? 0.4,
-    ...(args.maxOutputTokens ? { maxOutputTokens: args.maxOutputTokens } : {}),
-  });
+  const result = await withLLMTimeout(
+    aiGenerateText({
+      model,
+      system: args.system,
+      prompt: args.prompt,
+      temperature: args.temperature ?? 0.4,
+      ...(args.maxOutputTokens ? { maxOutputTokens: args.maxOutputTokens } : {}),
+    }),
+    args.feature,
+    provider,
+  );
   const latencyMs = Date.now() - started;
   const inputTokens = result.usage.inputTokens ?? 0;
   const outputTokens = result.usage.outputTokens ?? 0;
@@ -277,16 +288,20 @@ export async function generateObject<T extends z.ZodType>(
   }
 
   const started = Date.now();
-  const result = await aiGenerateObject({
-    model,
-    schema: args.schema,
-    schemaName: args.schemaName,
-    schemaDescription: args.schemaDescription,
-    system: args.system,
-    prompt: args.prompt,
-    temperature: args.temperature ?? 0.2,
-    ...(args.maxOutputTokens ? { maxOutputTokens: args.maxOutputTokens } : {}),
-  });
+  const result = await withLLMTimeout(
+    aiGenerateObject({
+      model,
+      schema: args.schema,
+      schemaName: args.schemaName,
+      schemaDescription: args.schemaDescription,
+      system: args.system,
+      prompt: args.prompt,
+      temperature: args.temperature ?? 0.2,
+      ...(args.maxOutputTokens ? { maxOutputTokens: args.maxOutputTokens } : {}),
+    }),
+    args.feature,
+    provider,
+  );
   const latencyMs = Date.now() - started;
   const inputTokens = result.usage.inputTokens ?? 0;
   const outputTokens = result.usage.outputTokens ?? 0;
@@ -326,6 +341,15 @@ export class LLMOutputParseError extends Error {
   }
 }
 
+export function isRecoverableLLMError(error: unknown): boolean {
+  return (
+    error instanceof MissingLLMCredentialsError ||
+    error instanceof LLMTimeoutError ||
+    error instanceof LLMOutputParseError ||
+    (error instanceof Error && error.name === "LLMOutputParseError")
+  );
+}
+
 async function generateObjectViaJsonText<T extends z.ZodType>(
   args: GenerateObjectArgs<T>,
   resolved: { provider: LLMProvider; modelId: string; model: LanguageModel; tier: LLMTier },
@@ -360,13 +384,17 @@ async function generateObjectViaJsonText<T extends z.ZodType>(
         : baseSystem +
           "\n\nThe previous attempt did not return valid JSON. Try again. Output ONLY the JSON object, starting with `{` and ending with `}`. No other characters.";
 
-    const result = await aiGenerateText({
-      model,
-      system,
-      prompt: args.prompt,
-      temperature: args.temperature ?? 0.1,
-      ...(args.maxOutputTokens ? { maxOutputTokens: args.maxOutputTokens } : {}),
-    });
+    const result = await withLLMTimeout(
+      aiGenerateText({
+        model,
+        system,
+        prompt: args.prompt,
+        temperature: args.temperature ?? 0.1,
+        ...(args.maxOutputTokens ? { maxOutputTokens: args.maxOutputTokens } : {}),
+      }),
+      args.feature,
+      provider,
+    );
     totalIn += result.usage.inputTokens ?? 0;
     totalOut += result.usage.outputTokens ?? 0;
 
@@ -398,6 +426,7 @@ async function generateObjectViaJsonText<T extends z.ZodType>(
         latencyMs,
       };
     } catch (error) {
+      if (error instanceof LLMTimeoutError) throw error;
       lastError = error;
     }
   }
@@ -406,6 +435,29 @@ async function generateObjectViaJsonText<T extends z.ZodType>(
     `Ollama (${modelId}) failed to produce valid JSON for ${args.feature} after 2 attempts: ${(lastError as Error).message}`,
     "",
   );
+}
+
+function llmTimeoutMs(provider: LLMProvider): number {
+  const configured = Number(process.env.LLM_TIMEOUT_MS);
+  if (Number.isFinite(configured) && configured > 0) return configured;
+  return provider === "ollama" ? 4_000 : 20_000;
+}
+
+function withLLMTimeout<T>(promise: Promise<T>, feature: LLMFeature, provider: LLMProvider): Promise<T> {
+  const ms = llmTimeoutMs(provider);
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => reject(new LLMTimeoutError(feature, ms)), ms);
+    promise.then(
+      (value) => {
+        clearTimeout(timer);
+        resolve(value);
+      },
+      (error) => {
+        clearTimeout(timer);
+        reject(error);
+      },
+    );
+  });
 }
 
 function extractJsonObject(text: string): string {

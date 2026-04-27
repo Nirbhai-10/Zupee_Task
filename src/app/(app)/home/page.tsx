@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { FileSearch, Lock, ShieldCheck, Wallet } from "lucide-react";
+import type { ElementType } from "react";
+import { Banknote, Database, FileSearch, Lock, ShieldCheck, TrendingUp, Wallet } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -55,32 +56,32 @@ export default async function HomePage() {
       </section>
 
       <section className="mx-auto w-full max-w-5xl">
-        <Link href="/vault" className="group block">
-          <Card
-            tone="paper"
-            padding="md"
-            className="border-saathi-gold-line bg-saathi-gold-tint/60 transition-all group-hover:-translate-y-0.5 group-hover:shadow-card"
-          >
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <div className="flex items-center gap-3">
-                <span className="flex h-10 w-10 items-center justify-center rounded-pill bg-saathi-paper text-saathi-gold">
-                  <Lock className="h-5 w-5" />
-                </span>
-                <div>
-                  <div className="text-body font-semibold text-saathi-ink">
-                    🤫 {vaultStreak.currentStreak} din se aap Vault mein honest hain
-                  </div>
-                  <div className="text-caption text-saathi-ink-soft">
-                    Aaj raat {vaultStreak.eveningQuestionTime} par ek private money sawaal.
-                  </div>
-                </div>
-              </div>
-              <span className="text-caption font-medium text-saathi-gold">
-                Vault kholen →
-              </span>
-            </div>
-          </Card>
-        </Link>
+        <div className="grid gap-4 lg:grid-cols-3">
+          <MoatCard
+            icon={ShieldCheck}
+            title={{ hi: "पहले risk रोकता है", en: "Stops risk first" }}
+            body={{
+              hi: "Scams, ULIPs, recovery calls और wrong bills — हर incident evidence के साथ record होता है।",
+              en: "Scams, ULIPs, recovery calls, and wrong bills are handled with evidence, not vague advice.",
+            }}
+          />
+          <MoatCard
+            icon={TrendingUp}
+            title={{ hi: "फिर पैसा move करता है", en: "Then moves money" }}
+            body={{
+              hi: "Salary day पर goals में split: medical, education, wedding, festival fund — UPI Autopay ready.",
+              en: "On salary day it splits money into real goals: medical, education, wedding, festival fund.",
+            }}
+          />
+          <MoatCard
+            icon={Database}
+            title={{ hi: "History moat बनती है", en: "Builds a history moat" }}
+            body={{
+              hi: "हर बचाया हुआ rupee, blocked scam और goal transfer future advice को ज्यादा personal बनाता है।",
+              en: "Every saved rupee, blocked scam, and goal transfer makes future advice more personal.",
+            }}
+          />
+        </div>
       </section>
 
       {/* Quick actions */}
@@ -113,12 +114,12 @@ export default async function HomePage() {
           }}
         />
         <QuickAction
-          href="/vault"
-          icon={Lock}
-          label={{ hi: "Vault खोलें", en: "Open Vault" }}
+          href="/demo/simulator"
+          icon={Banknote}
+          label={{ hi: "Salary day देखें", en: "See salary day" }}
           subLabel={{
-            hi: "रात 9 बजे private money sawaal.",
-            en: "A private money question every night at 9.",
+            hi: "Monthly money goals में अपने आप split होता है।",
+            en: "Monthly money is split into goals automatically.",
           }}
         />
       </section>
@@ -231,7 +232,70 @@ export default async function HomePage() {
           })}
         </div>
       </section>
+
+      <section className="mx-auto w-full max-w-5xl">
+        <Link href="/vault" className="group block">
+          <Card
+            tone="paper"
+            padding="md"
+            className="border-saathi-paper-edge bg-saathi-paper/80 transition-all group-hover:-translate-y-0.5 group-hover:shadow-card"
+          >
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <span className="flex h-10 w-10 items-center justify-center rounded-pill bg-saathi-cream text-saathi-gold">
+                  <Lock className="h-5 w-5" />
+                </span>
+                <div>
+                  <div className="text-body font-semibold text-saathi-ink">
+                    <T
+                      hi={`${vaultStreak.currentStreak} दिन का private money journal`}
+                      en={`${vaultStreak.currentStreak}-day private money journal`}
+                    />
+                  </div>
+                  <div className="text-caption text-saathi-ink-soft">
+                    <T
+                      hi={`Quiet layer · रात ${vaultStreak.eveningQuestionTime} · optional, private, encrypted`}
+                      en={`Quiet layer · ${vaultStreak.eveningQuestionTime} · optional, private, encrypted`}
+                    />
+                  </div>
+                </div>
+              </div>
+              <span className="text-caption font-medium text-saathi-gold">
+                <T hi="Vault खोलें →" en="Open Vault →" />
+              </span>
+            </div>
+          </Card>
+        </Link>
+      </section>
     </main>
+  );
+}
+
+function MoatCard({
+  icon: Icon,
+  title,
+  body,
+}: {
+  icon: ElementType;
+  title: { hi: string; en: string };
+  body: { hi: string; en: string };
+}) {
+  return (
+    <Card tone="paper" padding="md" className="h-full">
+      <div className="flex items-start gap-3">
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-pill bg-saathi-deep-green-tint text-saathi-deep-green">
+          <Icon className="h-5 w-5" />
+        </span>
+        <div className="space-y-1">
+          <h2 className="text-body font-semibold text-saathi-ink">
+            <T hi={title.hi} en={title.en} />
+          </h2>
+          <p className="text-body-sm text-saathi-ink-soft">
+            <T hi={body.hi} en={body.en} />
+          </p>
+        </div>
+      </div>
+    </Card>
   );
 }
 

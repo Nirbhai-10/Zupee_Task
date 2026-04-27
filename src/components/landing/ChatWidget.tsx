@@ -15,6 +15,7 @@ const HIDE_ON_PREFIXES = [
   "/investments",
   "/timeline",
   "/conversations",
+  "/vault",
   "/settings",
   "/admin",
   "/demo/simulator",

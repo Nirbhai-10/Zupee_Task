@@ -1,4 +1,4 @@
-import { generateObject, MissingLLMCredentialsError } from "@/lib/llm/router";
+import { generateObject, isRecoverableLLMError } from "@/lib/llm/router";
 import { ScamClassification } from "@/lib/llm/schemas";
 import { SCAM_CLASSIFY_SYSTEM_V1 } from "@/lib/llm/prompts/scam-classify.v1";
 import { SCAM_PATTERNS_SEED } from "@/lib/mocks/scam-patterns";
@@ -78,7 +78,7 @@ export async function classifyScam(
       matchedPatternName: args.matches?.[0]?.patternName,
     };
   } catch (error) {
-    if (error instanceof MissingLLMCredentialsError) {
+    if (isRecoverableLLMError(error)) {
       return mockClassifyHeuristic(args);
     }
     throw error;
@@ -113,6 +113,7 @@ function mockClassifyHeuristic(args: ClassifyScamArgs): ClassifyScamResult {
   }
 
   if (!best.pattern || best.score < 1) {
+    const isEnglish = args.receiver.language === "en-IN";
     return {
       source: "mock-heuristic",
       classification: {
@@ -122,10 +123,12 @@ function mockClassifyHeuristic(args: ClassifyScamArgs): ClassifyScamResult {
         identifyingSignals: ["No close match in pattern bank — unable to classify offline."],
         payloadType: "unknown",
         estimatedLossInr: 0,
-        receiverExplanation:
-          "Yeh message thoda alag hai. Bharosa LLM se confirm karega jaldi. Tab tak link mat dabaayein, koi paisa mat bhejein.",
-        primaryUserAlert:
-          "Anjali ji, ek message aaya hai jo humare pattern bank mein clearly match nahi hua. LLM se classify hone tak intezaar karein.",
+        receiverExplanation: isEnglish
+          ? "This message is unusual. Bharosa will confirm it with the full classifier soon. Until then, please do not click any link, reply, or send money."
+          : "Yeh message thoda alag hai. Bharosa LLM se confirm karega jaldi. Tab tak link mat dabaayein, koi paisa mat bhejein.",
+        primaryUserAlert: isEnglish
+          ? "Anjali, this message did not clearly match the offline pattern bank. Please wait for the full classifier before acting."
+          : "Anjali ji, ek message aaya hai jo humare pattern bank mein clearly match nahi hua. LLM se classify hone tak intezaar karein.",
       },
     };
   }
@@ -133,9 +136,10 @@ function mockClassifyHeuristic(args: ClassifyScamArgs): ClassifyScamResult {
   const pattern = best.pattern;
   const verdict = pattern.severity === "high" ? "SCAM" : "SUSPICIOUS";
   const isElder = args.receiver.ageBand === "60-75" || args.receiver.ageBand === "75+";
-  const salutation = isElder ? "Maaji, namaste." : "Namaste.";
-  const receiverExplanation = buildReceiverExplanation(salutation, pattern);
-  const primaryUserAlert = buildPrimaryAlert(args.receiver.name, pattern);
+  const isEnglish = args.receiver.language === "en-IN";
+  const salutation = isEnglish ? (isElder ? "Namaste, Maaji." : "Namaste.") : isElder ? "Maaji, namaste." : "Namaste.";
+  const receiverExplanation = buildReceiverExplanation(salutation, pattern, isEnglish);
+  const primaryUserAlert = buildPrimaryAlert(args.receiver.name, pattern, isEnglish);
 
   return {
     source: "mock-heuristic",
@@ -156,7 +160,39 @@ function mockClassifyHeuristic(args: ClassifyScamArgs): ClassifyScamResult {
 function buildReceiverExplanation(
   salutation: string,
   pattern: (typeof SCAM_PATTERNS_SEED)[number],
+  isEnglish: boolean,
 ): string {
+  if (isEnglish) {
+    const blurb: Record<string, string> = {
+      lottery:
+        "This is a KBC lottery scam. KBC never sends prizes on WhatsApp. Do not reply, delete the message, and do not call the number.",
+      "banking-impersonation":
+        "This is a fake bank message. A real bank will not ask you to update KYC through a random WhatsApp link. Do not click it.",
+      "kyc-update":
+        "This is a fake KYC update. Real companies do not use WhatsApp links to force account updates. Please delete it.",
+      "digital-arrest":
+        "This is a digital-arrest scam. Indian police do not work this way. Disconnect the call and do not send money.",
+      "investment-scheme":
+        "This is a fake investment tip. A SEBI-registered adviser will not push guaranteed stock tips through public Telegram groups.",
+      "tech-support-fraud":
+        "This is a fake Microsoft support message. Microsoft does not call people like this. Please do not call the number.",
+      "courier-scam":
+        "This is a fake courier or customs scam. Real customs officers do not handle cases through WhatsApp.",
+      "fake-refund":
+        "This is a fake refund message. Do not share bank details and do not open the link.",
+      "phishing-link":
+        "This is a phishing link. Clicking it can put your account at risk. Please delete the message.",
+      "ulip-misselling":
+        "This policy is expensive and hides important charges. Bharosa can audit it in 60 seconds; please do not agree yet.",
+      "tax-refund":
+        "This is a fake income-tax refund message. The Income Tax Department does not send refund links like this.",
+    };
+    const body =
+      blurb[pattern.category] ??
+      "This message is suspicious. Please do not reply, click, or send money. Bharosa is watching this with you.";
+    return `${salutation} ${body} Stay calm; nothing has gone from your account.`;
+  }
+
   const blurb: Record<string, string> = {
     lottery:
       "Yeh KBC lottery scam hai. KBC kabhi WhatsApp pe inaam nahi bhejta. Reply mat dijiye, message delete kar dijiye. Aapki bahurani ko bhi inform kar diya hai.",
@@ -187,8 +223,15 @@ function buildReceiverExplanation(
   return `${salutation} ${body} Thande dimaag se rahiye, sab theek hai.`;
 }
 
-function buildPrimaryAlert(receiverName: string, pattern: (typeof SCAM_PATTERNS_SEED)[number]): string {
+function buildPrimaryAlert(receiverName: string, pattern: (typeof SCAM_PATTERNS_SEED)[number], isEnglish: boolean): string {
   const loss = estimateLoss(pattern.category);
+  if (isEnglish) {
+    const lossClause =
+      loss > 0
+        ? `If they had acted, the risk was ₹${loss.toLocaleString("en-IN")}.`
+        : "No money has gone out.";
+    return `${receiverName} received a ${pattern.category.replace(/-/g, " ")} scam. We caught it, explained it clearly, and blocked the risk. ${lossClause}`;
+  }
   const lossClause =
     loss > 0
       ? `Agar wo act karte, ₹${loss.toLocaleString("en-IN")} ka risk tha.`

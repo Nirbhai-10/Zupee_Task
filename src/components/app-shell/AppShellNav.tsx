@@ -28,13 +28,13 @@ type NavItem = {
 
 const NAV_ITEMS: NavItem[] = [
   { href: "/home", label: { hi: "घर", en: "Home" }, icon: HomeIcon },
-  { href: "/vault", label: { hi: "Vault", en: "Vault" }, icon: Lock },
-  { href: "/family", label: { hi: "परिवार", en: "Family" }, icon: Users },
-  { href: "/goals", label: { hi: "लक्ष्य", en: "Goals" }, icon: Target },
   { href: "/defenses", label: { hi: "सुरक्षा", en: "Defenses" }, icon: ShieldCheck },
+  { href: "/goals", label: { hi: "लक्ष्य", en: "Goals" }, icon: Target },
   { href: "/investments", label: { hi: "निवेश", en: "Investments" }, icon: Wallet },
+  { href: "/family", label: { hi: "परिवार", en: "Family" }, icon: Users },
   { href: "/timeline", label: { hi: "टाइमलाइन", en: "Timeline" }, icon: CalendarRange },
   { href: "/conversations", label: { hi: "बातचीत", en: "Chat" }, icon: MessageCircle },
+  { href: "/vault", label: { hi: "Vault", en: "Vault" }, icon: Lock },
   { href: "/settings", label: { hi: "सेटिंग्स", en: "Settings" }, icon: Cog },
 ];
 

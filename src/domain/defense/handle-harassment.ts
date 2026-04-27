@@ -1,4 +1,4 @@
-import { generateText, MissingLLMCredentialsError } from "@/lib/llm/router";
+import { generateText, isRecoverableLLMError } from "@/lib/llm/router";
 import {
   HARASSMENT_LETTER_SYSTEM_V1,
   NEGOTIATOR_CALL_SYSTEM_V1,
@@ -75,7 +75,7 @@ export async function handleHarassment(
       source: "llm",
     };
   } catch (error) {
-    if (error instanceof MissingLLMCredentialsError) {
+    if (isRecoverableLLMError(error)) {
       return mockHarassment(input, sachetDraft);
     }
     throw error;
@@ -103,6 +103,39 @@ function buildSachetDraft(input: HarassmentInput) {
 }
 
 function mockHarassment(input: HarassmentInput, sachetDraft: HarassmentResult["sachetDraft"]): HarassmentResult {
+  if (input.language === "en-IN") {
+    const letter = `To,
+${input.agentName}
+${input.agencyName}
+Re: Recovery activity for ${input.bankNbfc} — Account in the name of ${input.borrowerName}
+
+Dear Sir/Madam,
+
+This letter is written on behalf of ${input.borrowerName} (resident of ${input.borrowerCity}). On ${input.callTime ?? "[recent date]"}, your agency contacted a relative of the borrower in violation of RBI's Fair Practices Code. The incident is summarised as: ${input.incidentSummary}
+
+This conduct violates RBI rules on multiple counts: recovery agents may not contact relatives when the borrower is reachable, may not call before 8 AM or after 7 PM, and may not use threatening or intimidating language.
+
+You are required to stop this contact immediately and communicate only through the borrower's registered channel. Any further phone call, home visit, or contact with relatives will be treated as continued harassment.
+
+A formal complaint is being prepared for the RBI Sachet portal and the Banking Ombudsman unless your agency confirms cessation in writing within 24 hours.
+
+Yours sincerely,
+${input.borrowerName}
+${input.borrowerCity}, India
+
+CC: RBI Sachet · Banking Ombudsman · ${input.bankNbfc} Grievance Cell`;
+
+    const callScript = `This call is on the authorised behalf of ${input.borrowerName}. This is Bharosa speaking. ${input.borrowerName}'s loan is with ${input.bankNbfc}; repayment intent is confirmed.
+
+However, under RBI recovery-agent rules, calls cannot be made before 8 AM or after 7 PM, and relatives cannot be contacted when the borrower is reachable. Your call at ${input.callTime ?? "the reported time"} is a violation.
+
+From now on, communicate only through the borrower's registered channel. Stop phone calls and contact with relatives immediately. If written confirmation is not received within 24 hours, a complaint will be filed through RBI Sachet and the Banking Ombudsman.
+
+Thank you. This call is being recorded.`;
+
+    return { letter, callScript, sachetDraft, source: "mock-template" };
+  }
+
   const letter = `To,
 ${input.agentName}
 ${input.agencyName}

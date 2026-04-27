@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Currency } from "@/components/shared/Currency";
 import { VoicePlayer } from "@/components/voice/VoicePlayer";
 import { T } from "@/components/shared/T";
-import { useT } from "@/lib/i18n/language-context";
+import { useLanguage, useT } from "@/lib/i18n/language-context";
 import { SCAM_PATTERNS_SEED } from "@/lib/mocks/scam-patterns";
 import { detectScript } from "@/lib/i18n/scripts";
 import type { ScamClassification } from "@/lib/llm/schemas";
@@ -98,6 +98,8 @@ type StageState =
 
 export function ScamPlayground() {
   const t = useT();
+  const { lang } = useLanguage();
+  const receiverLanguage = lang === "en" ? "en-IN" : "hi-IN";
   const [state, setState] = React.useState<StageState>({ kind: "idle" });
   const [custom, setCustom] = React.useState("");
   const [activePreset, setActivePreset] = React.useState<string | null>(null);
@@ -118,7 +120,7 @@ export function ScamPlayground() {
           receiver: {
             relationship: "mother-in-law",
             ageBand: "60-75",
-            language: "hi-IN",
+            language: receiverLanguage,
             name: "Mummy",
           },
           generateVoice: true,
