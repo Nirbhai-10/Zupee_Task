@@ -17,7 +17,8 @@ export type TriggerStep =
   | { kind: "ulip-audit"; phoneId: PhoneId; delayMs: number }
   | { kind: "build-plan"; phoneId: PhoneId; delayMs: number }
   | { kind: "salary-day"; delayMs: number }
-  | { kind: "harassment"; phoneId: PhoneId; delayMs: number };
+  | { kind: "harassment"; phoneId: PhoneId; delayMs: number }
+  | { kind: "vault-evening"; phoneId: PhoneId; delayMs: number };
 
 const KBC_SCAM_TEXT =
   "Mubarak ho! Aap KBC ke lottery mein 25,00,000 jeete hain. Apna lucky number 4509 confirm karne ke liye is number par WhatsApp call karein: +92 3XX XXXXXXX. Yeh offer 24 ghante mein expire ho jayega.";
@@ -55,6 +56,26 @@ export function salaryDaySequence(): TriggerStep[] {
       },
     },
     { kind: "salary-day", delayMs: 700 },
+  ];
+}
+
+export function vaultEveningQuestionSequence(): TriggerStep[] {
+  return [
+    {
+      kind: "message",
+      delayMs: 0,
+      message: {
+        phoneId: "anjali",
+        direction: "inbound",
+        timestamp: "9:00",
+        variant: {
+          kind: "text",
+          text: "Vault ka 9pm private sawaal aa gaya. Yeh family ko nahi dikhega.",
+          lang: "hi-IN",
+        },
+      },
+    },
+    { kind: "vault-evening", phoneId: "anjali", delayMs: 700 },
   ];
 }
 

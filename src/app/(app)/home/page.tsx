@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowUpRight, FileSearch, ShieldCheck, Wallet } from "lucide-react";
+import { FileSearch, Lock, ShieldCheck, Wallet } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,6 +7,7 @@ import { Currency } from "@/components/shared/Currency";
 import { T } from "@/components/shared/T";
 import { ANJALI, GOALS } from "@/lib/mocks/demo-personas";
 import { trustLevelLabel } from "@/domain/trust-level";
+import { getVaultStreak } from "@/domain/vault/store";
 
 export const metadata = { title: "Home" };
 
@@ -15,7 +16,8 @@ const SCAMS_BLOCKED = 12;
 const ULIPS_REFUSED = 1;
 const BILLS_FIXED = 3;
 
-export default function HomePage() {
+export default async function HomePage() {
+  const vaultStreak = await getVaultStreak();
   const today = new Date();
   return (
     <main className="flex flex-1 flex-col gap-8 bg-saathi-cream px-6 py-10">
@@ -52,6 +54,35 @@ export default function HomePage() {
         </Card>
       </section>
 
+      <section className="mx-auto w-full max-w-5xl">
+        <Link href="/vault" className="group block">
+          <Card
+            tone="paper"
+            padding="md"
+            className="border-saathi-gold-line bg-saathi-gold-tint/60 transition-all group-hover:-translate-y-0.5 group-hover:shadow-card"
+          >
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <span className="flex h-10 w-10 items-center justify-center rounded-pill bg-saathi-paper text-saathi-gold">
+                  <Lock className="h-5 w-5" />
+                </span>
+                <div>
+                  <div className="text-body font-semibold text-saathi-ink">
+                    🤫 {vaultStreak.currentStreak} din se aap Vault mein honest hain
+                  </div>
+                  <div className="text-caption text-saathi-ink-soft">
+                    Aaj raat {vaultStreak.eveningQuestionTime} par ek private money sawaal.
+                  </div>
+                </div>
+              </div>
+              <span className="text-caption font-medium text-saathi-gold">
+                Vault kholen →
+              </span>
+            </div>
+          </Card>
+        </Link>
+      </section>
+
       {/* Quick actions */}
       <section className="mx-auto grid w-full max-w-5xl gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <QuickAction
@@ -82,12 +113,12 @@ export default function HomePage() {
           }}
         />
         <QuickAction
-          href="/family"
-          icon={ArrowUpRight}
-          label={{ hi: "Family जोड़ें", en: "Add family" }}
+          href="/vault"
+          icon={Lock}
+          label={{ hi: "Vault खोलें", en: "Open Vault" }}
           subLabel={{
-            hi: "मम्मी, पति, भाई — सब safe।",
-            en: "Mother-in-law, husband, sibling — all looped in.",
+            hi: "रात 9 बजे private money sawaal.",
+            en: "A private money question every night at 9.",
           }}
         />
       </section>

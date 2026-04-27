@@ -22,6 +22,7 @@ export type SimulatorTriggerKind =
   | "ulip-doc-to-anjali"
   | "intake-conversation"
   | "salary-day"
+  | "vault-evening"
   | "reset";
 
 export type SimulatorDefense = {
@@ -70,6 +71,16 @@ export type SimulatorHarassment = {
   createdAt: string;
 };
 
+export type SimulatorVaultConfession = {
+  id: string;
+  questionText: string;
+  responseTranscript: string;
+  reflectionText: string;
+  reflectionVoiceUrl?: string;
+  emotionTags: string[];
+  createdAt: string;
+};
+
 export type SimulatorState = {
   messages: SimulatorMessage[];
   typing: Partial<Record<PhoneId, boolean>>;
@@ -77,4 +88,5 @@ export type SimulatorState = {
   audits: SimulatorAudit[];
   plans: SimulatorPlan[];
   harassments: SimulatorHarassment[];
+  vaultConfessions: SimulatorVaultConfession[];
 };

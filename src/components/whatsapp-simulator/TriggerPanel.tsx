@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Banknote, FileSearch, Gavel, Loader2, Play, RefreshCw, ShieldAlert, Wallet } from "lucide-react";
+import { Banknote, FileSearch, Gavel, Loader2, Lock, Play, RefreshCw, ShieldAlert, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useSimulator } from "./SimulatorProvider";
@@ -11,6 +11,7 @@ import {
   intakeToPlanSequence,
   salaryDaySequence,
   recoveryAgentSequence,
+  vaultEveningQuestionSequence,
   type TriggerStep,
 } from "@/lib/simulator/triggers";
 import type { ScamClassification } from "@/lib/llm/schemas";
@@ -22,6 +23,7 @@ import type {
   SimulatorAudit,
   SimulatorPlan,
   SimulatorHarassment,
+  SimulatorVaultConfession,
 } from "@/lib/simulator/types";
 
 const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
@@ -74,6 +76,23 @@ type SalaryDayResponse = {
   yearNumber: number;
 };
 
+type VaultQuestionResponse = {
+  confessionId: string | null;
+  question: { id: string; text: string; language: "hi-IN"; category: string };
+  voice: { url: string; durationMs?: number; provider?: string } | null;
+};
+
+type VaultRespondResponse = {
+  confession: { id: string; questionText: string; responseTranscript: string | null };
+  reflection: {
+    text: string;
+    responseMode: string;
+    emotionTags: string[];
+    source: string;
+    voice: { url: string; durationMs?: number; provider?: string } | null;
+  };
+};
+
 const FAMILY_TO_PHONE: Record<string, PhoneId> = {
   "22222222-2222-2222-2222-222222222201": "mil",
   "22222222-2222-2222-2222-222222222202": "husband",
@@ -85,7 +104,16 @@ const FAMILY_TO_PHONE: Record<string, PhoneId> = {
  * Day 2 ships the KBC scam trigger; days 3-5 add ULIP, intake, salary.
  */
 export function TriggerPanel() {
-  const { appendMessage, setTyping, appendDefense, appendAudit, appendPlan, appendHarassment, reset } = useSimulator();
+  const {
+    appendMessage,
+    setTyping,
+    appendDefense,
+    appendAudit,
+    appendPlan,
+    appendHarassment,
+    appendVaultConfession,
+    reset,
+  } = useSimulator();
   const [running, setRunning] = React.useState(false);
   const [lastSource, setLastSource] = React.useState<string | null>(null);
 
@@ -108,11 +136,124 @@ export function TriggerPanel() {
           await runSalaryDay();
         } else if (step.kind === "harassment") {
           await runHarassment(step.phoneId);
+        } else if (step.kind === "vault-evening") {
+          await runVaultEvening(step.phoneId);
         }
       }
     } finally {
       setRunning(false);
     }
+  }
+
+  async function runVaultEvening(phoneId: PhoneId) {
+    const questionResponse = await fetch("/api/vault/send-evening-question", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+    });
+    if (!questionResponse.ok) {
+      console.warn("[vault] question non-2xx", questionResponse.status);
+      return;
+    }
+    const questionData = (await questionResponse.json()) as VaultQuestionResponse;
+    setLastSource("vault");
+
+    if (questionData.voice?.url) {
+      appendMessage({
+        id: crypto.randomUUID(),
+        phoneId,
+        direction: "inbound",
+        timestamp: "9:00",
+        variant: {
+          kind: "voice",
+          audioUrl: questionData.voice.url,
+          durationMs: questionData.voice.durationMs,
+          transcript: questionData.question.text,
+          lang: "hi-IN",
+        },
+      });
+    } else {
+      appendMessage({
+        id: crypto.randomUUID(),
+        phoneId,
+        direction: "inbound",
+        timestamp: "9:00",
+        variant: { kind: "text", text: questionData.question.text, lang: "hi-IN" },
+      });
+    }
+
+    await sleep(1300);
+    const transcript =
+      "Aaj Priya ke school project ke liye extra kharcha hua. Sandal leni thi apne liye, purani toot rahi hai, par maine nahi li. Rajesh ko bataungi toh woh bolenge le lo, par mujhe guilt hota hai.";
+    appendMessage({
+      id: crypto.randomUUID(),
+      phoneId,
+      direction: "outbound",
+      timestamp: "9:02",
+      status: "delivered",
+      variant: {
+        kind: "voice",
+        audioUrl: `browser-tts:${Buffer.from(
+          JSON.stringify({ text: transcript, lang: "hi-IN", timbre: "saathi-female", speed: 1 }),
+          "utf8",
+        ).toString("base64url")}`,
+        durationMs: 18_000,
+        transcript,
+        lang: "hi-IN",
+      },
+    });
+
+    setTyping(phoneId, true);
+    const respondResponse = await fetch("/api/vault/respond", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        confessionId: questionData.confessionId,
+        questionId: questionData.question.id,
+        questionText: questionData.question.text,
+        responseTranscript: transcript,
+        generateVoice: true,
+      }),
+    });
+    setTyping(phoneId, false);
+    if (!respondResponse.ok) {
+      console.warn("[vault] response non-2xx", respondResponse.status);
+      return;
+    }
+    const data = (await respondResponse.json()) as VaultRespondResponse;
+    if (data.reflection.voice?.url) {
+      appendMessage({
+        id: crypto.randomUUID(),
+        phoneId,
+        direction: "inbound",
+        timestamp: "9:03",
+        variant: {
+          kind: "voice",
+          audioUrl: data.reflection.voice.url,
+          durationMs: data.reflection.voice.durationMs,
+          transcript: data.reflection.text,
+          lang: "hi-IN",
+        },
+      });
+    } else {
+      appendMessage({
+        id: crypto.randomUUID(),
+        phoneId,
+        direction: "inbound",
+        timestamp: "9:03",
+        variant: { kind: "text", text: data.reflection.text, lang: "hi-IN" },
+      });
+    }
+
+    const record: SimulatorVaultConfession = {
+      id: data.confession.id,
+      questionText: questionData.question.text,
+      responseTranscript: transcript,
+      reflectionText: data.reflection.text,
+      reflectionVoiceUrl: data.reflection.voice?.url,
+      emotionTags: data.reflection.emotionTags,
+      createdAt: new Date().toISOString(),
+    };
+    appendVaultConfession(record);
   }
 
   async function runHarassment(phoneId: PhoneId) {
@@ -485,6 +626,16 @@ export function TriggerPanel() {
       >
         {running ? <Loader2 className="h-4 w-4 animate-spin" /> : <Gavel className="h-4 w-4" />}
         <span>Recovery agent → silenced</span>
+      </Button>
+      <Button
+        type="button"
+        size="sm"
+        variant="primary"
+        disabled={running}
+        onClick={() => void runSequence(vaultEveningQuestionSequence())}
+      >
+        {running ? <Loader2 className="h-4 w-4 animate-spin" /> : <Lock className="h-4 w-4" />}
+        <span>Evening Vault question</span>
       </Button>
       <Button
         type="button"

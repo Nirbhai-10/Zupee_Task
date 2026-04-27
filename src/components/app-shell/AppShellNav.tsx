@@ -8,6 +8,7 @@ import {
   CalendarRange,
   Cog,
   Home as HomeIcon,
+  Lock,
   MessageCircle,
   ShieldCheck,
   Sparkles,
@@ -27,6 +28,7 @@ type NavItem = {
 
 const NAV_ITEMS: NavItem[] = [
   { href: "/home", label: { hi: "घर", en: "Home" }, icon: HomeIcon },
+  { href: "/vault", label: { hi: "Vault", en: "Vault" }, icon: Lock },
   { href: "/family", label: { hi: "परिवार", en: "Family" }, icon: Users },
   { href: "/goals", label: { hi: "लक्ष्य", en: "Goals" }, icon: Target },
   { href: "/defenses", label: { hi: "सुरक्षा", en: "Defenses" }, icon: ShieldCheck },

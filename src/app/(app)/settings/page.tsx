@@ -3,6 +3,7 @@
 import * as React from "react";
 import {
   Bell,
+  Clock,
   CircleCheck,
   CircleDot,
   Cog,
@@ -67,6 +68,7 @@ export default function SettingsPage() {
   const [pushNotif, setPushNotif] = React.useState(true);
   const [voiceNotif, setVoiceNotif] = React.useState(true);
   const [familyDigest, setFamilyDigest] = React.useState(true);
+  const [vaultEvening, setVaultEvening] = React.useState(true);
 
   return (
     <main className="flex flex-1 flex-col gap-6 px-6 py-10">
@@ -181,6 +183,40 @@ export default function SettingsPage() {
               checked={familyDigest}
               onChange={setFamilyDigest}
             />
+          </CardContent>
+        </Card>
+
+        {/* Vault rhythm */}
+        <Card tone="paper" padding="md" className="border-saathi-deep-green-line">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-h3">
+              <Clock className="h-5 w-5 text-saathi-deep-green" />
+              <T hi="Vault ka evening sawaal" en="Vault evening question" />
+            </CardTitle>
+            <CardDescription>
+              <T
+                hi="Default 9pm IST. Sawaal private voice note ke roop mein aata hai."
+                en="Default 9pm IST. The question arrives as a private voice note."
+              />
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <ToggleRow
+              label={{ hi: "Roz raat private sawaal", en: "Daily private evening question" }}
+              hint={{
+                hi: "Family ko notify nahi hota. Yeh sirf Vault mein rehta hai.",
+                en: "Family is never notified. It stays only in Vault.",
+              }}
+              checked={vaultEvening}
+              onChange={setVaultEvening}
+            />
+            <div className="grid gap-3 sm:grid-cols-2">
+              <Field label={{ hi: "समय", en: "Time" }} value="21:00" />
+              <Field label={{ hi: "Timezone", en: "Timezone" }} value="Asia/Kolkata" />
+            </div>
+            <p className="rounded-card-sm bg-saathi-deep-green-tint px-3 py-2 text-caption text-saathi-deep-green">
+              Vault entries AES-256 encrypted hain. Delete karne ke liye voice confirmation lagega.
+            </p>
           </CardContent>
         </Card>
 

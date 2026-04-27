@@ -14,6 +14,7 @@ import type {
   SimulatorMessage,
   SimulatorPlan,
   SimulatorState,
+  SimulatorVaultConfession,
 } from "@/lib/simulator/types";
 
 type Action =
@@ -23,6 +24,7 @@ type Action =
   | { type: "append-audit"; audit: SimulatorAudit }
   | { type: "append-plan"; plan: SimulatorPlan }
   | { type: "append-harassment"; harassment: SimulatorHarassment }
+  | { type: "append-vault-confession"; confession: SimulatorVaultConfession }
   | { type: "reset" };
 
 const INITIAL: SimulatorState = {
@@ -32,6 +34,7 @@ const INITIAL: SimulatorState = {
   audits: [],
   plans: [],
   harassments: [],
+  vaultConfessions: [],
 };
 
 function reducer(state: SimulatorState, action: Action): SimulatorState {
@@ -48,6 +51,8 @@ function reducer(state: SimulatorState, action: Action): SimulatorState {
       return { ...state, plans: [action.plan, ...state.plans] };
     case "append-harassment":
       return { ...state, harassments: [action.harassment, ...state.harassments] };
+    case "append-vault-confession":
+      return { ...state, vaultConfessions: [action.confession, ...state.vaultConfessions] };
     case "reset":
       return INITIAL;
   }
@@ -61,6 +66,7 @@ type Ctx = {
   appendAudit: (a: SimulatorAudit) => void;
   appendPlan: (p: SimulatorPlan) => void;
   appendHarassment: (h: SimulatorHarassment) => void;
+  appendVaultConfession: (c: SimulatorVaultConfession) => void;
   reset: () => void;
   /** All messages targeted at a given phone (inbound + outbound from that phone). */
   messagesForPhone: (phoneId: PhoneId) => SimulatorMessage[];
@@ -113,6 +119,7 @@ export function SimulatorProvider({
       appendAudit: (a) => dispatch({ type: "append-audit", audit: a }),
       appendPlan: (p) => dispatch({ type: "append-plan", plan: p }),
       appendHarassment: (h) => dispatch({ type: "append-harassment", harassment: h }),
+      appendVaultConfession: (c) => dispatch({ type: "append-vault-confession", confession: c }),
       reset: () => {
         dispatch({ type: "reset" });
         publish({ kind: "reset" });

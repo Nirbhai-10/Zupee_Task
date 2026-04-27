@@ -8,6 +8,7 @@ import { PlanCard } from "@/components/goals/PlanCard";
 import { Card, CardContent } from "@/components/ui/card";
 import { Currency } from "@/components/shared/Currency";
 import { Badge } from "@/components/ui/badge";
+import { Lock } from "lucide-react";
 
 /**
  * Sits below the three phones on /demo/simulator. Renders the
@@ -26,7 +27,8 @@ export function SimulatorActivityPane() {
     state.defenses.length === 0 &&
     state.audits.length === 0 &&
     state.plans.length === 0 &&
-    state.harassments.length === 0
+    state.harassments.length === 0 &&
+    state.vaultConfessions.length === 0
   ) {
     return (
       <Card tone="cream" padding="md" className="text-body-sm text-saathi-ink-soft">
@@ -54,7 +56,7 @@ export function SimulatorActivityPane() {
           </h2>
         </div>
         <span className="text-caption text-saathi-ink-quiet">
-          {state.defenses.length + state.audits.length} actions
+          {state.defenses.length + state.audits.length + state.vaultConfessions.length} actions
         </span>
       </div>
 
@@ -68,6 +70,30 @@ export function SimulatorActivityPane() {
             language={p.language}
             className="lg:col-span-2"
           />
+        ))}
+        {state.vaultConfessions.map((v) => (
+          <Card key={v.id} tone="cream" padding="md" className="border-saathi-deep-green-line lg:col-span-2">
+            <div className="flex items-start gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-pill bg-saathi-paper text-saathi-deep-green">
+                <Lock className="h-5 w-5" />
+              </div>
+              <div className="min-w-0 space-y-2">
+                <Badge tone="green">Vault saved · private</Badge>
+                <h3 className="text-h3 font-semibold text-saathi-ink">{v.questionText}</h3>
+                <p className="text-body-sm text-saathi-ink-soft">{v.responseTranscript}</p>
+                <p className="rounded-card-sm bg-saathi-paper px-3 py-2 text-body-sm text-saathi-deep-green">
+                  {v.reflectionText}
+                </p>
+                <div className="flex flex-wrap gap-1.5">
+                  {v.emotionTags.map((tag) => (
+                    <span key={tag} className="rounded-pill bg-saathi-paper px-2 py-0.5 text-caption text-saathi-ink-soft">
+                      {tag.replace(/-/g, " ")}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </Card>
         ))}
         {state.harassments.map((h) => (
           <HarassmentCard
