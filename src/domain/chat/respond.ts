@@ -56,7 +56,7 @@ export async function respondToChat(
       feature: "chat-respond",
       tier: "haiku",
       system: CHAT_RESPOND_SYSTEM_V1,
-      prompt: `Conversation so far:\n${transcriptForPrompt}\n\nReply to the user's latest message. JSON only.`,
+      prompt: `Visitor's preferred language: ${preferredLanguage} (${preferredLanguage === "en-IN" ? "FULLY ENGLISH — no Hinglish, no romanised Hindi like 'main hoon' or 'aap'. Brand 'Bharosa' stays as-is" : "Hindi or Hinglish — mirror the user's script"}).\n\nConversation so far:\n${transcriptForPrompt}\n\nReply to the user's latest message in their preferred language. JSON only.`,
       temperature: 0.5,
       maxOutputTokens: 2000,
     });
