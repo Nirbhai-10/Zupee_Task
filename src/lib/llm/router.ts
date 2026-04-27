@@ -20,7 +20,7 @@ import { logLLMEvent } from "@/lib/observability/llm-events";
  */
 
 export type LLMTier = "sonnet" | "haiku";
-export type LLMProvider = "anthropic" | "openai" | "grok" | "ollama";
+export type LLMProvider = "sarvam" | "anthropic" | "openai" | "grok" | "ollama";
 export type LLMFeature =
   | "scam-classify"
   | "scam-explain"
@@ -39,7 +39,18 @@ function ollamaModelId(): string {
   return process.env.OLLAMA_MODEL ?? "gemma4:e4b";
 }
 
+function sarvamModelId(): string {
+  return process.env.SARVAM_MODEL ?? "sarvam-m";
+}
+
 const PROVIDER_MODELS: Record<LLMProvider, Record<LLMTier, string>> = {
+  sarvam: {
+    // Sarvam-M is currently the single chat model. Per-tier overrides
+    // (`SARVAM_MODEL_SONNET` / `SARVAM_MODEL_HAIKU`) are honoured if Sarvam
+    // ships additional models later.
+    get sonnet() { return process.env.SARVAM_MODEL_SONNET ?? sarvamModelId(); },
+    get haiku() { return process.env.SARVAM_MODEL_HAIKU ?? sarvamModelId(); },
+  },
   anthropic: {
     sonnet: "claude-sonnet-4-6",
     haiku: "claude-haiku-4-5-20251001",
@@ -67,6 +78,13 @@ const PROVIDER_PRICING: Record<
   LLMProvider,
   Record<LLMTier, { input: number; output: number }>
 > = {
+  sarvam: {
+    // Sarvam-M public pricing: ~₹2.5 per 1k input, ~₹10 per 1k output (paise).
+    // These are conservative placeholders until Sarvam publishes a stable
+    // pricing card; refresh when their billing dashboard locks numbers.
+    sonnet: { input: 2.5, output: 10 },
+    haiku: { input: 2.5, output: 10 },
+  },
   anthropic: {
     sonnet: { input: 24.9, output: 124.5 },
     haiku: { input: 6.64, output: 33.2 },
@@ -84,6 +102,21 @@ const PROVIDER_PRICING: Record<
     haiku: { input: 0, output: 0 },
   },
 };
+
+let sarvamProviderCache: ReturnType<typeof createOpenAI> | null = null;
+function sarvamProvider() {
+  if (!sarvamProviderCache) {
+    sarvamProviderCache = createOpenAI({
+      baseURL: process.env.SARVAM_BASE_URL ?? "https://api.sarvam.ai/v1",
+      apiKey: process.env.SARVAM_API_KEY,
+    });
+  }
+  return sarvamProviderCache;
+}
+
+function sarvamConfigured(): boolean {
+  return Boolean(process.env.SARVAM_API_KEY);
+}
 
 let grokProviderCache: ReturnType<typeof createOpenAI> | null = null;
 function grokProvider() {
@@ -121,7 +154,7 @@ export class MissingLLMCredentialsError extends Error {
   constructor(message?: string) {
     super(
       message ??
-        "No LLM provider key configured. Set ANTHROPIC_API_KEY, OPENAI_API_KEY, or GROK_API_KEY in .env.local.",
+        "No LLM provider key configured. Set SARVAM_API_KEY (preferred), ANTHROPIC_API_KEY, OPENAI_API_KEY, GROK_API_KEY, or OLLAMA_BASE_URL in .env.local.",
     );
     this.name = "MissingLLMCredentialsError";
   }
@@ -145,6 +178,9 @@ export function detectProvider(): DetectedProvider | null {
     if (explicit === "ollama") {
       return { provider: "ollama", source: "explicit" };
     }
+    if (explicit === "sarvam") {
+      if (sarvamConfigured()) return { provider: "sarvam", source: "explicit" };
+    }
     if (explicit === "anthropic" || explicit === "openai" || explicit === "grok") {
       const keyName = `${explicit.toUpperCase()}_API_KEY`;
       if (process.env[keyName]) {
@@ -152,6 +188,8 @@ export function detectProvider(): DetectedProvider | null {
       }
     }
   }
+  // Auto-priority: Sarvam first (Bharat-native intelligence), then cloud, then local.
+  if (sarvamConfigured()) return { provider: "sarvam", source: "auto" };
   if (process.env.ANTHROPIC_API_KEY) return { provider: "anthropic", source: "auto" };
   if (process.env.OPENAI_API_KEY) return { provider: "openai", source: "auto" };
   if (process.env.GROK_API_KEY) return { provider: "grok", source: "auto" };
@@ -161,6 +199,7 @@ export function detectProvider(): DetectedProvider | null {
 
 export function listAvailableProviders(): LLMProvider[] {
   const out: LLMProvider[] = [];
+  if (sarvamConfigured()) out.push("sarvam");
   if (process.env.ANTHROPIC_API_KEY) out.push("anthropic");
   if (process.env.OPENAI_API_KEY) out.push("openai");
   if (process.env.GROK_API_KEY) out.push("grok");
@@ -175,7 +214,9 @@ function resolveModel(
   if (!detected) throw new MissingLLMCredentialsError();
   const modelId = PROVIDER_MODELS[detected.provider][tier];
   let model: LanguageModel;
-  if (detected.provider === "anthropic") {
+  if (detected.provider === "sarvam") {
+    model = sarvamProvider()(modelId);
+  } else if (detected.provider === "anthropic") {
     model = anthropic(modelId);
   } else if (detected.provider === "openai") {
     model = openai(modelId);
@@ -279,11 +320,12 @@ export async function generateObject<T extends z.ZodType>(
   const tier = args.tier ?? "sonnet";
   const { provider, modelId, model } = resolveModel(tier);
 
-  // Smaller local models (Ollama / Gemma) don't produce reliable tool calls,
+  // Smaller / non-tool-calling models don't produce reliable tool calls,
   // which is what aiGenerateObject defaults to. Use a JSON-via-text path
-  // for Ollama: append the schema to the prompt, ask for JSON-only output,
-  // parse + Zod-validate. One retry on parse failure with a stricter prompt.
-  if (provider === "ollama") {
+  // for Ollama and Sarvam: append the schema to the prompt, ask for
+  // JSON-only output, parse + Zod-validate. One retry on parse failure with
+  // a stricter prompt.
+  if (provider === "ollama" || provider === "sarvam") {
     return generateObjectViaJsonText(args, { provider, modelId, model, tier });
   }
 

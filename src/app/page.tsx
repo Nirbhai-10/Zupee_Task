@@ -22,6 +22,7 @@ import { UlipAuditDemo } from "@/components/landing/UlipAuditDemo";
 import { WhatsAppHeroCta } from "@/components/landing/WhatsAppHeroCta";
 import { LiveTrustCounter } from "@/components/landing/LiveTrustCounter";
 import { ZupeeAttribution } from "@/components/brand/ZupeeAttribution";
+import { VoiceAgent } from "@/components/voice/VoiceAgent";
 
 const DEFENSE_CARDS = [
   {
@@ -257,6 +258,30 @@ export default function Home() {
                 );
               })}
             </div>
+          </div>
+        </section>
+
+        {/* Voice agent — press & talk. Sarvam STT → Sarvam-M chat → Sarvam TTS. */}
+        <section id="voice" className="border-y border-saathi-paper-edge bg-saathi-cream-deep">
+          <div className="mx-auto max-w-6xl px-6 py-14">
+            <div className="mb-6 max-w-3xl space-y-3">
+              <Badge tone="green">
+                <T hi="आवाज़ से बात करें" en="Talk to Bharosa" />
+              </Badge>
+              <T
+                as="h2"
+                hi="Bharat की आवाज़ — Sarvam-M पर चलती है।"
+                en="Bharat's voice — powered by Sarvam-M."
+                className="text-h1 font-semibold tracking-tight text-saathi-ink"
+              />
+              <T
+                as="p"
+                hi="नीचे वाला mic दबाइए, अपनी भाषा में पूछिए — scam, ULIP, recovery agent, या salary plan। Sarvam STT आपकी आवाज़ समझता है, Sarvam-M जवाब देता है, और Sarvam TTS असली आवाज़ में वापस बोलता है।"
+                en="Press the mic below and ask in your language — scam, ULIP, recovery agent, or salary plan. Sarvam STT understands you, Sarvam-M replies, and Sarvam TTS speaks back in a real Indian voice."
+                className="text-body-lg text-saathi-ink-soft"
+              />
+            </div>
+            <VoiceAgent />
           </div>
         </section>
 

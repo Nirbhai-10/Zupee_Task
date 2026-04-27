@@ -9,6 +9,7 @@ import { T } from "@/components/shared/T";
 import { ANJALI, GOALS } from "@/lib/mocks/demo-personas";
 import { trustLevelLabel } from "@/domain/trust-level";
 import { getVaultStreak } from "@/domain/vault/store";
+import { VoiceAgent } from "@/components/voice/VoiceAgent";
 
 export const metadata = { title: "Home" };
 
@@ -34,6 +35,11 @@ export default async function HomePage() {
           {today.toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long" })}
         </p>
       </header>
+
+      {/* Press & talk — Sarvam voice agent */}
+      <section className="mx-auto w-full max-w-5xl">
+        <VoiceAgent />
+      </section>
 
       {/* Savings hero */}
       <section className="mx-auto w-full max-w-5xl">
