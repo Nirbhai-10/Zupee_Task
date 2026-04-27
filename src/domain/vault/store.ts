@@ -222,22 +222,23 @@ export async function saveVaultResponse(args: {
   const userId = args.userId ?? DEMO_USER_ID;
   const supabase = getSupabaseDemoClient();
   const now = new Date().toISOString();
+  const fallbackConfession = (): VaultConfession => ({
+    id: args.confessionId ?? `vault-demo-${crypto.randomUUID()}`,
+    userId,
+    askedAt: now,
+    questionId: args.questionId ?? null,
+    questionText: args.questionText,
+    responseAudioUrl: args.responseAudioUrl ?? null,
+    responseTranscript: args.responseTranscript,
+    saathiReflectionAudioUrl: args.saathiReflectionAudioUrl ?? null,
+    saathiReflectionText: args.saathiReflectionText,
+    emotionTags: args.emotionTags,
+    isShared: false,
+    sharedWith: [],
+  });
 
   if (!supabase) {
-    return {
-      id: args.confessionId ?? "vault-demo-new",
-      userId,
-      askedAt: now,
-      questionId: args.questionId ?? null,
-      questionText: args.questionText,
-      responseAudioUrl: args.responseAudioUrl ?? null,
-      responseTranscript: args.responseTranscript,
-      saathiReflectionAudioUrl: args.saathiReflectionAudioUrl ?? null,
-      saathiReflectionText: args.saathiReflectionText,
-      emotionTags: args.emotionTags,
-      isShared: false,
-      sharedWith: [],
-    };
+    return fallbackConfession();
   }
 
   const patch = {
@@ -275,7 +276,7 @@ export async function saveVaultResponse(args: {
   }
 
   await upsertVaultStreak(userId, now);
-  return row ? fromRawConfession(row) : mockConfessions()[0];
+  return row ? fromRawConfession(row) : fallbackConfession();
 }
 
 export async function upsertMonthlyReflection(args: {

@@ -1,11 +1,7 @@
 "use client";
 
 import * as React from "react";
-import {
-  publish,
-  subscribe,
-  type SimulatorBusEvent,
-} from "@/lib/simulator/event-bus";
+import { subscribe, type SimulatorBusEvent } from "@/lib/simulator/event-bus";
 import type {
   PhoneId,
   SimulatorAudit,
@@ -107,23 +103,14 @@ export function SimulatorProvider({
   const value = React.useMemo<Ctx>(
     () => ({
       state,
-      appendMessage: (m) => {
-        dispatch({ type: "append-message", message: m });
-        publish({ kind: "message", payload: m });
-      },
-      setTyping: (phoneId, isTyping) => {
-        dispatch({ type: "set-typing", phoneId, isTyping });
-        publish({ kind: "typing", payload: { phoneId, isTyping } });
-      },
+      appendMessage: (m) => dispatch({ type: "append-message", message: m }),
+      setTyping: (phoneId, isTyping) => dispatch({ type: "set-typing", phoneId, isTyping }),
       appendDefense: (d) => dispatch({ type: "append-defense", defense: d }),
       appendAudit: (a) => dispatch({ type: "append-audit", audit: a }),
       appendPlan: (p) => dispatch({ type: "append-plan", plan: p }),
       appendHarassment: (h) => dispatch({ type: "append-harassment", harassment: h }),
       appendVaultConfession: (c) => dispatch({ type: "append-vault-confession", confession: c }),
-      reset: () => {
-        dispatch({ type: "reset" });
-        publish({ kind: "reset" });
-      },
+      reset: () => dispatch({ type: "reset" }),
       messagesForPhone: (phoneId) =>
         state.messages.filter((m) => m.phoneId === phoneId),
     }),

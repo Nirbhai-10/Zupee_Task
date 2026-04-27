@@ -25,6 +25,7 @@ import type {
   SimulatorHarassment,
   SimulatorVaultConfession,
 } from "@/lib/simulator/types";
+import { createBrowserTTSUrl } from "@/lib/voice/browser-voice";
 
 const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 
@@ -192,10 +193,12 @@ export function TriggerPanel() {
       status: "delivered",
       variant: {
         kind: "voice",
-        audioUrl: `browser-tts:${Buffer.from(
-          JSON.stringify({ text: transcript, lang: "hi-IN", timbre: "saathi-female", speed: 1 }),
-          "utf8",
-        ).toString("base64url")}`,
+        audioUrl: createBrowserTTSUrl({
+          text: transcript,
+          lang: "hi-IN",
+          timbre: "saathi-female",
+          speed: 1,
+        }),
         durationMs: 18_000,
         transcript,
         lang: "hi-IN",

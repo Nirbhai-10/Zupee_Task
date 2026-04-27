@@ -30,7 +30,7 @@ export class BrowserVoiceProvider implements VoiceProvider {
       timbre: args.timbre ?? "saathi-female",
       speed: args.speed ?? 1.0,
     };
-    const encoded = Buffer.from(JSON.stringify(payload), "utf8").toString("base64url");
+    const encoded = encodeBase64Url(JSON.stringify(payload));
     const audioUrl = `browser-tts:${encoded}`;
     const durationMs = Math.round((args.text.length / 14) * 1000);
     return { audioUrl, durationMs, provider: "browser", costPaise: 0 };
@@ -57,9 +57,46 @@ export function decodeBrowserTTS(url: string): {
   if (!url.startsWith("browser-tts:")) return null;
   try {
     const encoded = url.slice("browser-tts:".length);
-    const json = Buffer.from(encoded, "base64url").toString("utf8");
+    const json = decodeBase64Url(encoded);
     return JSON.parse(json);
   } catch {
     return null;
   }
+}
+
+export function createBrowserTTSUrl(payload: {
+  text: string;
+  lang: string;
+  timbre?: string;
+  speed?: number;
+}) {
+  return `browser-tts:${encodeBase64Url(
+    JSON.stringify({
+      text: payload.text,
+      lang: payload.lang,
+      timbre: payload.timbre ?? "saathi-female",
+      speed: payload.speed ?? 1,
+    }),
+  )}`;
+}
+
+function encodeBase64Url(value: string): string {
+  if (typeof btoa === "function" && typeof TextEncoder !== "undefined") {
+    const bytes = new TextEncoder().encode(value);
+    let binary = "";
+    for (const byte of bytes) binary += String.fromCharCode(byte);
+    return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
+  }
+  return Buffer.from(value, "utf8").toString("base64url");
+}
+
+function decodeBase64Url(value: string): string {
+  if (typeof atob === "function" && typeof TextDecoder !== "undefined") {
+    const base64 = value.replace(/-/g, "+").replace(/_/g, "/");
+    const padded = base64.padEnd(Math.ceil(base64.length / 4) * 4, "=");
+    const binary = atob(padded);
+    const bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0));
+    return new TextDecoder().decode(bytes);
+  }
+  return Buffer.from(value, "base64url").toString("utf8");
 }

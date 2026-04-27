@@ -9,6 +9,9 @@ const ReflectionSchema = z.object({
   emotionTags: z.array(z.string()).min(1).max(5),
 });
 
+const REFLECTION_TIMEOUT_MS = 8_000;
+const MONTHLY_ESSAY_TIMEOUT_MS = 10_000;
+
 export type VaultReflection = z.infer<typeof ReflectionSchema> & {
   source: "llm" | "mock-template";
 };
@@ -19,22 +22,25 @@ export async function generateVaultReflection(args: {
   recentThemes?: string[];
 }): Promise<VaultReflection> {
   try {
-    const { object } = await generateObject({
-      feature: "vault-reflection",
-      tier: "haiku",
-      schema: ReflectionSchema,
-      schemaName: "VaultReflection",
-      schemaDescription: "Private evening Vault reflection",
-      system: VAULT_REFLECTION_SYSTEM,
-      prompt: [
-        `Evening question: ${args.questionText}`,
-        `User voice transcript: ${args.responseTranscript}`,
-        `Recent themes: ${(args.recentThemes ?? []).join(", ") || "none yet"}`,
-        "Return JSON only.",
-      ].join("\n\n"),
-      temperature: 0.45,
-      maxOutputTokens: 700,
-    });
+    const { object } = await withTimeout(
+      generateObject({
+        feature: "vault-reflection",
+        tier: "haiku",
+        schema: ReflectionSchema,
+        schemaName: "VaultReflection",
+        schemaDescription: "Private evening Vault reflection",
+        system: VAULT_REFLECTION_SYSTEM,
+        prompt: [
+          `Evening question: ${args.questionText}`,
+          `User voice transcript: ${args.responseTranscript}`,
+          `Recent themes: ${(args.recentThemes ?? []).join(", ") || "none yet"}`,
+          "Return JSON only.",
+        ].join("\n\n"),
+        temperature: 0.45,
+        maxOutputTokens: 700,
+      }),
+      REFLECTION_TIMEOUT_MS,
+    );
     return {
       ...object,
       reflectionText: cleanVaultCopy(object.reflectionText),
@@ -42,10 +48,7 @@ export async function generateVaultReflection(args: {
       source: "llm",
     };
   } catch (error) {
-    if (
-      error instanceof MissingLLMCredentialsError ||
-      (error instanceof Error && error.name === "LLMOutputParseError")
-    ) {
+    if (shouldUseVaultFallback(error)) {
       return mockVaultReflection(args.responseTranscript);
     }
     throw error;
@@ -65,24 +68,55 @@ export async function generateMonthlyVaultEssay(args: {
     .join("\n\n");
 
   try {
-    const result = await generateText({
-      feature: "vault-monthly-essay",
-      tier: "sonnet",
-      system: VAULT_MONTHLY_ESSAY_SYSTEM,
-      prompt: `Month: ${args.monthLabel}\n\nVault entries:\n${entryText}\n\nWrite the 90-second Hindi/Hinglish voice essay.`,
-      temperature: 0.45,
-      maxOutputTokens: 1300,
-    });
+    const result = await withTimeout(
+      generateText({
+        feature: "vault-monthly-essay",
+        tier: "sonnet",
+        system: VAULT_MONTHLY_ESSAY_SYSTEM,
+        prompt: `Month: ${args.monthLabel}\n\nVault entries:\n${entryText}\n\nWrite the 90-second Hindi/Hinglish voice essay.`,
+        temperature: 0.45,
+        maxOutputTokens: 1300,
+      }),
+      MONTHLY_ESSAY_TIMEOUT_MS,
+    );
     return { text: cleanVaultCopy(result.text), source: "llm" };
   } catch (error) {
-    if (
-      error instanceof MissingLLMCredentialsError ||
-      (error instanceof Error && error.name === "LLMOutputParseError")
-    ) {
+    if (shouldUseVaultFallback(error)) {
       return { text: mockMonthlyEssay(args.monthLabel, args.entries), source: "mock-template" };
     }
     throw error;
   }
+}
+
+function shouldUseVaultFallback(error: unknown) {
+  return (
+    error instanceof MissingLLMCredentialsError ||
+    error instanceof VaultLLMTimeoutError ||
+    (error instanceof Error && error.name === "LLMOutputParseError")
+  );
+}
+
+class VaultLLMTimeoutError extends Error {
+  constructor(ms: number) {
+    super(`Vault LLM timed out after ${ms}ms`);
+    this.name = "VaultLLMTimeoutError";
+  }
+}
+
+function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => reject(new VaultLLMTimeoutError(ms)), ms);
+    promise.then(
+      (value) => {
+        clearTimeout(timer);
+        resolve(value);
+      },
+      (error) => {
+        clearTimeout(timer);
+        reject(error);
+      },
+    );
+  });
 }
 
 function mockVaultReflection(transcript: string): VaultReflection {
