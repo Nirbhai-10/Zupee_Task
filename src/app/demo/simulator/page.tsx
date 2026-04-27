@@ -21,9 +21,9 @@ export const metadata = {
 export default function SimulatorPage() {
   return (
     <main className="flex flex-1 flex-col bg-saathi-cream-deep">
-      <div className="border-b border-saathi-paper-edge bg-saathi-paper px-6 py-4">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="space-y-1">
+      <div className="border-b border-saathi-paper-edge bg-saathi-paper/95 px-4 py-4 backdrop-blur sm:px-6">
+        <div className="mx-auto flex max-w-[1200px] flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div className="max-w-2xl space-y-1.5">
             <Badge tone="green">
               <T hi="लाइव डेमो" en="Live demo" />
             </Badge>
@@ -37,7 +37,7 @@ export default function SimulatorPage() {
               />
             </p>
           </div>
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2 md:justify-end">
             <StatusPill className="hidden lg:inline-flex" />
             <LanguageToggle />
             <Button asChild variant="ghost" size="sm">

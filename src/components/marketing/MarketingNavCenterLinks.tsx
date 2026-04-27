@@ -4,8 +4,8 @@ import Link from "next/link";
 import { useT } from "@/lib/i18n/language-context";
 
 const SECTIONS = [
-  { id: "defense", hi: "बचाव", en: "Defense" },
-  { id: "investments", hi: "निवेश", en: "Investments" },
+  { href: "/#defense", hi: "बचाव", en: "Defense" },
+  { href: "/#investments", hi: "निवेश", en: "Investments" },
 ];
 
 const ROUTES = [
@@ -17,12 +17,12 @@ const ROUTES = [
 export function MarketingNavCenterLinks() {
   const t = useT();
   return (
-    <div className="hidden flex-1 justify-center gap-6 text-body-sm md:flex">
+    <div className="hidden min-w-0 items-center justify-center gap-2 text-body-sm lg:flex">
       {SECTIONS.map((s) => (
         <Link
-          key={s.id}
-          href={`#${s.id}`}
-          className="text-saathi-ink-soft transition-colors hover:text-saathi-deep-green"
+          key={s.href}
+          href={s.href}
+          className="whitespace-nowrap rounded-pill px-3 py-2 text-saathi-ink-soft transition-colors hover:bg-saathi-deep-green-tint hover:text-saathi-deep-green"
         >
           {t(s.hi, s.en)}
         </Link>
@@ -31,7 +31,7 @@ export function MarketingNavCenterLinks() {
         <Link
           key={r.href}
           href={r.href}
-          className="text-saathi-ink-soft transition-colors hover:text-saathi-deep-green"
+          className="whitespace-nowrap rounded-pill px-3 py-2 text-saathi-ink-soft transition-colors hover:bg-saathi-deep-green-tint hover:text-saathi-deep-green"
         >
           {t(r.hi, r.en)}
         </Link>

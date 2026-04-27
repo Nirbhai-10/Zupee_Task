@@ -151,16 +151,16 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
         )}
       >
         {/* Header */}
-        <header className="flex items-center gap-3 border-b border-saathi-paper-edge bg-[#075E54] px-3 py-2.5 text-white">
+        <header className="flex min-h-[60px] items-center gap-3 border-b border-black/10 bg-[#064E45] px-3 py-3 text-white">
           <button
             type="button"
             aria-label="Close"
             onClick={onClose}
-            className="flex h-9 w-9 items-center justify-center rounded-pill text-white/90 hover:bg-white/10"
+            className="flex h-9 w-9 items-center justify-center rounded-pill text-white/90 transition-colors hover:bg-white/10"
           >
             <X className="h-4 w-4" />
           </button>
-          <div className="flex h-9 w-9 items-center justify-center rounded-pill bg-white">
+          <div className="flex h-10 w-10 items-center justify-center rounded-pill border border-white/20 bg-white shadow-soft">
             <Image
               src="/brand/logo.svg"
               alt="Bharosa"
@@ -169,14 +169,14 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
               priority
             />
           </div>
-          <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-1 text-sm font-semibold">
+          <div className="min-w-0 flex-1 py-0.5">
+            <div className="flex items-center gap-1 text-sm font-semibold leading-tight text-white">
               Bharosa
-              <span aria-hidden className="ml-0.5 inline-block h-3.5 w-3.5 rounded-full bg-saathi-success text-[8px] font-bold leading-[14px] text-white">
+              <span aria-hidden className="ml-0.5 inline-flex h-3.5 w-3.5 items-center justify-center rounded-full bg-[#22C55E] text-[8px] font-bold leading-none text-white">
                 ✓
               </span>
             </div>
-            <div className="text-[11px] text-white/85">
+            <div className="mt-0.5 truncate text-[11px] leading-tight text-white/80">
               {t("ऑनलाइन · हिन्दी, English", "online · Hindi, English")}
             </div>
           </div>
@@ -185,7 +185,7 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
               type="button"
               onClick={() => setMenuOpen((v) => !v)}
               aria-label="More"
-              className="flex h-9 w-9 items-center justify-center rounded-pill text-white/90 hover:bg-white/10"
+              className="flex h-9 w-9 items-center justify-center rounded-pill text-white/90 transition-colors hover:bg-white/10"
             >
               <MoreVertical className="h-4 w-4" />
             </button>

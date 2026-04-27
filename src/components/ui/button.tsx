@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils/cn";
 const buttonVariants = cva(
   [
     "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-pill",
-    "text-body-sm font-medium transition-colors",
+    "text-sm font-medium leading-5 transition-colors",
     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-saathi-deep-green/30 focus-visible:ring-offset-2 focus-visible:ring-offset-saathi-cream",
     "disabled:pointer-events-none disabled:opacity-50",
   ].join(" "),
@@ -14,22 +14,22 @@ const buttonVariants = cva(
     variants: {
       variant: {
         primary:
-          "bg-saathi-deep-green text-white shadow-soft hover:bg-saathi-deep-green-soft active:bg-saathi-deep-green",
+          "bg-saathi-deep-green text-white shadow-soft hover:bg-saathi-deep-green-soft active:bg-saathi-deep-green [&_*]:text-white",
         secondary:
           "bg-saathi-paper text-saathi-ink border border-saathi-paper-edge hover:bg-saathi-cream-deep",
         ghost:
           "bg-transparent text-saathi-deep-green hover:bg-saathi-deep-green-tint",
         gold:
-          "bg-saathi-gold text-white shadow-soft hover:bg-saathi-gold-soft",
+          "bg-saathi-gold text-white shadow-soft hover:bg-saathi-gold-soft [&_*]:text-white",
         danger:
-          "bg-saathi-danger text-white shadow-soft hover:bg-saathi-danger/90",
+          "bg-saathi-danger text-white shadow-soft hover:bg-saathi-danger/90 [&_*]:text-white",
         outline:
           "border border-saathi-deep-green text-saathi-deep-green hover:bg-saathi-deep-green-tint",
       },
       size: {
         sm: "h-9 px-4",
         md: "h-11 px-6",
-        lg: "h-13 px-8 text-body",
+        lg: "h-13 px-8 text-base leading-6",
         icon: "h-10 w-10 p-0",
       },
     },

@@ -17,8 +17,10 @@ export function ChatBubble({ message }: { message: ChatMessage }) {
     <div className={cn("flex w-full", isUser ? "justify-end" : "justify-start")}>
       <div
         className={cn(
-          "max-w-[80%] space-y-2 rounded-2xl px-3 py-2 text-sm leading-snug shadow-soft",
-          isUser ? "rounded-tr-sm bg-[#DCF8C6] text-saathi-ink" : "rounded-tl-sm bg-white text-saathi-ink",
+          "max-w-[82%] space-y-2 rounded-2xl px-3 py-2 text-sm leading-snug shadow-soft",
+          isUser
+            ? "rounded-tr-sm bg-[#E3FFD6] text-saathi-ink"
+            : "rounded-tl-sm bg-white text-saathi-ink",
         )}
       >
         {!isUser ? (

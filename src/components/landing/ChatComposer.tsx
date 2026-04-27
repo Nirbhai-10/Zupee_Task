@@ -20,10 +20,18 @@ export function ChatComposer({ language, disabled, onSend, pending }: ChatCompos
   const t = useT();
   const [draft, setDraft] = React.useState("");
   const [voiceLang, setVoiceLang] = React.useState<LanguageCode>(language);
+  const [mounted, setMounted] = React.useState(false);
   React.useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setVoiceLang(language);
   }, [language]);
+  React.useEffect(() => {
+    // Set after first client render so the voice-input picker (whose
+    // visibility depends on `window.SpeechRecognition`) doesn't cause a
+    // hydration mismatch with the SSR output.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setMounted(true);
+  }, []);
 
   const { state, start, stop, isSupported } = useVoiceInput({
     language: voiceLang,
@@ -31,6 +39,7 @@ export function ChatComposer({ language, disabled, onSend, pending }: ChatCompos
       setDraft(text);
     },
   });
+  const showVoiceUi = mounted && isSupported;
 
   const recording = state.status === "listening";
   const interim = recording && state.transcript ? state.transcript : "";
@@ -72,7 +81,7 @@ export function ChatComposer({ language, disabled, onSend, pending }: ChatCompos
         </div>
       ) : null}
 
-      {isSupported ? (
+      {showVoiceUi ? (
         <div className="flex items-center justify-end gap-2 border-b border-saathi-paper-edge px-2 py-1.5">
           <span className="text-[10px] uppercase tracking-wider text-saathi-ink-quiet">
             {t("बोलने की भाषा", "Voice input")}
@@ -81,7 +90,7 @@ export function ChatComposer({ language, disabled, onSend, pending }: ChatCompos
         </div>
       ) : null}
 
-      <div className="flex items-end gap-2 px-2 py-2">
+      <div className="flex items-end gap-2 bg-saathi-cream/70 px-2 py-2">
         <textarea
           value={draft}
           rows={1}
@@ -94,17 +103,17 @@ export function ChatComposer({ language, disabled, onSend, pending }: ChatCompos
             }
           }}
           placeholder={t("Bharosa से कुछ पूछिए…", "Ask Bharosa anything…")}
-          className="max-h-32 min-h-[36px] flex-1 resize-none rounded-card-sm border border-saathi-paper-edge bg-saathi-cream px-3 py-2 text-body-sm leading-snug outline-none placeholder:text-saathi-ink-quiet focus:border-saathi-deep-green/40 disabled:opacity-60"
+          className="max-h-32 min-h-[38px] flex-1 resize-none rounded-[20px] border border-saathi-paper-edge bg-saathi-paper px-3.5 py-2 text-body-sm leading-snug text-saathi-ink outline-none placeholder:text-saathi-ink-quiet focus:border-saathi-deep-green/50 focus:ring-2 focus:ring-saathi-deep-green/10 disabled:opacity-60"
         />
 
-        {isSupported ? (
+        {showVoiceUi ? (
           <button
             type="button"
             aria-label={recording ? "Stop recording" : "Voice input"}
             onClick={toggleMic}
             disabled={disabled}
             className={cn(
-              "flex h-9 w-9 shrink-0 items-center justify-center rounded-pill border transition-colors",
+              "flex h-10 w-10 shrink-0 items-center justify-center rounded-pill border transition-colors",
               recording
                 ? "border-saathi-danger bg-saathi-danger text-white"
                 : "border-saathi-paper-edge bg-saathi-paper text-saathi-ink-soft hover:bg-saathi-cream-deep",
@@ -120,7 +129,7 @@ export function ChatComposer({ language, disabled, onSend, pending }: ChatCompos
           onClick={commit}
           disabled={!ready || disabled}
           className={cn(
-            "flex h-9 w-9 shrink-0 items-center justify-center rounded-pill text-white shadow-soft transition-transform",
+            "flex h-10 w-10 shrink-0 items-center justify-center rounded-pill text-white shadow-soft transition-transform",
             ready && !disabled
               ? "bg-saathi-deep-green hover:scale-105 active:scale-95"
               : "bg-saathi-ink-whisper",

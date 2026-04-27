@@ -53,7 +53,7 @@ export function MessageBubble({
       <div
         className={cn(
           "relative max-w-[78%] rounded-2xl px-3 py-2 text-sm leading-snug shadow-soft",
-          isOutbound ? "bg-[#DCF8C6] text-saathi-ink" : "bg-white text-saathi-ink",
+          isOutbound ? "bg-[#E3FFD6] text-saathi-ink" : "bg-white text-saathi-ink",
           !hideTail && (isOutbound ? "rounded-tr-sm" : "rounded-tl-sm"),
           highlight === "scam" && "ring-2 ring-saathi-danger/40",
           highlight === "savings" && "ring-2 ring-saathi-gold/40",

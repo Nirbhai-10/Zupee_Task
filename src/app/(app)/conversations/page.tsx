@@ -63,25 +63,31 @@ export default function ConversationsPage() {
         </p>
       </header>
 
-      <Card tone="paper" padding="none" className="mx-auto flex w-full max-w-2xl flex-col overflow-hidden">
-        <header className="flex items-center gap-3 border-b border-saathi-paper-edge bg-saathi-paper px-4 py-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-pill bg-saathi-deep-green text-white">
+      <Card tone="paper" padding="none" className="mx-auto flex w-full max-w-2xl flex-col overflow-hidden border-saathi-paper-edge shadow-card">
+        {/* WhatsApp-style header — dark green bar with explicit white text. */}
+        <header className="flex min-h-[60px] items-center gap-3 bg-[#064E45] px-3 py-3 text-white">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/20 bg-white text-saathi-deep-green shadow-soft">
             <CircleUser className="h-5 w-5" />
           </div>
-          <div className="min-w-0 flex-1">
-            <div className="text-body font-semibold text-saathi-ink">Bharosa</div>
-            <div className="text-caption text-saathi-success flex items-center gap-1">
-              <span className="inline-block h-1.5 w-1.5 rounded-full bg-saathi-success" />
-              <T hi="online · हिन्दी, English" en="online · Hindi, English" />
+          <div className="min-w-0 flex-1 py-0.5">
+            <div className="flex items-center gap-1 text-sm font-semibold leading-tight text-white">
+              Bharosa
+              <span aria-hidden className="ml-0.5 inline-flex h-3.5 w-3.5 items-center justify-center rounded-full bg-[#22C55E] text-[8px] font-bold leading-none text-white">
+                ✓
+              </span>
+            </div>
+            <div className="mt-0.5 flex items-center gap-1.5 text-[11px] leading-tight text-white/85">
+              <span aria-hidden className="inline-block h-1.5 w-1.5 rounded-full bg-[#22C55E]" />
+              <T hi="ऑनलाइन · हिन्दी, English" en="online · Hindi, English" />
             </div>
           </div>
-          <Badge tone="green">
+          <Badge tone="gold" className="shrink-0">
             <ShieldAlert className="h-3 w-3" />
             <T hi="सुरक्षित" en="Secure" />
           </Badge>
         </header>
 
-        <div className="flex max-h-[60vh] flex-col gap-2 overflow-y-auto bg-[#ECE5DD]/60 p-4">
+        <div className="flex max-h-[60vh] flex-col gap-2 overflow-y-auto bg-[#ECE5DD] p-4">
           {messages.map((m) => (
             <Bubble key={m.id} m={m} t={t} />
           ))}
@@ -99,7 +105,7 @@ export default function ConversationsPage() {
             }}
             placeholder={t("Bharosa से कुछ पूछिए…", "Ask Bharosa anything…")}
             rows={1}
-            className="max-h-32 flex-1 resize-none rounded-card-sm border border-saathi-paper-edge bg-saathi-cream px-3 py-2 text-body-sm leading-snug outline-none placeholder:text-saathi-ink-quiet focus:border-saathi-deep-green/40"
+            className="max-h-32 flex-1 resize-none rounded-card-sm border border-saathi-paper-edge bg-saathi-cream px-3 py-2 text-body-sm leading-snug text-saathi-ink outline-none placeholder:text-saathi-ink-quiet focus:border-saathi-deep-green/40 focus:ring-2 focus:ring-saathi-deep-green/10"
           />
           <Button
             type="button"
@@ -133,7 +139,9 @@ function Bubble({ m, t }: { m: SeededMessage; t: (hi: string, en: string) => str
       <div
         className={cn(
           "max-w-[78%] rounded-2xl px-3 py-2 text-sm leading-snug shadow-soft",
-          isOutbound ? "rounded-tr-sm bg-[#DCF8C6] text-saathi-ink" : "rounded-tl-sm bg-white text-saathi-ink",
+          isOutbound
+            ? "rounded-tr-sm bg-[#E3FFD6] text-saathi-ink"
+            : "rounded-tl-sm bg-white text-saathi-ink",
           m.highlight === "scam" && "ring-2 ring-saathi-danger/40",
           m.highlight === "savings" && "ring-2 ring-saathi-gold/40",
         )}
@@ -144,8 +152,8 @@ function Bubble({ m, t }: { m: SeededMessage; t: (hi: string, en: string) => str
             <T hi="वॉइस नोट" en="Voice note" />
           </div>
         ) : null}
-        <p>{t(m.textHi, m.textEn)}</p>
-        <div className="mt-0.5 text-[10px] text-right text-saathi-ink-quiet font-mono tabular-nums">
+        <p className="whitespace-pre-wrap">{t(m.textHi, m.textEn)}</p>
+        <div className="mt-0.5 text-right font-mono text-[10px] tabular-nums text-saathi-ink-quiet">
           {m.timestamp}
         </div>
       </div>

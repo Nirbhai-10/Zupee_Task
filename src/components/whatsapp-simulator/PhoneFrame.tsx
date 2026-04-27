@@ -45,7 +45,7 @@ export function PhoneFrame({
 
         <div className="relative flex h-[640px] flex-col overflow-hidden rounded-[36px] bg-saathi-cream">
           {/* Status bar */}
-          <div className="flex items-center justify-between bg-[#075E54] px-5 pb-2 pt-7 text-[10px] text-white/90">
+          <div className="flex items-center justify-between bg-[#064E45] px-5 pb-2 pt-7 text-[10px] font-medium text-white/90">
             <span className="font-mono tabular-nums">9:42</span>
             <div className="flex items-center gap-1.5">
               <Signal className="h-3 w-3" />
@@ -55,20 +55,20 @@ export function PhoneFrame({
           </div>
 
           {/* WhatsApp header */}
-          <div className="flex items-center gap-2 bg-[#075E54] px-3 py-2 text-white">
-            <ChevronLeft className="h-5 w-5 shrink-0" />
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-saathi-deep-green-soft text-[11px] font-semibold uppercase">
+          <div className="flex min-h-14 items-center gap-2 bg-[#064E45] px-3 py-2 text-white shadow-[0_1px_0_rgba(255,255,255,0.08)_inset]">
+            <ChevronLeft className="h-5 w-5 shrink-0 text-white/95" />
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/20 bg-white/[0.15] text-[11px] font-semibold uppercase leading-none text-white">
               {initials}
             </div>
-            <div className="min-w-0 flex-1">
-              <div className="truncate text-sm font-semibold">{contactName}</div>
+            <div className="min-w-0 flex-1 py-0.5">
+              <div className="truncate text-sm font-semibold leading-tight text-white">{contactName}</div>
               {contactStatus ? (
-                <div className="truncate text-[11px] text-white/80">{contactStatus}</div>
+                <div className="mt-0.5 truncate text-[11px] leading-tight text-white/80">{contactStatus}</div>
               ) : null}
             </div>
-            <Video className="h-5 w-5 shrink-0 opacity-90" />
-            <Phone className="h-5 w-5 shrink-0 opacity-90" />
-            <MoreVertical className="h-5 w-5 shrink-0 opacity-90" />
+            <Video className="h-5 w-5 shrink-0 text-white/90" />
+            <Phone className="h-5 w-5 shrink-0 text-white/90" />
+            <MoreVertical className="h-5 w-5 shrink-0 text-white/90" />
           </div>
 
           {/* Conversation area */}

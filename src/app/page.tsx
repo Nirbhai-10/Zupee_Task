@@ -118,7 +118,7 @@ export default function Home() {
                   as="h1"
                   hi="हम सच बताते हैं।"
                   en="we tell you the truth."
-                  className="text-display font-extrabold leading-[1.02] text-saathi-deep-green"
+                  className="text-h1 font-extrabold leading-[1.05] text-saathi-deep-green sm:text-display"
                 />
               </div>
 
@@ -149,19 +149,21 @@ export default function Home() {
                 className="max-w-xl text-body-lg text-saathi-ink-soft"
               />
 
-              <div className="flex flex-wrap items-center gap-3">
+              <div className="flex flex-wrap items-center gap-3 pt-1">
                 <WhatsAppHeroCta />
-                <Button asChild variant="outline" size="lg">
+                <Button asChild variant="outline" size="md" className="h-12 px-5">
                   <Link href="/api/demo/login">
                     <T hi="Anjali का dashboard देखें" en="See Anjali's dashboard" />
                     <ArrowRight className="h-4 w-4" />
                   </Link>
                 </Button>
-                <Button asChild variant="ghost" size="lg">
-                  <Link href="#playground">
-                    <T hi="Live classifier try करें" en="Try the live classifier" />
-                  </Link>
-                </Button>
+                <Link
+                  href="#playground"
+                  className="inline-flex h-12 items-center gap-1.5 rounded-pill px-2 text-body-sm font-medium text-saathi-deep-green transition-colors hover:text-saathi-deep-green-soft"
+                >
+                  <T hi="Live classifier try करें" en="Try the live classifier" />
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
               </div>
 
               <T
@@ -437,31 +439,45 @@ function FooterColumn({
 function ConversationPreview() {
   return (
     <div className="relative mx-auto w-full max-w-sm rotate-1 rounded-[28px] bg-[#101820] p-2 shadow-lift transition-transform hover:rotate-0">
-      <div className="flex flex-col gap-2 rounded-[22px] bg-[#ECE5DD] p-4">
-        <Bubble inbound highlight>
-          <T
-            hi="मम्मी को KBC scam आया — अभी पकड़ लिया, उन्हें Hindi में बता दिया।"
-            en="Caught a KBC scam aimed at Mummy — explained to her in Hindi."
-          />
-        </Bubble>
-        <Bubble outbound>
-          <T hi="कितना बचा?" en="How much did we save?" />
-        </Bubble>
-        <Bubble inbound>
-          <T
-            hi="₹8,500 का risk रोका. इस साल यह 13वाँ catch है।"
-            en="Blocked ₹8,500 of risk. That's the 13th catch this year."
-          />
-        </Bubble>
-        <Bubble outbound>
-          <T
-            hi="Bharosa, अब पैसे का क्या plan बनाएँ?"
-            en="Bharosa, what's the plan for the money?"
-          />
-        </Bubble>
-        <Bubble inbound voice>
-          🎙️ Bharosa · 0:48
-        </Bubble>
+      <div className="overflow-hidden rounded-[22px] bg-[#ECE5DD]">
+        <div className="flex items-center gap-2 bg-[#064E45] px-4 py-3 text-white">
+          <div className="flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/[0.15] text-[11px] font-semibold">
+            भ
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="truncate text-sm font-semibold leading-tight text-white">Bharosa</div>
+            <div className="mt-0.5 truncate text-[11px] leading-tight text-white/80">
+              <T hi="ऑनलाइन · scam defense" en="online · scam defense" />
+            </div>
+          </div>
+          <div className="h-2 w-2 rounded-full bg-[#22C55E]" />
+        </div>
+        <div className="flex flex-col gap-2 p-4">
+          <Bubble inbound highlight>
+            <T
+              hi="मम्मी को KBC scam आया — अभी पकड़ लिया, उन्हें Hindi में बता दिया।"
+              en="Caught a KBC scam aimed at Mummy — explained to her in Hindi."
+            />
+          </Bubble>
+          <Bubble outbound>
+            <T hi="कितना बचा?" en="How much did we save?" />
+          </Bubble>
+          <Bubble inbound>
+            <T
+              hi="₹8,500 का risk रोका. इस साल यह 13वाँ catch है।"
+              en="Blocked ₹8,500 of risk. That's the 13th catch this year."
+            />
+          </Bubble>
+          <Bubble outbound>
+            <T
+              hi="Bharosa, अब पैसे का क्या plan बनाएँ?"
+              en="Bharosa, what's the plan for the money?"
+            />
+          </Bubble>
+          <Bubble inbound voice>
+            🎙️ Bharosa · 0:48
+          </Bubble>
+        </div>
       </div>
     </div>
   );
@@ -486,7 +502,7 @@ function Bubble({
         className={[
           "max-w-[85%] rounded-2xl px-3 py-2 text-body-sm shadow-soft",
           inbound ? "rounded-tl-sm bg-white text-saathi-ink" : "",
-          outbound ? "rounded-tr-sm bg-[#DCF8C6] text-saathi-ink" : "",
+          outbound ? "rounded-tr-sm bg-[#E3FFD6] text-saathi-ink" : "",
           highlight ? "ring-2 ring-saathi-danger/40" : "",
           voice ? "bg-saathi-cream-deep text-saathi-ink-soft font-mono tabular-nums" : "",
         ]

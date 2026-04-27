@@ -77,7 +77,7 @@ export function Composer({
         onClick={ready ? commit : onMicPress}
         disabled={disabled}
         className={cn(
-          "flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#075E54] text-white shadow-soft transition-transform",
+          "flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#064E45] text-white shadow-soft transition-transform",
           !disabled && "hover:scale-105 active:scale-95",
           disabled && "opacity-60",
         )}
