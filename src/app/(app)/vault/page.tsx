@@ -35,8 +35,8 @@ export default async function VaultPage() {
           </h1>
           <p className="text-body-lg text-saathi-ink-soft">
             <T
-              hi="रोज रात एक private money सवाल. आप voice में बोलती हैं. Saathi सुनता है, judge नहीं करता, और family को notify नहीं करता."
-              en="A quiet private money journal. Speak in voice; Saathi listens, does not judge, and never notifies family."
+              hi="रोज रात एक private money सवाल. आप voice में बोलती हैं. Bharosa सुनता है, judge नहीं करता, और family को notify नहीं करता."
+              en="A quiet private money journal. Speak in voice; Bharosa listens, does not judge, and never notifies family."
             />
           </p>
         </div>

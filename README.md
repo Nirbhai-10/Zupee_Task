@@ -58,6 +58,16 @@ A **big mic button** on the landing page (and the home dashboard). Hold to recor
 
 ---
 
+## Sarvam dashboard checklist
+
+Before going live, do these once at https://dashboard.sarvam.ai:
+
+1. **API Keys** → generate a key (a single key works across chat, TTS, STT, translate). Drop it into `SARVAM_API_KEY`.
+2. **Rate Limits** → confirm your tier. **Starter (PAYG) caps `sarvam-m` at 60 RPM and 2,048 `max_tokens` per call** — Bharosa already respects the 2,000-token cap. For real WhatsApp traffic upgrade to **Pro (₹10K credits, 200 RPM)**.
+3. **Credits** → free signup credit is ₹100 (never expires). Top up before launch — typical chat call is ~₹0.05, a 30s TTS reply is ~₹0.30.
+4. **Pronunciation Dictionary** *(optional, recommended)* → register Bharosa-specific terms (Bharosa, Sukanya Samriddhi, EMI, IFSC, Sachet) so `bulbul:v3` pronounces them correctly.
+5. **Webhooks** → Sarvam doesn't expose a webhook UI in public dashboard; long voice notes (>30s) currently use the Batch STT polling endpoint. Contact Sarvam sales if you need push delivery.
+
 ## Sarvam integration map
 
 Sarvam is the **primary** intelligence + voice layer. Every Sarvam product has a specific job.
@@ -146,8 +156,8 @@ LLM_PROVIDER=sarvam              # sarvam | anthropic | openai | grok | ollama |
 SARVAM_API_KEY=sk_...            # https://dashboard.sarvam.ai
 SARVAM_MODEL=sarvam-m
 SARVAM_BASE_URL=https://api.sarvam.ai/v1
-SARVAM_TTS_MODEL=bulbul:v3       # bulbul:v2 | bulbul:v3
-SARVAM_STT_MODEL=saaras:v3       # saaras:v3 | saarika:v2.5
+SARVAM_TTS_MODEL=bulbul:v3       # bulbul:v2 | bulbul:v3 (default)
+SARVAM_STT_MODEL=saarika:v2.5    # saarika:v2.5 (transcribe) | saaras:v3 (transcribe-and-translate)
 
 # Local fallback
 OLLAMA_BASE_URL=http://localhost:11434/v1
@@ -212,8 +222,11 @@ To go production: provision a WhatsApp Business number + Cloud API, point the we
 
 ## Roadmap
 
-- ✅ Sarvam as primary LLM (`sarvam-m`) + STT (`saaras:v3`) + TTS (`bulbul:v3`)
-- ✅ Big "Press & Talk" voice agent on landing + dashboard (Spacebar walkie-talkie, multi-turn)
+- ✅ Sarvam as primary LLM (`sarvam-m`, `reasoning_effort:null` so output is clean) + STT (`saarika:v2.5`) + TTS (`bulbul:v3`)
+- ✅ Big "Press & Talk" voice agent on landing + dashboard — suggested-prompt chips, mini Hindi/English toggle, copy-transcript, clear, Spacebar walkie-talkie, multi-turn
+- ✅ Shared `BHAROSA_HOUSE_VOICE` rules (banned hype words, JSON discipline, Hindi/English script-mirroring) injected into chat prompts
+- ✅ Client-side WAV encoder so Sarvam STT accepts MediaRecorder webm/opus output
+- ✅ `api-subscription-key` header style used everywhere (chat, TTS, STT) — no per-endpoint header branching
 - ✅ WhatsApp parity via Twilio sandbox
 - ✅ Defense flows: scam catch, ULIP audit, recovery-agent letter + voice
 - ✅ Investment flow: 4-goal plan + UPI mandate modal

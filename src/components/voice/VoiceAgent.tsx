@@ -1,38 +1,58 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
-import { Loader2, Mic, MicOff, Volume2 } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import {
+  Check,
+  Copy,
+  Loader2,
+  Mic,
+  MicOff,
+  RotateCcw,
+  Sparkles,
+  Volume2,
+} from "lucide-react";
 import { useT, useLanguage } from "@/lib/i18n/language-context";
 import type { LanguageCode } from "@/lib/i18n/languages";
-import { decodeBrowserTTS } from "@/lib/voice/browser-voice";
-import { encodeBlobToWav16kMono } from "@/lib/voice/wav-encoder";
+import { useVoiceAgent, type VoiceAgentState, type VoiceTurn } from "@/hooks/use-voice-agent";
 import { cn } from "@/lib/utils/cn";
 
 function appLangToCode(appLang: "hi" | "en"): LanguageCode {
   return appLang === "en" ? "en-IN" : "hi-IN";
 }
 
-type VoiceState = "idle" | "recording" | "transcribing" | "thinking" | "speaking";
+const SUGGESTED_PROMPTS: Record<"hi" | "en", { label: string; text: string }[]> = {
+  hi: [
+    { label: "📞 KBC scam", text: "Mummy ko WhatsApp pe KBC 25 lakh lottery ka message aaya hai — sahi hai ya scam?" },
+    { label: "🧾 ULIP audit", text: "Bank wale ek Wealth Plus policy bech rahe hain — kya yeh sahi hai?" },
+    { label: "💼 Recovery agent", text: "Devar ke credit card pe recovery agent raat 9 baje threat de raha hai. Kya karein?" },
+    { label: "💰 Salary plan", text: "Mera salary 38,000 hai, ghar ke kharch ke baad 5,500 bachte hain. Kaise plan karein?" },
+  ],
+  en: [
+    { label: "📞 KBC scam", text: "Mummy got a WhatsApp saying she won ₹25 lakh in a KBC lottery — is this real or a scam?" },
+    { label: "🧾 ULIP audit", text: "The bank is pushing a Wealth Plus policy on me — should I take it?" },
+    { label: "💼 Recovery agent", text: "A recovery agent is calling about my brother-in-law's credit card at 9 PM with threats. What can we do?" },
+    { label: "💰 Salary plan", text: "My salary is ₹38,000 and after expenses I have ₹5,500 left. How should I plan it across 4 goals?" },
+  ],
+};
 
-type Turn = {
-  id: string;
-  role: "user" | "assistant";
-  text: string;
-  language?: LanguageCode;
+const STATE_LABEL: Record<VoiceAgentState, { hi: string; en: string }> = {
+  idle: { hi: "दबाएँ और बोलिए", en: "Press & talk" },
+  recording: { hi: "सुन रहा हूँ…", en: "Listening…" },
+  transcribing: { hi: "समझ रहा हूँ…", en: "Transcribing…" },
+  thinking: { hi: "सोच रहा हूँ…", en: "Thinking…" },
+  speaking: { hi: "बोल रहा हूँ…", en: "Speaking…" },
 };
 
 /**
- * Big "Press & Talk" mic. End-to-end conversational voice loop:
+ * Big "Press & Talk" voice agent. Drives the Sarvam STT → Sarvam-M chat
+ * → Sarvam bulbul TTS pipeline through the `useVoiceAgent` hook.
  *
- *   1. mousedown / touchstart            → MediaRecorder.start()
- *   2. mouseup   / touchend / keyup esc  → MediaRecorder.stop()
- *   3. blob → /api/voice/stt              (Sarvam saaras / saarika)
- *   4. transcript → /api/chat/respond     (Sarvam-M chat + Sarvam TTS reply)
- *   5. autoplay reply audio + show transcript bubbles
- *
- * Fully accessible: SPACE bar acts as walkie-talkie. Tap-and-hold on touch.
- * Falls back gracefully when SARVAM_API_KEY is missing — the API surfaces a
- * 503 and the component shows a polite explanation rather than crashing.
+ * UX:
+ *  - Hold the giant mic (or hold SPACE) to record. Release to send.
+ *  - 4 suggested-prompt chips for users who can't record.
+ *  - Live language toggle (Hindi / English) without leaving the section.
+ *  - Copy transcript + clear conversation actions.
+ *  - Sarvam attribution badge that links back to sarvam.ai.
  */
 export function VoiceAgent({
   className,
@@ -42,257 +62,47 @@ export function VoiceAgent({
   compact?: boolean;
 }) {
   const t = useT();
-  const { lang: appLang } = useLanguage();
+  const { lang: appLang, setLang } = useLanguage();
   const lang: LanguageCode = appLangToCode(appLang);
-  const [state, setState] = useState<VoiceState>("idle");
-  const [error, setError] = useState<string | null>(null);
-  const [turns, setTurns] = useState<Turn[]>([]);
-  const [supported, setSupported] = useState<boolean>(true);
 
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-  const chunksRef = useRef<Blob[]>([]);
-  const streamRef = useRef<MediaStream | null>(null);
-  const currentAudioRef = useRef<HTMLAudioElement | null>(null);
+  const greeting =
+    lang === "en-IN"
+      ? "Hi, I'm Bharosa. Press and hold the mic, ask me anything — scams, ULIPs, recovery agents, or how to plan your salary."
+      : "Namaste, main Bharosa hoon. Mic dabaa ke kuch bhi poochhiye — scam, ULIP, recovery agent, ya salary plan.";
 
-  // Detect browser support after mount (avoids SSR mismatch).
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const ok =
-      typeof navigator !== "undefined" &&
-      Boolean(navigator.mediaDevices?.getUserMedia) &&
-      typeof window.MediaRecorder !== "undefined";
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setSupported(ok);
-  }, []);
-
-  // Greet on first paint.
-  useEffect(() => {
-    if (turns.length > 0) return;
-    const greet =
-      lang === "en-IN"
-        ? "Hi, I'm Bharosa. Press and hold the mic, ask me anything — scams, ULIPs, recovery agents, or how to plan your salary."
-        : "Namaste, main Bharosa hoon. Mic dabaa ke kuch bhi poochhiye — scam, ULIP, recovery agent, ya salary plan.";
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setTurns([{ id: "greet", role: "assistant", text: greet, language: lang }]);
-  }, [lang, turns.length]);
-
-  // Cleanup on unmount.
-  useEffect(() => {
-    return () => {
-      streamRef.current?.getTracks().forEach((t) => t.stop());
-      const a = currentAudioRef.current;
-      if (a) {
-        a.pause();
-        a.src = "";
-      }
-    };
-  }, []);
-
-  const startRecording = useCallback(async () => {
-    if (state !== "idle") return;
-    setError(null);
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      streamRef.current = stream;
-      const mime =
-        MediaRecorder.isTypeSupported("audio/webm;codecs=opus")
-          ? "audio/webm;codecs=opus"
-          : MediaRecorder.isTypeSupported("audio/webm")
-            ? "audio/webm"
-            : "";
-      const recorder = mime ? new MediaRecorder(stream, { mimeType: mime }) : new MediaRecorder(stream);
-      mediaRecorderRef.current = recorder;
-      chunksRef.current = [];
-      recorder.ondataavailable = (e) => {
-        if (e.data.size > 0) chunksRef.current.push(e.data);
-      };
-      recorder.start();
-      setState("recording");
-    } catch (_err) {
-      setError(
-        lang === "en-IN"
-          ? "Microphone access denied. Please allow it in your browser settings."
-          : "Mic ki permission nahi mili. Browser settings mein allow kar dijiye.",
-      );
-      setState("idle");
-    }
-  }, [lang, state]);
-
-  const stopRecording = useCallback(() => {
-    const recorder = mediaRecorderRef.current;
-    if (!recorder || recorder.state === "inactive") return;
-    return new Promise<Blob>((resolve) => {
-      recorder.onstop = () => {
-        const blob = new Blob(chunksRef.current, { type: recorder.mimeType || "audio/webm" });
-        streamRef.current?.getTracks().forEach((t) => t.stop());
-        streamRef.current = null;
-        resolve(blob);
-      };
-      recorder.stop();
-    });
-  }, []);
-
-  const playReplyAudio = useCallback(async (audioUrl: string) => {
-    setState("speaking");
-    try {
-      if (audioUrl.startsWith("browser-tts:")) {
-        // Browser fallback path — use SpeechSynthesis directly.
-        const decoded = decodeBrowserTTS(audioUrl);
-        if (decoded && typeof window !== "undefined" && "speechSynthesis" in window) {
-          const utter = new SpeechSynthesisUtterance(decoded.text);
-          utter.lang = decoded.lang;
-          utter.rate = decoded.speed ?? 1;
-          utter.onend = () => setState("idle");
-          utter.onerror = () => setState("idle");
-          window.speechSynthesis.cancel();
-          window.speechSynthesis.speak(utter);
-          return;
-        }
-        setState("idle");
-        return;
-      }
-
-      // Stop the previous reply if it's still playing.
-      const prev = currentAudioRef.current;
-      if (prev) {
-        prev.pause();
-        prev.src = "";
-      }
-      const audio = new Audio(audioUrl);
-      currentAudioRef.current = audio;
-      audio.onended = () => setState("idle");
-      audio.onerror = () => setState("idle");
-      await audio.play();
-    } catch {
-      setState("idle");
-    }
-  }, []);
-
-  const submitTurn = useCallback(
-    async (audioBlob: Blob, history: Turn[]) => {
-      setState("transcribing");
-      try {
-        // Sarvam STT expects WAV/MP3/FLAC and rejects MediaRecorder's
-        // webm/opus output with a 400. Re-encode to 16 kHz mono PCM WAV
-        // in the browser before uploading.
-        let wav: Blob;
-        try {
-          wav = await encodeBlobToWav16kMono(audioBlob);
-        } catch (encodeErr) {
-          throw new Error(
-            `Could not convert recording to WAV (${(encodeErr as Error).message}). Try a different browser.`,
-          );
-        }
-        const sttForm = new FormData();
-        sttForm.append("file", wav, "input.wav");
-        sttForm.append("language_code", lang);
-        const sttRes = await fetch("/api/voice/stt", { method: "POST", body: sttForm });
-        if (!sttRes.ok) {
-          const detail = (await sttRes.json().catch(() => ({}))) as {
-            error?: string;
-            detail?: string;
-          };
-          const message =
-            [detail?.error, detail?.detail].filter(Boolean).join(" — ") ||
-            `STT failed (${sttRes.status})`;
-          throw new Error(message);
-        }
-        const sttJson = (await sttRes.json()) as {
-          transcript: string;
-          detectedLanguage: LanguageCode | null;
-        };
-        const transcript = (sttJson.transcript ?? "").trim();
-        if (!transcript) {
-          setError(
-            lang === "en-IN"
-              ? "I couldn't hear you. Try again — speak a little louder."
-              : "Awaaz saaf nahi aayi. Phir try kijiye — thoda zor se boliye.",
-          );
-          setState("idle");
-          return;
-        }
-        const userTurn: Turn = {
-          id: `u-${Date.now()}`,
-          role: "user",
-          text: transcript,
-          language: sttJson.detectedLanguage ?? lang,
-        };
-        const nextHistory = [...history, userTurn];
-        setTurns(nextHistory);
-
-        setState("thinking");
-        const chatRes = await fetch("/api/chat/respond", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            messages: nextHistory.map((t) => ({
-              id: t.id,
-              role: t.role,
-              text: t.text,
-              language: t.language,
-              createdAt: new Date().toISOString(),
-            })),
-            preferredLanguage: sttJson.detectedLanguage ?? lang,
-            generateVoice: true,
-          }),
-        });
-        if (!chatRes.ok) {
-          const detail = await chatRes.json().catch(() => ({}));
-          throw new Error(detail?.error ?? `Chat failed (${chatRes.status})`);
-        }
-        const chatJson = (await chatRes.json()) as {
-          text: string;
-          language: LanguageCode;
-          audioUrl?: string;
-        };
-        const replyTurn: Turn = {
-          id: `a-${Date.now()}`,
-          role: "assistant",
-          text: chatJson.text,
-          language: chatJson.language,
-        };
-        setTurns([...nextHistory, replyTurn]);
-
-        if (chatJson.audioUrl) {
-          await playReplyAudio(chatJson.audioUrl);
-        } else {
-          setState("idle");
-        }
-      } catch (err) {
-        const msg = (err as Error).message;
-        setError(
-          lang === "en-IN"
-            ? `Voice agent error: ${msg}`
-            : `Voice agent mein error: ${msg}`,
-        );
-        setState("idle");
-      }
-    },
-    [lang, playReplyAudio],
-  );
+  const {
+    state,
+    turns,
+    error,
+    supported,
+    startRecording,
+    submitRecording,
+    sendText,
+    clear,
+    isBusy,
+  } = useVoiceAgent({ language: lang, greeting });
 
   const onPressDown = useCallback(() => {
     void startRecording();
   }, [startRecording]);
 
-  const onPressUp = useCallback(async () => {
-    if (state !== "recording") return;
-    const blob = await stopRecording();
-    if (blob && blob.size > 0) {
-      await submitTurn(blob, turns);
-    } else {
-      setState("idle");
-    }
-  }, [state, stopRecording, submitTurn, turns]);
+  const onPressUp = useCallback(() => {
+    void submitRecording();
+  }, [submitRecording]);
 
-  // Spacebar walkie-talkie. Active only when component is in DOM.
+  // Spacebar walkie-talkie.
   useEffect(() => {
     if (typeof window === "undefined") return;
     let isHolding = false;
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.code !== "Space" || e.repeat) return;
       const target = e.target as HTMLElement | null;
-      if (target && (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable)) {
+      if (
+        target &&
+        (target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA" ||
+          target.isContentEditable)
+      ) {
         return;
       }
       if (state !== "idle") return;
@@ -304,7 +114,7 @@ export function VoiceAgent({
       if (e.code !== "Space" || !isHolding) return;
       isHolding = false;
       e.preventDefault();
-      void onPressUp();
+      onPressUp();
     };
     window.addEventListener("keydown", onKeyDown);
     window.addEventListener("keyup", onKeyUp);
@@ -313,16 +123,6 @@ export function VoiceAgent({
       window.removeEventListener("keyup", onKeyUp);
     };
   }, [onPressDown, onPressUp, state]);
-
-  const buttonLabel: Record<VoiceState, { hi: string; en: string }> = {
-    idle: { hi: "दबाएँ और बोलिए", en: "Press & talk" },
-    recording: { hi: "सुन रहा हूँ…", en: "Listening…" },
-    transcribing: { hi: "समझ रहा हूँ…", en: "Transcribing…" },
-    thinking: { hi: "सोच रहा हूँ…", en: "Thinking…" },
-    speaking: { hi: "बोल रहा हूँ…", en: "Speaking…" },
-  };
-
-  const isBusy = state !== "idle";
 
   if (!supported) {
     return (
@@ -340,6 +140,9 @@ export function VoiceAgent({
     );
   }
 
+  const userTurnCount = turns.filter((t) => t.role === "user").length;
+  const showSuggestions = userTurnCount === 0 && state === "idle";
+
   return (
     <section
       className={cn(
@@ -349,56 +152,20 @@ export function VoiceAgent({
       )}
       aria-label={t("Bharosa voice agent", "Bharosa voice agent")}
     >
-      {/* Soft halo */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -right-24 -top-24 h-64 w-64 rounded-full bg-saathi-gold/20 blur-3xl"
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -bottom-24 -left-24 h-64 w-64 rounded-full bg-emerald-300/15 blur-3xl"
-      />
+      <Halos />
 
-      <div className="relative grid items-center gap-8 lg:grid-cols-[auto_1fr]">
-        {/* Mic side */}
+      <div className="relative grid items-stretch gap-8 lg:grid-cols-[auto_1fr]">
+        {/* Mic + status */}
         <div className="flex flex-col items-center gap-4">
-          <button
-            type="button"
-            onMouseDown={onPressDown}
-            onMouseUp={onPressUp}
-            onMouseLeave={state === "recording" ? () => void onPressUp() : undefined}
-            onTouchStart={(e) => {
-              e.preventDefault();
-              onPressDown();
-            }}
-            onTouchEnd={(e) => {
-              e.preventDefault();
-              void onPressUp();
-            }}
-            disabled={state === "transcribing" || state === "thinking" || state === "speaking"}
-            aria-pressed={state === "recording"}
-            className={cn(
-              "group relative flex items-center justify-center rounded-full transition-all duration-300 ease-out",
-              compact ? "h-32 w-32" : "h-44 w-44 sm:h-52 sm:w-52",
-              state === "recording"
-                ? "scale-105 bg-saathi-danger/95 shadow-[0_0_0_18px_rgba(229,72,77,0.18),0_0_0_36px_rgba(229,72,77,0.10)]"
-                : isBusy
-                  ? "bg-saathi-gold/85 shadow-[0_0_0_14px_rgba(199,156,72,0.22)]"
-                  : "bg-white text-saathi-deep-green shadow-[0_24px_60px_-20px_rgba(0,0,0,0.5)] hover:scale-[1.03]",
-              "focus:outline-none focus-visible:ring-4 focus-visible:ring-saathi-gold/60",
-            )}
-          >
-            {state === "recording" && (
-              <span
-                aria-hidden
-                className="pointer-events-none absolute inset-0 animate-ping rounded-full bg-saathi-danger/30"
-              />
-            )}
-            <MicIcon state={state} compact={compact} />
-          </button>
+          <PressTalkButton
+            state={state}
+            compact={compact}
+            onDown={onPressDown}
+            onUp={onPressUp}
+          />
           <div className="flex flex-col items-center gap-1 text-center">
             <span className="text-h3 font-semibold tracking-tight">
-              {t(buttonLabel[state].hi, buttonLabel[state].en)}
+              {t(STATE_LABEL[state].hi, STATE_LABEL[state].en)}
             </span>
             <span className="text-caption text-white/65">
               {t(
@@ -409,25 +176,91 @@ export function VoiceAgent({
           </div>
         </div>
 
-        {/* Conversation side */}
-        <div className="flex min-h-[260px] flex-col gap-3 rounded-card-sm bg-white/[0.06] p-4 backdrop-blur-sm">
-          <div className="flex items-center justify-between text-caption uppercase tracking-wide text-white/65">
-            <span>{t("बातचीत", "Conversation")}</span>
-            <span className="inline-flex items-center gap-1.5 text-emerald-200">
-              <span className={cn("h-1.5 w-1.5 rounded-full bg-emerald-300", isBusy && "animate-pulse")} />
-              Sarvam · Bharat-native
-            </span>
+        {/* Conversation panel */}
+        <div className="flex min-h-[300px] flex-col gap-3 rounded-card-sm bg-white/[0.06] p-4 backdrop-blur-sm">
+          {/* Header */}
+          <div className="flex flex-wrap items-center justify-between gap-2 text-caption uppercase tracking-wide text-white/65">
+            <div className="inline-flex items-center gap-2">
+              <span>{t("बातचीत", "Conversation")}</span>
+              <a
+                href="https://sarvam.ai"
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1 rounded-full bg-emerald-400/15 px-2 py-0.5 text-[10px] font-semibold text-emerald-100 transition hover:bg-emerald-400/25"
+                title="Powered by Sarvam-M, bulbul:v3 TTS, saarika:v2.5 STT"
+              >
+                <span
+                  className={cn(
+                    "h-1.5 w-1.5 rounded-full bg-emerald-300",
+                    isBusy && "animate-pulse",
+                  )}
+                />
+                Sarvam · Bharat-native
+              </a>
+            </div>
+            <div className="inline-flex items-center gap-2">
+              <LanguagePill
+                value={appLang}
+                onChange={(next) => setLang(next)}
+                disabled={isBusy}
+              />
+              <CopyTranscriptButton turns={turns} disabled={turns.length === 0} />
+              <button
+                type="button"
+                onClick={clear}
+                disabled={isBusy || turns.length <= 1}
+                className="inline-flex items-center gap-1 rounded-full bg-white/10 px-2 py-1 text-[11px] font-medium text-white/85 transition hover:bg-white/20 disabled:cursor-not-allowed disabled:opacity-40"
+                title={t("बातचीत reset करें", "Clear conversation")}
+              >
+                <RotateCcw className="h-3 w-3" />
+                {t("Reset", "Clear")}
+              </button>
+            </div>
           </div>
+
+          {/* Bubbles */}
           <div className="flex max-h-72 flex-col gap-2 overflow-y-auto pr-1">
             {turns.map((turn) => (
               <ConversationBubble key={turn.id} turn={turn} />
             ))}
-            {state === "transcribing" && <TypingHint label={t("transcribe…", "transcribing…")} />}
-            {state === "thinking" && <TypingHint label={t("जवाब बना रहा हूँ…", "drafting reply…")} />}
+            {state === "transcribing" && (
+              <TypingHint label={t("समझ रहा हूँ…", "transcribing…")} />
+            )}
+            {state === "thinking" && (
+              <TypingHint label={t("जवाब बना रहा हूँ…", "drafting reply…")} />
+            )}
           </div>
+
+          {/* Suggested-prompt chips */}
+          {showSuggestions && (
+            <div className="flex flex-col gap-2 border-t border-white/10 pt-3">
+              <span className="inline-flex items-center gap-1 text-[10px] uppercase tracking-wider text-white/55">
+                <Sparkles className="h-3 w-3" />
+                {t("कोशिश कीजिए", "Try one of these")}
+              </span>
+              <div className="flex flex-wrap gap-1.5">
+                {SUGGESTED_PROMPTS[appLang].map((p) => (
+                  <button
+                    key={p.label}
+                    type="button"
+                    onClick={() => sendText(p.text)}
+                    disabled={isBusy}
+                    className="rounded-full border border-white/15 bg-white/[0.08] px-3 py-1.5 text-caption text-white/85 transition hover:bg-white/[0.16] disabled:cursor-not-allowed disabled:opacity-40"
+                  >
+                    {p.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Error */}
           {error && (
-            <div className="rounded-card-sm bg-saathi-danger/15 px-3 py-2 text-caption text-saathi-danger-soft">
-              {error}
+            <div className="rounded-card-sm border border-saathi-danger/40 bg-saathi-danger/15 px-3 py-2 text-caption text-white">
+              <span className="font-semibold text-saathi-danger-soft">
+                {t("रुकिए — ", "Heads up — ")}
+              </span>
+              <span className="text-white/90">{error}</span>
             </div>
           )}
         </div>
@@ -436,7 +269,74 @@ export function VoiceAgent({
   );
 }
 
-function MicIcon({ state, compact }: { state: VoiceState; compact: boolean }) {
+function Halos() {
+  return (
+    <>
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -right-24 -top-24 h-64 w-64 rounded-full bg-saathi-gold/20 blur-3xl"
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -bottom-24 -left-24 h-64 w-64 rounded-full bg-emerald-300/15 blur-3xl"
+      />
+    </>
+  );
+}
+
+function PressTalkButton({
+  state,
+  compact,
+  onDown,
+  onUp,
+}: {
+  state: VoiceAgentState;
+  compact: boolean;
+  onDown: () => void;
+  onUp: () => void;
+}) {
+  const isBusy =
+    state === "transcribing" || state === "thinking" || state === "speaking";
+
+  return (
+    <button
+      type="button"
+      onMouseDown={onDown}
+      onMouseUp={onUp}
+      onMouseLeave={state === "recording" ? onUp : undefined}
+      onTouchStart={(e) => {
+        e.preventDefault();
+        onDown();
+      }}
+      onTouchEnd={(e) => {
+        e.preventDefault();
+        onUp();
+      }}
+      disabled={isBusy}
+      aria-pressed={state === "recording"}
+      className={cn(
+        "group relative flex items-center justify-center rounded-full transition-all duration-300 ease-out",
+        compact ? "h-32 w-32" : "h-44 w-44 sm:h-52 sm:w-52",
+        state === "recording"
+          ? "scale-105 bg-saathi-danger/95 shadow-[0_0_0_18px_rgba(229,72,77,0.18),0_0_0_36px_rgba(229,72,77,0.10)]"
+          : isBusy
+            ? "bg-saathi-gold/85 shadow-[0_0_0_14px_rgba(199,156,72,0.22)]"
+            : "bg-white text-saathi-deep-green shadow-[0_24px_60px_-20px_rgba(0,0,0,0.5)] hover:scale-[1.03]",
+        "focus:outline-none focus-visible:ring-4 focus-visible:ring-saathi-gold/60",
+      )}
+    >
+      {state === "recording" && (
+        <span
+          aria-hidden
+          className="pointer-events-none absolute inset-0 animate-ping rounded-full bg-saathi-danger/30"
+        />
+      )}
+      <MicIcon state={state} compact={compact} />
+    </button>
+  );
+}
+
+function MicIcon({ state, compact }: { state: VoiceAgentState; compact: boolean }) {
   const size = compact ? "h-12 w-12" : "h-16 w-16 sm:h-20 sm:w-20";
   if (state === "transcribing" || state === "thinking") {
     return <Loader2 className={cn(size, "animate-spin text-white")} aria-hidden />;
@@ -450,7 +350,7 @@ function MicIcon({ state, compact }: { state: VoiceState; compact: boolean }) {
   return <Mic className={cn(size)} aria-hidden />;
 }
 
-function ConversationBubble({ turn }: { turn: Turn }) {
+function ConversationBubble({ turn }: { turn: VoiceTurn }) {
   const isUser = turn.role === "user";
   return (
     <div className={cn("flex", isUser ? "justify-end" : "justify-start")}>
@@ -477,5 +377,76 @@ function TypingHint({ label }: { label: string }) {
         {label}
       </div>
     </div>
+  );
+}
+
+function LanguagePill({
+  value,
+  onChange,
+  disabled,
+}: {
+  value: "hi" | "en";
+  onChange: (next: "hi" | "en") => void;
+  disabled?: boolean;
+}) {
+  return (
+    <div className="inline-flex overflow-hidden rounded-full border border-white/15 bg-white/5 text-[11px] font-semibold">
+      {(["hi", "en"] as const).map((option) => {
+        const active = value === option;
+        return (
+          <button
+            key={option}
+            type="button"
+            onClick={() => !active && onChange(option)}
+            disabled={disabled || active}
+            className={cn(
+              "px-2.5 py-1 transition",
+              active
+                ? "bg-saathi-gold text-saathi-deep-green"
+                : "text-white/75 hover:bg-white/10",
+              disabled && !active && "cursor-not-allowed opacity-40",
+            )}
+            aria-pressed={active}
+          >
+            {option === "hi" ? "हिन्दी" : "EN"}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+function CopyTranscriptButton({
+  turns,
+  disabled,
+}: {
+  turns: VoiceTurn[];
+  disabled?: boolean;
+}) {
+  const [copied, setCopied] = useState(false);
+  const onCopy = async () => {
+    if (typeof navigator === "undefined" || !navigator.clipboard) return;
+    const text = turns
+      .map((t) => `${t.role === "user" ? "You" : "Bharosa"}: ${t.text}`)
+      .join("\n\n");
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1800);
+    } catch {
+      // Clipboard denied — silently no-op.
+    }
+  };
+  return (
+    <button
+      type="button"
+      onClick={onCopy}
+      disabled={disabled}
+      className="inline-flex items-center gap-1 rounded-full bg-white/10 px-2 py-1 text-[11px] font-medium text-white/85 transition hover:bg-white/20 disabled:cursor-not-allowed disabled:opacity-40"
+      title="Copy transcript"
+    >
+      {copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
+      {copied ? "Copied" : "Copy"}
+    </button>
   );
 }

@@ -75,7 +75,7 @@ export default async function VaultEntryPage({ params }: { params: Promise<{ id:
 
         <Card tone="cream" padding="md">
           <CardHeader>
-            <CardTitle>Saathi ne kya suna</CardTitle>
+            <CardTitle>Bharosa ne kya suna</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             {entry.saathiReflectionAudioUrl ? (

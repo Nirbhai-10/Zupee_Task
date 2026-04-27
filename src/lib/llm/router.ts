@@ -106,9 +106,31 @@ const PROVIDER_PRICING: Record<
 let sarvamProviderCache: ReturnType<typeof createOpenAI> | null = null;
 function sarvamProvider() {
   if (!sarvamProviderCache) {
+    const sarvamKey = process.env.SARVAM_API_KEY ?? "";
     sarvamProviderCache = createOpenAI({
       baseURL: process.env.SARVAM_BASE_URL ?? "https://api.sarvam.ai/v1",
-      apiKey: process.env.SARVAM_API_KEY,
+      // Sarvam's canonical header is `api-subscription-key`. Bearer also works
+      // on chat completions but breaks TTS/STT — we keep one header style.
+      apiKey: sarvamKey,
+      headers: { "api-subscription-key": sarvamKey },
+      // sarvam-m / sarvam-30b are reasoning models that emit <think>...</think>
+      // when reasoning_effort > 0. We force-disable it server-side so the
+      // chat returns clean JSON / prose without the leak.
+      fetch: async (url, init) => {
+        if (init?.body && typeof init.body === "string") {
+          try {
+            const parsed = JSON.parse(init.body) as Record<string, unknown>;
+            if (!("reasoning_effort" in parsed)) {
+              parsed.reasoning_effort = null;
+            }
+            // Also nudge the model to stay in JSON mode when our prompts ask for it.
+            return fetch(url, { ...init, body: JSON.stringify(parsed) });
+          } catch {
+            // Non-JSON body (rare) — pass through untouched.
+          }
+        }
+        return fetch(url, init);
+      },
     });
   }
   return sarvamProviderCache;

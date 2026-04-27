@@ -76,8 +76,8 @@ export default function DemoPage() {
             </h1>
             <p className="max-w-2xl text-body-lg text-saathi-ink-soft">
               <T
-                hi="चार trigger buttons. एक live LLM (Gemma 4 8B local). असली Hindi voice (Sarvam). असली ULIP math। सब आपके device पर run होता है।"
-                en="Four trigger buttons. One live LLM (Gemma 4 8B local). Real Hindi voice (Sarvam). Real ULIP math. Everything runs on your machine."
+                hi="चार trigger buttons. Bharat-native LLM (Sarvam-M). असली Hindi voice (Sarvam bulbul:v3). असली ULIP math। Local Gemma 4 fallback. सब cloud-tested है।"
+                en="Four trigger buttons. Bharat-native LLM (Sarvam-M). Real Hindi voice (Sarvam bulbul:v3). Real ULIP math. Local Gemma 4 fallback. Cloud-tested end to end."
               />
             </p>
             <div className="flex flex-wrap gap-2">

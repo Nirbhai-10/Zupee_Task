@@ -39,8 +39,8 @@ export default function ConversationsPage() {
           phone: "anjali",
           direction: "inbound",
           timestamp: new Date().toLocaleTimeString("en-IN", { hour: "numeric", minute: "2-digit", hour12: true }),
-          textHi: "Mil gaya. Live LLM (Gemma) se response demo simulator pe milta hai — yahan chat history hai.",
-          textEn: "Got it. Live LLM (Gemma) responses come through the demo simulator — this surface mirrors the chat history.",
+          textHi: "Mil gaya. Live LLM (Sarvam-M) se response demo simulator pe milta hai — yahan chat history hai.",
+          textEn: "Got it. Live LLM (Sarvam-M) responses come through the demo simulator — this surface mirrors the chat history.",
         },
       ]);
     }, 700);

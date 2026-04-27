@@ -33,7 +33,7 @@ const SERVICES: ServiceStatus[] = [
   {
     id: "llm",
     name: { hi: "LLM", en: "Language model" },
-    detail: { hi: "Local Gemma 4 (Ollama) पर चल रहा है।", en: "Running on local Gemma 4 via Ollama." },
+    detail: { hi: "Sarvam-M (Bharat-native) primary। Local Gemma 4 fallback।", en: "Sarvam-M (Bharat-native) primary. Local Gemma 4 as fallback." },
     state: "live",
   },
   {

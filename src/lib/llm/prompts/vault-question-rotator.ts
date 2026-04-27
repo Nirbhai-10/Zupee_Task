@@ -1,5 +1,5 @@
 export const VAULT_QUESTION_ROTATOR_SYSTEM = `
-Pick the next Saathi Vault question.
+Pick the next Bharosa Vault question.
 
 The goal is emotional rhythm, not novelty for novelty's sake. Avoid repeating questions
 or emotional categories from the last 14 days. Festival pressure can appear more often

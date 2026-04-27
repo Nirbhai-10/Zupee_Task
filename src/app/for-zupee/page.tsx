@@ -32,7 +32,7 @@ const COMPETITIVE_LANDSCAPE = [
 ];
 
 const ARCHITECTURE = [
-  { icon: Cpu, title: { hi: "LLM router", en: "LLM router" }, body: { hi: "एक अबstraction. 4 providers — Anthropic, OpenAI, Grok, local Ollama. हर call llm_events में log होती है, cost paise में.", en: "One abstraction. Four providers — Anthropic, OpenAI, Grok, local Ollama. Every call logged to llm_events with cost in paise." } },
+  { icon: Cpu, title: { hi: "LLM router", en: "LLM router" }, body: { hi: "एक abstraction. Primary: Sarvam-M (Bharat-native). Fallbacks: Anthropic, OpenAI, Grok, local Gemma. हर call llm_events में log होती है, cost paise में.", en: "One abstraction. Primary: Sarvam-M (Bharat-native). Fallbacks: Anthropic, OpenAI, Grok, local Gemma. Every call logged to llm_events with cost in paise." } },
   { icon: Database, title: { hi: "Supabase + pgvector", en: "Supabase + pgvector" }, body: { hi: "16 tables, RLS, semantic search पर scam patterns, Realtime cross-phone events. Mumbai region.", en: "16 tables, RLS, semantic search on scam patterns, Realtime cross-phone events. Mumbai region." } },
   { icon: ShieldCheck, title: { hi: "Schema-validated", en: "Schema-validated" }, body: { hi: "हर LLM output Zod से validate होता है. Math deterministic, voice generative — एक भी number invented नहीं.", en: "Every LLM output Zod-validated. Math is deterministic, voice is generative — never an invented number." } },
 ];

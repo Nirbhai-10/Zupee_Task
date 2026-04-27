@@ -12,13 +12,15 @@ function readStatus(): Status {
   const detected = detectProvider();
   const llmOk = Boolean(detected);
   const llmLabel = detected
-    ? detected.provider === "ollama"
-      ? `Gemma · local`
-      : detected.provider === "anthropic"
-        ? "Claude · cloud"
-        : detected.provider === "openai"
-          ? "GPT · cloud"
-          : "Grok · cloud"
+    ? detected.provider === "sarvam"
+      ? "Sarvam-M · Bharat"
+      : detected.provider === "ollama"
+        ? "Gemma · local"
+        : detected.provider === "anthropic"
+          ? "Claude · cloud"
+          : detected.provider === "openai"
+            ? "GPT · cloud"
+            : "Grok · cloud"
     : "no LLM";
 
   const sarvamConfigured = Boolean(process.env.SARVAM_API_KEY);

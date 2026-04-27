@@ -49,8 +49,8 @@ export default function PresenterPage() {
               icon={ShieldAlert}
               title={{ hi: "KBC scam → मम्मी", en: "KBC scam → Mummy" }}
               body={{
-                hi: "Live LLM (Gemma) classify करेगा, Sarvam Hindi voice भेजेगा।",
-                en: "Live LLM (Gemma) classifies, Sarvam speaks the Hindi reply.",
+                hi: "Sarvam-M classify करेगा, Sarvam bulbul Hindi voice भेजेगा।",
+                en: "Sarvam-M classifies, Sarvam bulbul speaks the Hindi reply.",
               }}
               tone="scam"
             />
