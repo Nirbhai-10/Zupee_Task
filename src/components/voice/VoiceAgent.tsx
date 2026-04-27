@@ -5,6 +5,7 @@ import { Loader2, Mic, MicOff, Volume2 } from "lucide-react";
 import { useT, useLanguage } from "@/lib/i18n/language-context";
 import type { LanguageCode } from "@/lib/i18n/languages";
 import { decodeBrowserTTS } from "@/lib/voice/browser-voice";
+import { encodeBlobToWav16kMono } from "@/lib/voice/wav-encoder";
 import { cn } from "@/lib/utils/cn";
 
 function appLangToCode(appLang: "hi" | "en"): LanguageCode {
@@ -171,13 +172,30 @@ export function VoiceAgent({
     async (audioBlob: Blob, history: Turn[]) => {
       setState("transcribing");
       try {
+        // Sarvam STT expects WAV/MP3/FLAC and rejects MediaRecorder's
+        // webm/opus output with a 400. Re-encode to 16 kHz mono PCM WAV
+        // in the browser before uploading.
+        let wav: Blob;
+        try {
+          wav = await encodeBlobToWav16kMono(audioBlob);
+        } catch (encodeErr) {
+          throw new Error(
+            `Could not convert recording to WAV (${(encodeErr as Error).message}). Try a different browser.`,
+          );
+        }
         const sttForm = new FormData();
-        sttForm.append("file", audioBlob, "input.webm");
+        sttForm.append("file", wav, "input.wav");
         sttForm.append("language_code", lang);
         const sttRes = await fetch("/api/voice/stt", { method: "POST", body: sttForm });
         if (!sttRes.ok) {
-          const detail = await sttRes.json().catch(() => ({}));
-          throw new Error(detail?.error ?? `STT failed (${sttRes.status})`);
+          const detail = (await sttRes.json().catch(() => ({}))) as {
+            error?: string;
+            detail?: string;
+          };
+          const message =
+            [detail?.error, detail?.detail].filter(Boolean).join(" — ") ||
+            `STT failed (${sttRes.status})`;
+          throw new Error(message);
         }
         const sttJson = (await sttRes.json()) as {
           transcript: string;

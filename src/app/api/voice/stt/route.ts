@@ -59,18 +59,19 @@ export async function POST(req: Request) {
   const langRaw = String(form.get("language_code") ?? "");
   const lang =
     langRaw && isLanguageCode(langRaw) ? LANG_TO_SARVAM[langRaw] ?? "unknown" : "unknown";
-  const model = String(form.get("model") ?? process.env.SARVAM_STT_MODEL ?? "saaras:v2");
+  // Default to saarika:v2.5 — pure transcription. saaras translates to
+  // English, which is wrong for the voice-agent loop where we want to
+  // feed the user's actual Hindi/regional words back into the chat model.
+  const model = String(form.get("model") ?? process.env.SARVAM_STT_MODEL ?? "saarika:v2.5");
 
-  // Sarvam expects WAV/MP3/FLAC; the browser MediaRecorder produces webm/opus
-  // by default. Sarvam accepts webm/opus too (per docs), so we forward it
-  // unchanged. If the provider rejects it we surface the error to the client.
+  // Sarvam STT (saarika / saaras) accepts WAV/MP3/FLAC. The client must
+  // re-encode MediaRecorder's webm/opus into WAV before posting to this
+  // route — see src/lib/voice/wav-encoder.ts.
   const upstream = new FormData();
-  upstream.append("file", file, "input.webm");
+  const filename = (file as File).name || "input.wav";
+  upstream.append("file", file, filename);
   upstream.append("model", model);
   upstream.append("language_code", lang);
-  if (model.startsWith("saaras")) {
-    upstream.append("with_diarization", "false");
-  }
 
   const started = Date.now();
   const response = await fetch(`${SARVAM_API_BASE}/speech-to-text`, {
