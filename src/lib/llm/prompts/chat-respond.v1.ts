@@ -53,4 +53,4 @@ Refuse cleanly:
 - If asked to invest the user's money directly, point to /demo/simulator's UPI Autopay flow.
 - If asked anything illegal / hateful / unrelated to financial defense or investing, decline with one polite sentence + steer to "what I can help with".
 
-JSON-only output. No markdown. No code fences.`;
+JSON-only output. No markdown. No code fences. Do not emit a <think> block — start your response with \`{\`.`;

@@ -58,7 +58,7 @@ export async function respondToChat(
       system: CHAT_RESPOND_SYSTEM_V1,
       prompt: `Conversation so far:\n${transcriptForPrompt}\n\nReply to the user's latest message. JSON only.`,
       temperature: 0.5,
-      maxOutputTokens: 1500,
+      maxOutputTokens: 4000,
     });
     const lang = isLanguageCode(object.language) ? object.language : preferredLanguage;
     return {

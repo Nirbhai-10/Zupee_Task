@@ -503,24 +503,28 @@ function withLLMTimeout<T>(promise: Promise<T>, feature: LLMFeature, provider: L
 }
 
 function extractJsonObject(text: string): string {
-  const trimmed = text.trim();
-  if (trimmed.startsWith("{") && trimmed.endsWith("}")) return trimmed;
+  // Reasoning models (Sarvam-M, Gemma) sometimes emit `<think>…</think>`
+  // chain-of-thought before the final answer. Strip those blocks first so
+  // the brace-scanner only sees the real payload.
+  const stripped = text.replace(/<think[\s\S]*?<\/think>/gi, "").trim();
+
+  if (stripped.startsWith("{") && stripped.endsWith("}")) return stripped;
 
   // Strip ```json … ``` fences.
-  const fenceMatch = trimmed.match(/```(?:json)?\s*([\s\S]*?)```/);
+  const fenceMatch = stripped.match(/```(?:json)?\s*([\s\S]*?)```/);
   if (fenceMatch && fenceMatch[1]) {
     const inner = fenceMatch[1].trim();
     if (inner.startsWith("{")) return inner;
   }
 
   // Last-resort: take everything between the first "{" and the matching last "}".
-  const firstBrace = trimmed.indexOf("{");
-  const lastBrace = trimmed.lastIndexOf("}");
+  const firstBrace = stripped.indexOf("{");
+  const lastBrace = stripped.lastIndexOf("}");
   if (firstBrace !== -1 && lastBrace > firstBrace) {
-    return trimmed.slice(firstBrace, lastBrace + 1);
+    return stripped.slice(firstBrace, lastBrace + 1);
   }
 
-  return trimmed;
+  return stripped;
 }
 
 export const ROUTER_DEBUG_INFO = {

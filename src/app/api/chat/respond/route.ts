@@ -46,7 +46,19 @@ export async function POST(req: Request) {
     ? body.preferredLanguage
     : "hi-IN";
 
-  const result = await respondToChat(body.messages as ChatMessage[], preferredLang);
+  let result;
+  try {
+    result = await respondToChat(body.messages as ChatMessage[], preferredLang);
+  } catch (error) {
+    console.error("[chat/respond] respondToChat threw:", (error as Error).message);
+    return NextResponse.json(
+      {
+        error: "chat-failed",
+        detail: (error as Error).message,
+      },
+      { status: 502 },
+    );
+  }
 
   let audioUrl: string | undefined;
   let audioDurationMs: number | undefined;
