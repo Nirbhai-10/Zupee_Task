@@ -98,25 +98,25 @@ const TRUST_BADGES = [
 const PRODUCT_STORY = [
   {
     icon: ShieldCheck,
-    title: { hi: "1. Family defense", en: "1. Family defense" },
+    title: { hi: "1. Check risk", en: "1. Check risk" },
     body: {
-      hi: "WhatsApp scams, fake KYC, digital arrest, recovery harassment — Bharosa catches and explains the risk clearly.",
-      en: "WhatsApp scams, fake KYC, digital arrest, recovery harassment — Bharosa catches and explains the risk clearly.",
+      hi: "Suspicious WhatsApp, fake KYC, digital arrest और recovery threats — Bharosa पहले risk रोकता है.",
+      en: "Suspicious WhatsApp forwards, fake KYC, digital arrest, and recovery threats — Bharosa stops risk first.",
     },
   },
   {
     icon: FileSearch,
-    title: { hi: "2. Product truth", en: "2. Product truth" },
+    title: { hi: "2. Expose bad products", en: "2. Expose bad products" },
     body: {
-      hi: "ULIP और policy brochures की real fees, lock-in और better alternative math सामने आती है।",
+      hi: "ULIP और policy brochures की real fees, lock-in और better alternative math सामने आती है.",
       en: "ULIP and policy brochures are audited for real fees, lock-ins, and better alternatives.",
     },
   },
   {
     icon: Target,
-    title: { hi: "3. Goal execution", en: "3. Goal execution" },
+    title: { hi: "3. Move money safely", en: "3. Move money safely" },
     body: {
-      hi: "Salary day पर पैसा बेटी की शादी, coaching, medical और festival funds में split होता है।",
+      hi: "Salary day पर पैसा बेटी की शादी, coaching, medical और festival funds में split होता है.",
       en: "On salary day, money moves into wedding, coaching, medical, and festival funds.",
     },
   },
@@ -124,7 +124,7 @@ const PRODUCT_STORY = [
     icon: Sparkles,
     title: { hi: "4. Compounding moat", en: "4. Compounding moat" },
     body: {
-      hi: "हर scam catch, audit और transfer household history बनाता है — अगली सलाह ज्यादा personal होती है।",
+      hi: "हर scam catch, audit और transfer household history बनाता है — अगली सलाह ज्यादा personal होती है.",
       en: "Every catch, audit, and transfer builds household history, so the next recommendation is more personal.",
     },
   },
@@ -223,14 +223,14 @@ export default function Home() {
               </Badge>
               <T
                 as="h2"
-                hi="Bharosa चार काम करता है — बस।"
-                en="Bharosa does four things — clearly."
+                hi="तीन jobs, एक moat."
+                en="Three jobs, one moat."
                 className="text-h2 font-semibold tracking-tight text-saathi-ink"
               />
               <T
                 as="p"
-                hi="Customer को feature maze नहीं दिखता। पहले बचाव, फिर product truth, फिर monthly execution. Private reflection पीछे की layer है, front door नहीं।"
-                en="The customer does not see a maze of features. First defense, then product truth, then monthly execution. Private reflection is a quiet layer, not the front door."
+                hi="Customer को feature maze नहीं दिखता. पहले risk check, फिर product truth, फिर salary-day execution. Moat है household financial memory — private reflection पीछे की signal layer है."
+                en="The customer does not see a maze of features. First risk checks, then product truth, then salary-day execution. The moat is household financial memory; private reflection stays as a quiet signal layer."
                 className="text-body-lg text-saathi-ink-soft"
               />
             </div>
@@ -270,14 +270,14 @@ export default function Home() {
               </Badge>
               <T
                 as="h2"
-                hi="Bharat की आवाज़ — Sarvam-M पर चलती है।"
-                en="Bharat's voice — powered by Sarvam-M."
+                hi="Typing मुश्किल हो तो आवाज़ से पूछिए."
+                en="When typing is hard, ask by voice."
                 className="text-h1 font-semibold tracking-tight text-saathi-ink"
               />
               <T
                 as="p"
-                hi="नीचे वाला mic दबाइए, अपनी भाषा में पूछिए — scam, ULIP, recovery agent, या salary plan। Sarvam STT आपकी आवाज़ समझता है, Sarvam-M जवाब देता है, और Sarvam TTS असली आवाज़ में वापस बोलता है।"
-                en="Press the mic below and ask in your language — scam, ULIP, recovery agent, or salary plan. Sarvam STT understands you, Sarvam-M replies, and Sarvam TTS speaks back in a real Indian voice."
+                hi="Voice primary product नहीं है — यह assistive layer है. Mic दबाकर risk, policy audit या salary plan पूछिए."
+                en="Voice is not the primary product — it is the assistive layer. Press the mic to ask about risk, policy audits, or salary planning."
                 className="text-body-lg text-saathi-ink-soft"
               />
             </div>

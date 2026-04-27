@@ -612,89 +612,129 @@ export function TriggerPanel() {
     appendDefense(defense);
   }
 
+  const guidedFlow = [
+    ...kbcScamToMilSequence(),
+    ...ulipAuditToAnjaliSequence(preferredLanguage),
+    ...salaryDaySequence(preferredLanguage),
+  ];
+
   return (
-    <div className="flex flex-wrap items-center gap-2 rounded-card-sm border border-saathi-paper-edge bg-saathi-paper px-4 py-3 shadow-soft">
-      <Badge tone="green">{t("Presenter", "Presenter")}</Badge>
-      <Button
-        type="button"
-        size="sm"
-        variant="primary"
-        disabled={running}
-        onClick={() => void runSequence(kbcScamToMilSequence())}
-      >
-        {running ? <Loader2 className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />}
-        <span>KBC scam → Mummy</span>
-      </Button>
-      <Button
-        type="button"
-        size="sm"
-        variant="gold"
-        disabled={running}
-        onClick={() => void runSequence(ulipAuditToAnjaliSequence(preferredLanguage))}
-      >
-        {running ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileSearch className="h-4 w-4" />}
-        <span>ULIP audit → Anjali</span>
-      </Button>
-      <Button
-        type="button"
-        size="sm"
-        variant="outline"
-        disabled={running}
-        onClick={() => void runSequence(intakeToPlanSequence(preferredLanguage))}
-      >
-        {running ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wallet className="h-4 w-4" />}
-        <span>{t("Plan banwayein", "Build plan")}</span>
-      </Button>
-      <Button
-        type="button"
-        size="sm"
-        variant="danger"
-        disabled={running}
-        onClick={() => void runSequence(recoveryAgentSequence(preferredLanguage))}
-      >
-        {running ? <Loader2 className="h-4 w-4 animate-spin" /> : <Gavel className="h-4 w-4" />}
-        <span>{t("Recovery agent → silenced", "Recovery agent → silenced")}</span>
-      </Button>
-      <Button
-        type="button"
-        size="sm"
-        variant="primary"
-        disabled={running}
-        onClick={() => void runSequence(vaultEveningQuestionSequence(preferredLanguage))}
-      >
-        {running ? <Loader2 className="h-4 w-4 animate-spin" /> : <Lock className="h-4 w-4" />}
-        <span>{t("Evening Vault question", "Evening Vault question")}</span>
-      </Button>
-      <Button
-        type="button"
-        size="sm"
-        variant="primary"
-        disabled={running}
-        onClick={() => void runSequence(salaryDaySequence(preferredLanguage))}
-      >
-        {running ? <Loader2 className="h-4 w-4 animate-spin" /> : <Banknote className="h-4 w-4" />}
-        <span>{t("Salary day", "Salary day")}</span>
-      </Button>
-      <Button
-        type="button"
-        size="sm"
-        variant="ghost"
-        disabled={running}
-        onClick={() => reset()}
-      >
-        <RefreshCw className="h-4 w-4" />
-        {t("Reset", "Reset")}
-      </Button>
-      <div className="ml-auto flex items-center gap-2 text-caption text-saathi-ink-quiet">
-        <ShieldAlert className="h-3 w-3" />
-        <span>
-          {lastSource === "llm"
-            ? "Live LLM (Gemma 4 8B local)"
-            : lastSource === "mock-heuristic" || lastSource === "mock-template"
-              ? t("Mock fallback active", "Mock fallback active")
-              : t("Click a trigger to begin", "Click a trigger to begin")}
-        </span>
+    <div className="rounded-card-sm border border-saathi-paper-edge bg-saathi-paper p-4 shadow-soft">
+      <div className="flex flex-wrap items-center gap-3">
+        <Badge tone="green">{t("Guided flow", "Guided flow")}</Badge>
+        <div className="min-w-[220px] flex-1">
+          <div className="text-body-sm font-semibold text-saathi-ink">
+            {t(
+              "Scam → ULIP audit → Salary split → Bachat proof",
+              "Scam → ULIP audit → Salary split → Bachat proof",
+            )}
+          </div>
+          <div className="text-caption text-saathi-ink-soft">
+            {t(
+              "एक flow में Bharosa का real customer value दिखता है.",
+              "One flow shows Bharosa's real customer value.",
+            )}
+          </div>
+        </div>
+        <Button
+          type="button"
+          size="sm"
+          variant="primary"
+          disabled={running}
+          onClick={() => void runSequence(guidedFlow)}
+        >
+          {running ? <Loader2 className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />}
+          <span>{t("Run guided flow", "Run guided flow")}</span>
+        </Button>
+        <Button
+          type="button"
+          size="sm"
+          variant="ghost"
+          disabled={running}
+          onClick={() => reset()}
+        >
+          <RefreshCw className="h-4 w-4" />
+          {t("Reset", "Reset")}
+        </Button>
+        <div className="flex items-center gap-2 text-caption text-saathi-ink-quiet">
+          <ShieldAlert className="h-3 w-3" />
+          <span>
+            {running
+              ? t("Flow running", "Flow running")
+              : lastSource
+                ? t("Outcome saved to memory", "Outcome saved to memory")
+                : t("Ready", "Ready")}
+          </span>
+        </div>
       </div>
+
+      <details className="mt-3 rounded-card-sm bg-saathi-cream px-3 py-2">
+        <summary className="cursor-pointer text-caption font-medium text-saathi-ink-soft">
+          {t("Advanced presenter controls", "Advanced presenter controls")}
+        </summary>
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          <Button
+            type="button"
+            size="sm"
+            variant="secondary"
+            disabled={running}
+            onClick={() => void runSequence(kbcScamToMilSequence())}
+          >
+            {running ? <Loader2 className="h-4 w-4 animate-spin" /> : <ShieldAlert className="h-4 w-4" />}
+            <span>KBC scam → Mummy</span>
+          </Button>
+          <Button
+            type="button"
+            size="sm"
+            variant="secondary"
+            disabled={running}
+            onClick={() => void runSequence(ulipAuditToAnjaliSequence(preferredLanguage))}
+          >
+            {running ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileSearch className="h-4 w-4" />}
+            <span>ULIP audit → Anjali</span>
+          </Button>
+          <Button
+            type="button"
+            size="sm"
+            variant="secondary"
+            disabled={running}
+            onClick={() => void runSequence(intakeToPlanSequence(preferredLanguage))}
+          >
+            {running ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wallet className="h-4 w-4" />}
+            <span>{t("Plan banwayein", "Build plan")}</span>
+          </Button>
+          <Button
+            type="button"
+            size="sm"
+            variant="secondary"
+            disabled={running}
+            onClick={() => void runSequence(recoveryAgentSequence(preferredLanguage))}
+          >
+            {running ? <Loader2 className="h-4 w-4 animate-spin" /> : <Gavel className="h-4 w-4" />}
+            <span>{t("Recovery agent", "Recovery agent")}</span>
+          </Button>
+          <Button
+            type="button"
+            size="sm"
+            variant="secondary"
+            disabled={running}
+            onClick={() => void runSequence(vaultEveningQuestionSequence(preferredLanguage))}
+          >
+            {running ? <Loader2 className="h-4 w-4 animate-spin" /> : <Lock className="h-4 w-4" />}
+            <span>{t("Private reflection", "Private reflection")}</span>
+          </Button>
+          <Button
+            type="button"
+            size="sm"
+            variant="secondary"
+            disabled={running}
+            onClick={() => void runSequence(salaryDaySequence(preferredLanguage))}
+          >
+            {running ? <Loader2 className="h-4 w-4 animate-spin" /> : <Banknote className="h-4 w-4" />}
+            <span>{t("Salary day", "Salary day")}</span>
+          </Button>
+        </div>
+      </details>
     </div>
   );
 }

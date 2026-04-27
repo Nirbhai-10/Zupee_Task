@@ -48,7 +48,7 @@ export function UlipAuditDemo() {
   const [dragOver, setDragOver] = React.useState(false);
 
   async function runWithSample() {
-    await runFor("Sample ULIP brochure (SuperLife Wealth Plus II)");
+    await runFor("SuperLife Wealth Plus II brochure");
   }
 
   async function runFor(sourceLabel: string) {
@@ -119,12 +119,12 @@ export function UlipAuditDemo() {
               </span>
             </div>
             <h3 className="text-h3 font-semibold">
-              <T hi="Seeded sample audit चलाइए" en="Run the seeded sample audit" />
+              <T hi="Policy audit का guided example चलाइए" en="Run a guided policy audit example" />
             </h3>
             <p className="text-body-sm text-white/85">
               <T
-                hi="SuperLife Wealth Plus II — एक mis-sold ULIP की hand-tuned brochure। पूरा pipeline live चलेगा।"
-                en="SuperLife Wealth Plus II — a hand-tuned mis-sold ULIP brochure. The full pipeline runs live."
+                hi="SuperLife Wealth Plus II — एक typical mis-sold ULIP pitch. Bharosa fees, lock-in और better alternative साफ़ कर देता है."
+                en="SuperLife Wealth Plus II — a typical mis-sold ULIP pitch. Bharosa makes fees, lock-ins, and the better alternative clear."
               />
             </p>
             <Button
@@ -186,8 +186,8 @@ export function UlipAuditDemo() {
             </label>
             <p className="text-caption text-saathi-ink-quiet">
               <T
-                hi="Demo में आपकी file का नाम capture होता है; math seeded fees पर run होती है।"
-                en="In demo mode, your file's name is captured; math runs on the seeded fees."
+                hi="Prototype में uploaded file का naam दिखता है; extraction को production में document OCR से replace किया जाएगा."
+                en="In this prototype, the uploaded file name is shown; production replaces this extraction step with document OCR."
               />
             </p>
           </Card>

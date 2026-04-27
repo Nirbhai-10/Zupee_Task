@@ -51,13 +51,13 @@ const SERVICES: ServiceStatus[] = [
   {
     id: "upi",
     name: { hi: "UPI Autopay", en: "UPI Autopay" },
-    detail: { hi: "Mock mandate (Razorpay हुक prototype के बाद)।", en: "Mock mandate flow; Razorpay hook is post-prototype." },
+    detail: { hi: "Approval preview अभी; regulated payment partner connection बाद में।", en: "Approval preview for now; regulated payment partner connection later." },
     state: "stub",
   },
   {
     id: "whatsapp",
     name: { hi: "WhatsApp Business API", en: "WhatsApp Business API" },
-    detail: { hi: "Demo simulator (Meta integration baad में)।", en: "Demo simulator now; Meta integration later." },
+    detail: { hi: "Product simulator अभी; Meta Business connection बाद में।", en: "Product simulator for now; Meta Business connection later." },
     state: "stub",
   },
 ];
@@ -191,12 +191,12 @@ export default function SettingsPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-h3">
               <Clock className="h-5 w-5 text-saathi-deep-green" />
-              <T hi="Vault ka evening sawaal" en="Vault evening question" />
+              <T hi="Private reflection layer" en="Private reflection layer" />
             </CardTitle>
             <CardDescription>
               <T
-                hi="Default 9pm IST. Sawaal private voice note ke roop mein aata hai."
-                en="Default 9pm IST. The question arrives as a private voice note."
+                hi="यह front-door feature नहीं है. Bharosa इसे सिर्फ आपकी household memory को बेहतर करने के लिए use करता है."
+                en="This is not a front-door feature. Bharosa uses it only to improve your household memory."
               />
             </CardDescription>
           </CardHeader>
@@ -375,7 +375,7 @@ function ServiceStatusBadge({ state }: { state: ServiceStatus["state"] }) {
     return (
       <Badge tone="gold">
         <CircleDot className="h-3 w-3" />
-        <T hi="stub" en="Stub" />
+        <T hi="Preview" en="Preview" />
       </Badge>
     );
   }

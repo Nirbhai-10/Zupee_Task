@@ -12,6 +12,7 @@ const HIDE_ON_PREFIXES = [
   "/family",
   "/goals",
   "/defenses",
+  "/bachat",
   "/investments",
   "/timeline",
   "/conversations",

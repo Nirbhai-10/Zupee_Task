@@ -189,15 +189,15 @@ export default async function DefensesPage() {
           <T hi=" बच चुके हैं · " en=" so far · " />
           <span className="text-saathi-ink-quiet">
             <T
-              hi={`${live.length} लाइव · ${composed.length - live.length} seeded`}
-              en={`${live.length} live · ${composed.length - live.length} seeded`}
+              hi={`${composed.length} proof rows in household memory`}
+              en={`${composed.length} proof rows in household memory`}
             />
           </span>
         </p>
         <div className="flex flex-wrap gap-2">
           <Button asChild variant="primary" size="sm">
             <Link href="/demo/simulator">
-              <T hi="लाइव trigger चलाएँ →" en="Run a live trigger →" />
+              <T hi="नया risk check करें →" en="Check a new risk →" />
             </Link>
           </Button>
           <Button asChild variant="secondary" size="sm">
@@ -226,8 +226,8 @@ export default async function DefensesPage() {
       <Card tone="cream" padding="md" className="mx-auto w-full max-w-3xl text-body-sm text-saathi-ink-soft">
         <CardContent className="!mt-0">
           <T
-            hi="लाइव simulator से कोई trigger चलाइए — defense feed में नई entry यहीं Supabase से आ जाएगी।"
-            en="Run a trigger from the live simulator — new entries flow into this feed straight from Supabase."
+            hi="Scam, policy pitch या recovery threat check करते ही नया outcome यहाँ household memory में जुड़ता है."
+            en="When you check a scam, policy pitch, or recovery threat, the outcome is added here to household memory."
           />
         </CardContent>
       </Card>

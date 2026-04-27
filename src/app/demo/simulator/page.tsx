@@ -14,9 +14,8 @@ export const metadata = {
 };
 
 /**
- * /demo/simulator — three live phones, presenter trigger, scam classifier.
- * Click any of the four trigger buttons to play a scripted sequence
- * against the live LLM (Gemma 4 8B local) and Sarvam voice.
+ * /demo/simulator — guided WhatsApp-style proof flow.
+ * The default path shows scam protection, policy truth, and salary-day execution.
  */
 export default function SimulatorPage() {
   return (
@@ -32,8 +31,8 @@ export default function SimulatorPage() {
             </h1>
             <p className="text-body-sm text-saathi-ink-soft">
               <T
-                hi="तीन phones, चार trigger buttons। LLM + voice आपके device पर local चल रहा है।"
-                en="Three phones, four trigger buttons. LLM + voice run locally on your machine."
+                hi="एक guided flow में Bharosa का customer value दिखता है: risk रोकना, product truth, salary split."
+                en="One guided flow shows Bharosa's customer value: stop risk, reveal product truth, split salary."
               />
             </p>
           </div>
@@ -46,8 +45,8 @@ export default function SimulatorPage() {
               </Link>
             </Button>
             <Button asChild variant="secondary" size="sm">
-              <Link href="/defenses">
-                <T hi="Defenses feed" en="Defenses feed" />
+              <Link href="/bachat">
+                <T hi="Bachat Ledger" en="Bachat Ledger" />
               </Link>
             </Button>
             <Button asChild variant="ghost" size="sm">

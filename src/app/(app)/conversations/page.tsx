@@ -39,8 +39,8 @@ export default function ConversationsPage() {
           phone: "anjali",
           direction: "inbound",
           timestamp: new Date().toLocaleTimeString("en-IN", { hour: "numeric", minute: "2-digit", hour12: true }),
-          textHi: "Mil gaya. Live LLM (Sarvam-M) se response demo simulator pe milta hai — yahan chat history hai.",
-          textEn: "Got it. Live LLM (Sarvam-M) responses come through the demo simulator — this surface mirrors the chat history.",
+          textHi: "Mil gaya. Agar aap risk, policy ya salary plan check karna chahein toh guided flow khol sakti hain.",
+          textEn: "Got it. If you want to check a risk, policy, or salary plan, you can open the guided flow.",
         },
       ]);
     }, 700);
@@ -57,8 +57,8 @@ export default function ConversationsPage() {
         </h1>
         <p className="text-body-sm text-saathi-ink-soft">
           <T
-            hi="WhatsApp जो आप देखती हैं — वही यहाँ web पर। Live LLM responses simulator में run होते हैं।"
-            en="A web mirror of your WhatsApp thread. Live LLM responses run in the demo simulator."
+            hi="WhatsApp जैसा thread — protection, product truth और salary plan की बात एक जगह."
+            en="A WhatsApp-style thread for protection, product truth, and salary planning in one place."
           />
         </p>
       </header>
@@ -123,8 +123,8 @@ export default function ConversationsPage() {
         <div className="flex items-center gap-3 text-body-sm text-saathi-ink-soft">
           <MessageCircle className="h-4 w-4 text-saathi-deep-green" />
           <T
-            hi="पूरा flow — scam catch, ULIP audit, plan generation, salary day cascade — demo simulator पर live करें।"
-            en="Run the full flow — scam catch, ULIP audit, plan generation, salary day cascade — on the live simulator."
+            hi="पूरा flow — scam catch, ULIP audit, plan generation, salary day cascade — guided simulator में चलाएँ."
+            en="Run the full flow — scam catch, ULIP audit, plan generation, salary-day cascade — in the guided simulator."
           />
         </div>
       </Card>

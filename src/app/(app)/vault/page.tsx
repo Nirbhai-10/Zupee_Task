@@ -31,12 +31,12 @@ export default async function VaultPage() {
         </div>
         <div className="max-w-3xl space-y-3">
           <h1 className="text-h1 font-semibold tracking-tight text-saathi-ink">
-            Vault
+            <T hi="Private reflection layer" en="Private reflection layer" />
           </h1>
           <p className="text-body-lg text-saathi-ink-soft">
             <T
-              hi="रोज रात एक private money सवाल. आप voice में बोलती हैं. Bharosa सुनता है, judge नहीं करता, और family को notify नहीं करता."
-              en="A quiet private money journal. Speak in voice; Bharosa listens, does not judge, and never notifies family."
+              hi="यह Bharosa का quiet signal layer है. Front door protection, product truth और salary execution है; यह space सिर्फ आपकी private context को समझने के लिए है."
+              en="This is Bharosa's quiet signal layer. The front door is protection, product truth, and salary execution; this space only helps Bharosa understand private context."
             />
           </p>
         </div>
@@ -47,7 +47,7 @@ export default async function VaultPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-h3">
               <CalendarClock className="h-5 w-5 text-saathi-deep-green" />
-              Aaj raat ka rhythm
+              <T hi="Aaj raat ka rhythm" en="Tonight's rhythm" />
             </CardTitle>
             <CardDescription>
               <T
@@ -58,12 +58,14 @@ export default async function VaultPage() {
           </CardHeader>
           <CardContent className="flex flex-wrap gap-2">
             <Button asChild variant="primary" size="sm">
-              <Link href="/demo/simulator">Trigger evening Vault question</Link>
+              <Link href="/demo/simulator">
+                <T hi="Evening question try करें" en="Try evening question" />
+              </Link>
             </Button>
             <Button asChild variant="outline" size="sm">
               <Link href={`/vault/reflection/${currentMonth}`}>
                 <Sparkles className="h-4 w-4" />
-                Monthly reflection
+                <T hi="Monthly reflection" en="Monthly reflection" />
               </Link>
             </Button>
           </CardContent>
@@ -90,7 +92,9 @@ export default async function VaultPage() {
       <section className="mx-auto w-full max-w-5xl space-y-3">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
-            <h2 className="text-h3 font-semibold text-saathi-ink">Private timeline</h2>
+            <h2 className="text-h3 font-semibold text-saathi-ink">
+              <T hi="Private timeline" en="Private timeline" />
+            </h2>
             <p className="text-body-sm text-saathi-ink-soft">
               <T
                 hi={`${streak.totalConfessions} private entries · longest streak ${streak.longestStreak} days`}
@@ -100,7 +104,7 @@ export default async function VaultPage() {
           </div>
           <Button variant="ghost" size="sm" className="text-saathi-danger hover:bg-saathi-danger-tint">
             <Trash2 className="h-4 w-4" />
-            Vault delete karein
+            <T hi="Vault delete karein" en="Delete Vault" />
           </Button>
         </div>
         <div className="grid gap-4 lg:grid-cols-2">

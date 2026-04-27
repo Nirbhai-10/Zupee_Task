@@ -1,333 +1,335 @@
 import Link from "next/link";
 import type { ElementType } from "react";
-import { Banknote, Database, FileSearch, Lock, ShieldCheck, TrendingUp, Wallet } from "lucide-react";
+import {
+  ArrowRight,
+  Banknote,
+  CalendarClock,
+  FileSearch,
+  Mic2,
+  Receipt,
+  ShieldCheck,
+  Sparkles,
+  TrendingUp,
+} from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Currency } from "@/components/shared/Currency";
 import { T } from "@/components/shared/T";
-import { ANJALI, GOALS } from "@/lib/mocks/demo-personas";
-import { trustLevelLabel } from "@/domain/trust-level";
-import { getVaultStreak } from "@/domain/vault/store";
 import { VoiceAgent } from "@/components/voice/VoiceAgent";
+import { ANJALI, GOALS } from "@/lib/mocks/demo-personas";
+import { SEEDED_ACTIVITY } from "@/lib/mocks/seeded-activity";
 
 export const metadata = { title: "Home" };
 
-const SAVINGS_THIS_YEAR = 47_200;
-const SCAMS_BLOCKED = 12;
-const ULIPS_REFUSED = 1;
-const BILLS_FIXED = 3;
+const PROTECTED_THIS_YEAR = 47_200;
+const RISKS_STOPPED = 13;
+const GOALS_FUNDED = 4;
 
-export default async function HomePage() {
-  const vaultStreak = await getVaultStreak();
-  const today = new Date();
+const TODAY_ACTIONS = [
+  {
+    href: "/demo/simulator",
+    icon: ShieldCheck,
+    title: { hi: "WhatsApp message check करें", en: "Check a WhatsApp message" },
+    body: {
+      hi: "Suspicious forward, fake KYC या digital arrest call — paste करके risk देखें.",
+      en: "Paste a suspicious forward, fake KYC text, or digital-arrest message.",
+    },
+  },
+  {
+    href: "/demo/simulator",
+    icon: FileSearch,
+    title: { hi: "Policy audit करें", en: "Audit a policy" },
+    body: {
+      hi: "ULIP या endowment brochure से fees, lock-in और real return समझें.",
+      en: "See fees, lock-ins, and real returns on a ULIP or endowment pitch.",
+    },
+  },
+  {
+    href: "/investments",
+    icon: Banknote,
+    title: { hi: "Salary plan review करें", en: "Review salary plan" },
+    body: {
+      hi: "इस महीने के ₹5,500 किस goal में जाएंगे — साफ़ line items.",
+      en: "Clear line items for where this month's ₹5,500 will go.",
+    },
+  },
+];
+
+const GOAL_PROGRESS: Record<string, number> = {
+  "g-wedding-priya": 18,
+  "g-coaching-aarav": 12,
+  "g-medical-mil": 31,
+  "g-festival-diwali": 67,
+};
+
+const GOAL_LABELS: Record<string, { hi: string; en: string }> = {
+  "g-wedding-priya": { hi: "Priya ki shaadi", en: "Priya's wedding" },
+  "g-coaching-aarav": { hi: "Aarav ki coaching", en: "Aarav's coaching" },
+  "g-medical-mil": { hi: "Mummy ka medical buffer", en: "Mother-in-law's medical buffer" },
+  "g-festival-diwali": { hi: "Diwali fund", en: "Diwali fund" },
+};
+
+export default function HomePage() {
+  const recentProof = SEEDED_ACTIVITY.filter((activity) =>
+    ["scam_blocked", "ulip_audit", "bill_disputed"].includes(activity.kind),
+  ).slice(0, 3);
+
   return (
     <main className="flex flex-1 flex-col gap-8 bg-saathi-cream px-6 py-10">
-      <header className="mx-auto w-full max-w-5xl space-y-2">
-        <Badge tone="green">{trustLevelLabel(ANJALI.trustLevel, "en-IN")}</Badge>
-        <h1 className="text-h1 font-semibold tracking-tight text-saathi-ink">
-          <T
-            hi={`सुप्रभात, ${ANJALI.name.split(" ")[0]}`}
-            en={`Good morning, ${ANJALI.name.split(" ")[0]}`}
-          />
-        </h1>
-        <p className="text-body-sm text-saathi-ink-quiet">
-          {today.toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long" })}
-        </p>
+      <header className="mx-auto grid w-full max-w-6xl gap-6 lg:grid-cols-[1.4fr_1fr] lg:items-end">
+        <div className="space-y-4">
+          <Badge tone="gold">
+            <Sparkles className="h-3 w-3" />
+            <T hi="Household Financial Memory" en="Household Financial Memory" />
+          </Badge>
+          <div className="space-y-2">
+            <h1 className="text-h1 font-semibold tracking-tight text-saathi-ink">
+              <T
+                hi={`आज ${ANJALI.name.split(" ")[0]} के घर का money system शांत है.`}
+                en={`${ANJALI.name.split(" ")[0]}'s household money system is calm today.`}
+              />
+            </h1>
+            <p className="max-w-2xl text-body-lg text-saathi-ink-soft">
+              <T
+                hi="Bharosa पहले risk रोकता है, फिर salary को family goals में safely move करता है. हर outcome आपकी private household memory बनता है."
+                en="Bharosa stops risk first, then moves salary safely into family goals. Every outcome becomes private household memory."
+              />
+            </p>
+          </div>
+        </div>
+
+        <Card tone="green" padding="lg" className="space-y-2">
+          <div className="text-caption uppercase tracking-wide text-white/70">
+            <T hi="Protected this year" en="Protected this year" />
+          </div>
+          <Currency amount={PROTECTED_THIS_YEAR} variant="full" language="en-IN" className="text-display font-semibold leading-none text-white" />
+          <p className="text-body-sm text-white/80">
+            <T
+              hi={`${RISKS_STOPPED} risks stopped · ${GOALS_FUNDED} goals funded · advice based on household history`}
+              en={`${RISKS_STOPPED} risks stopped · ${GOALS_FUNDED} goals funded · advice based on household history`}
+            />
+          </p>
+        </Card>
       </header>
 
-      {/* Press & talk — Sarvam voice agent */}
-      <section className="mx-auto w-full max-w-5xl">
-        <VoiceAgent />
-      </section>
-
-      {/* Savings hero */}
-      <section className="mx-auto w-full max-w-5xl">
-        <Card tone="cream" padding="lg" className="space-y-3">
+      <section className="mx-auto grid w-full max-w-6xl gap-4 lg:grid-cols-[1.3fr_1fr]">
+        <Card tone="paper" padding="lg" className="space-y-5">
           <CardHeader>
-            <CardDescription>
-              <T hi="इस साल हमने आपके बचाए" en="We've saved you this year" />
-            </CardDescription>
-            <CardTitle className="!text-display !leading-none text-saathi-gold">
-              <Currency amount={SAVINGS_THIS_YEAR} variant="full" language="en-IN" />
-            </CardTitle>
-            <CardDescription>
-              <T
-                hi={`${SCAMS_BLOCKED} scams रोके · ${ULIPS_REFUSED} ULIP refuse करवाया · ${BILLS_FIXED} bills सही करवाए`}
-                en={`${SCAMS_BLOCKED} scams blocked · ${ULIPS_REFUSED} ULIP refused · ${BILLS_FIXED} bills corrected`}
-              />
-            </CardDescription>
-          </CardHeader>
-        </Card>
-      </section>
-
-      <section className="mx-auto w-full max-w-5xl">
-        <div className="grid gap-4 lg:grid-cols-3">
-          <MoatCard
-            icon={ShieldCheck}
-            title={{ hi: "पहले risk रोकता है", en: "Stops risk first" }}
-            body={{
-              hi: "Scams, ULIPs, recovery calls और wrong bills — हर incident evidence के साथ record होता है।",
-              en: "Scams, ULIPs, recovery calls, and wrong bills are handled with evidence, not vague advice.",
-            }}
-          />
-          <MoatCard
-            icon={TrendingUp}
-            title={{ hi: "फिर पैसा move करता है", en: "Then moves money" }}
-            body={{
-              hi: "Salary day पर goals में split: medical, education, wedding, festival fund — UPI Autopay ready.",
-              en: "On salary day it splits money into real goals: medical, education, wedding, festival fund.",
-            }}
-          />
-          <MoatCard
-            icon={Database}
-            title={{ hi: "History moat बनती है", en: "Builds a history moat" }}
-            body={{
-              hi: "हर बचाया हुआ rupee, blocked scam और goal transfer future advice को ज्यादा personal बनाता है।",
-              en: "Every saved rupee, blocked scam, and goal transfer makes future advice more personal.",
-            }}
-          />
-        </div>
-      </section>
-
-      {/* Quick actions */}
-      <section className="mx-auto grid w-full max-w-5xl gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <QuickAction
-          href="/demo/simulator"
-          icon={ShieldCheck}
-          label={{ hi: "Scam check चलाइए", en: "Run a scam check" }}
-          subLabel={{
-            hi: "मम्मी के फ़ोन पर कोई message? Forward कीजिए।",
-            en: "Got a suspicious message? Forward it for an instant check.",
-          }}
-        />
-        <QuickAction
-          href="/demo/simulator"
-          icon={FileSearch}
-          label={{ hi: "Document audit", en: "Document audit" }}
-          subLabel={{
-            hi: "Brochure की photo भेजिए, real cost देखिए।",
-            en: "Send a brochure photo, see the real cost.",
-          }}
-        />
-        <QuickAction
-          href="/demo/simulator"
-          icon={Wallet}
-          label={{ hi: "Plan banwayein", en: "Build a plan" }}
-          subLabel={{
-            hi: "Goals डालिए, monthly mandate बन जाएगा।",
-            en: "Add goals, generate a monthly mandate.",
-          }}
-        />
-        <QuickAction
-          href="/demo/simulator"
-          icon={Banknote}
-          label={{ hi: "Salary day देखें", en: "See salary day" }}
-          subLabel={{
-            hi: "Monthly money goals में अपने आप split होता है।",
-            en: "Monthly money is split into goals automatically.",
-          }}
-        />
-      </section>
-
-      {/* Two-up: latest defense + salary day */}
-      <section className="mx-auto grid w-full max-w-5xl gap-4 lg:grid-cols-2">
-        <Card tone="paper" padding="md">
-          <CardHeader>
-            <Badge tone="scam">SCAM · KBC lottery</Badge>
-            <CardTitle>
-              <T hi="मम्मी को अभी पकड़ लिया" en="Caught one for Mummy a moment ago" />
-            </CardTitle>
-            <CardDescription>
-              <T hi="1 घंटा पहले · WhatsApp forward → Bharosa" en="1 hour ago · WhatsApp forward → Bharosa" />
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-2 text-body-sm text-saathi-ink-soft">
-            <p>
-              <T
-                hi={`"Mubarak ho, KBC lottery mein 25,00,000 jeete hain… +92" — fake. हमने रोक दिया। बचत: `}
-                en={`"You won ₹25 lakh in the KBC lottery… +92" — fake. Blocked. Saved: `}
-              />
-              <Currency amount={8500} variant="full" language="en-IN" className="font-semibold text-saathi-gold" />.
-            </p>
-            <Link href="/defenses" className="text-body-sm text-saathi-deep-green hover:underline">
-              <T hi="सारी defenses देखें →" en="See all defenses →" />
-            </Link>
-          </CardContent>
-        </Card>
-
-        <Card tone="green" padding="md">
-          <CardHeader>
-            <Badge tone="gold">
-              <T hi="Salary day" en="Salary day" />
+            <Badge tone="green">
+              <CalendarClock className="h-3 w-3" />
+              <T hi="Recommended today" en="Recommended today" />
             </Badge>
-            <CardTitle className="text-white">
-              <T hi="4 दिन बाक़ी" en="4 days to go" />
+            <CardTitle className="mt-3 text-h2">
+              <T hi="Diwali pressure शुरू होने से पहले ₹3,000 अलग रख दें." en="Set aside ₹3,000 before Diwali pressure starts." />
             </CardTitle>
-            <CardDescription className="text-white/85">
-              <T
-                hi="₹5,500, 4 instruments में split — auto-execute on salary credit।"
-                en="₹5,500 split across 4 instruments — auto-executes on salary credit."
-              />
-            </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-2 text-body-sm text-white/85">
-            <p>
+          <CardContent className="!mt-0 space-y-4">
+            <p className="text-body text-saathi-ink-soft">
               <T
-                hi="मम्मी का medical (₹2,200), Aarav coaching (₹1,900), Priya शादी (₹800), Diwali (₹500)."
-                en="Mother's medical (₹2,200), Aarav's coaching (₹1,900), Priya's wedding (₹800), Diwali (₹500)."
+                hi="Bharosa ने पिछले साल के pattern से note किया: Diwali budget की चिंता festival से लगभग 11-12 दिन पहले शुरू होती है. अभी action लेने से panic spend नहीं होगा."
+                en="Bharosa learned from last year's pattern: Diwali budget anxiety starts around 11-12 days before the festival. Acting now prevents panic spending."
               />
             </p>
-            <Button asChild variant="gold" size="sm">
-              <Link href="/demo/simulator">
-                <T hi="Plan review करें" en="Review the plan" />
-              </Link>
-            </Button>
+            <div className="flex flex-wrap gap-2">
+              <Button asChild variant="primary" size="md">
+                <Link href="/investments">
+                  <T hi="Salary plan review करें" en="Review salary plan" />
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              </Button>
+              <Button asChild variant="outline" size="md">
+                <Link href="/bachat">
+                  <T hi="Proof ledger देखें" en="See proof ledger" />
+                </Link>
+              </Button>
+            </div>
           </CardContent>
+        </Card>
+
+        <Card tone="paper" padding="lg" className="space-y-4">
+          <div className="flex items-center gap-3">
+            <span className="flex h-11 w-11 items-center justify-center rounded-pill bg-saathi-gold-tint text-saathi-gold">
+              <TrendingUp className="h-5 w-5" />
+            </span>
+            <div>
+              <div className="text-body font-semibold text-saathi-ink">
+                <T hi="Similar households" en="Similar households" />
+              </div>
+              <p className="text-caption text-saathi-ink-soft">
+                <T hi="Private benchmark · no leaderboard" en="Private benchmark · no leaderboard" />
+              </p>
+            </div>
+          </div>
+          <div className="grid gap-3">
+            <BenchmarkRow label={{ hi: "Monthly bachat", en: "Monthly savings" }} mine="₹5,500" cohort="₹4,200" />
+            <BenchmarkRow label={{ hi: "Emergency cover", en: "Emergency cover" }} mine="4.2 mo" cohort="1.8 mo" />
+            <BenchmarkRow label={{ hi: "Scams stopped", en: "Scams stopped" }} mine="13" cohort="9" />
+          </div>
         </Card>
       </section>
 
-      {/* Goals overview */}
-      <section className="mx-auto w-full max-w-5xl space-y-3">
-        <div className="flex items-end justify-between">
-          <h2 className="text-h3 font-semibold text-saathi-ink">
-            <T hi="आपके goals" en="Your goals" />
-          </h2>
-          <Link href="/goals" className="text-body-sm text-saathi-deep-green hover:underline">
-            <T hi="सारे goals देखें →" en="See all goals →" />
-          </Link>
-        </div>
-        <div className="grid gap-3 md:grid-cols-2">
-          {GOALS.slice(0, 4).map((g) => {
-            const pct = g.priority === 1 ? 18 : g.priority === 2 ? 12 : 6;
-            return (
-              <Link
-                key={g.id}
-                href={`/goals/${g.id}`}
-                className="group block rounded-card transition-transform hover:-translate-y-0.5"
-              >
-                <Card
-                  tone="paper"
-                  padding="md"
-                  className="h-full transition-shadow group-hover:shadow-card"
-                >
-                  <div className="flex items-baseline justify-between">
-                    <h3 className="text-body font-semibold text-saathi-ink">{g.name}</h3>
-                    <Currency
-                      amount={g.targetInr}
-                      variant="compact"
-                      language="hi-IN"
-                      className="text-body font-semibold text-saathi-gold"
-                    />
-                  </div>
-                  <p className="mt-1 text-caption text-saathi-ink-soft">{g.rationale}</p>
-                  <div className="mt-3 flex items-center gap-2">
-                    <div className="h-1.5 flex-1 overflow-hidden rounded-pill bg-saathi-paper-edge">
-                      <div
-                        className="h-full rounded-pill bg-saathi-deep-green transition-all"
-                        style={{ width: `${pct}%` }}
-                      />
-                    </div>
-                    <span className="font-mono text-[10px] tabular-nums text-saathi-ink-quiet">
-                      {pct}%
-                    </span>
-                  </div>
-                </Card>
-              </Link>
-            );
-          })}
-        </div>
+      <section className="mx-auto grid w-full max-w-6xl gap-3 md:grid-cols-3">
+        {TODAY_ACTIONS.map((action) => (
+          <ActionCard key={action.title.en} {...action} />
+        ))}
       </section>
 
-      <section className="mx-auto w-full max-w-5xl">
-        <Link href="/vault" className="group block">
-          <Card
-            tone="paper"
-            padding="md"
-            className="border-saathi-paper-edge bg-saathi-paper/80 transition-all group-hover:-translate-y-0.5 group-hover:shadow-card"
-          >
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <div className="flex items-center gap-3">
-                <span className="flex h-10 w-10 items-center justify-center rounded-pill bg-saathi-cream text-saathi-gold">
-                  <Lock className="h-5 w-5" />
-                </span>
-                <div>
-                  <div className="text-body font-semibold text-saathi-ink">
-                    <T
-                      hi={`${vaultStreak.currentStreak} दिन का private money journal`}
-                      en={`${vaultStreak.currentStreak}-day private money journal`}
-                    />
-                  </div>
-                  <div className="text-caption text-saathi-ink-soft">
-                    <T
-                      hi={`Quiet layer · रात ${vaultStreak.eveningQuestionTime} · optional, private, encrypted`}
-                      en={`Quiet layer · ${vaultStreak.eveningQuestionTime} · optional, private, encrypted`}
-                    />
-                  </div>
-                </div>
-              </div>
-              <span className="text-caption font-medium text-saathi-gold">
-                <T hi="Vault खोलें →" en="Open Vault →" />
-              </span>
+      <section className="mx-auto grid w-full max-w-6xl gap-4 lg:grid-cols-[1.05fr_0.95fr]">
+        <Card tone="paper" padding="lg">
+          <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <h2 className="text-h3 font-semibold text-saathi-ink">
+                <T hi="Recent proof" en="Recent proof" />
+              </h2>
+              <p className="text-body-sm text-saathi-ink-soft">
+                <T hi="हर row household memory में save है." en="Every row is saved to household memory." />
+              </p>
             </div>
-          </Card>
-        </Link>
+            <Link href="/bachat" className="text-body-sm font-medium text-saathi-deep-green hover:underline">
+              <T hi="Bachat Ledger →" en="Bachat Ledger →" />
+            </Link>
+          </div>
+          <div className="grid gap-3">
+            {recentProof.map((activity) => (
+              <ProofRow key={activity.id} activity={activity} />
+            ))}
+          </div>
+        </Card>
+
+        <Card tone="paper" padding="lg">
+          <div className="mb-4 flex items-end justify-between gap-3">
+            <div>
+              <h2 className="text-h3 font-semibold text-saathi-ink">
+                <T hi="Goals funded" en="Goals funded" />
+              </h2>
+              <p className="text-body-sm text-saathi-ink-soft">
+                <T hi="इस महीने का surplus goal-first तरीके से split होगा." en="This month's surplus is split goal-first." />
+              </p>
+            </div>
+            <Link href="/goals" className="text-body-sm font-medium text-saathi-deep-green hover:underline">
+              <T hi="Goals →" en="Goals →" />
+            </Link>
+          </div>
+          <div className="grid gap-3">
+            {GOALS.map((goal) => (
+              <GoalRow
+                key={goal.id}
+                name={GOAL_LABELS[goal.id] ?? { hi: goal.name, en: goal.name }}
+                target={goal.targetInr}
+                progress={GOAL_PROGRESS[goal.id] ?? 8}
+              />
+            ))}
+          </div>
+        </Card>
+      </section>
+
+      <section className="mx-auto w-full max-w-6xl">
+        <Card tone="cream" padding="lg" className="grid gap-5 lg:grid-cols-[280px_1fr] lg:items-start">
+          <div className="space-y-2">
+            <Badge tone="muted">
+              <Mic2 className="h-3 w-3" />
+              <T hi="Ask by voice" en="Ask by voice" />
+            </Badge>
+            <h2 className="text-h3 font-semibold text-saathi-ink">
+              <T hi="आवाज़ assistive है, product नहीं." en="Voice is assistive, not the product." />
+            </h2>
+            <p className="text-body-sm text-saathi-ink-soft">
+              <T
+                hi="जब typing मुश्किल हो, mic दबाकर risk, policy या salary plan पूछ लें."
+                en="When typing is harder, press the mic and ask about risk, policies, or salary planning."
+              />
+            </p>
+          </div>
+          <VoiceAgent compact />
+        </Card>
       </section>
     </main>
   );
 }
 
-function MoatCard({
+function ActionCard({
+  href,
   icon: Icon,
   title,
   body,
 }: {
+  href: string;
   icon: ElementType;
   title: { hi: string; en: string };
   body: { hi: string; en: string };
 }) {
   return (
-    <Card tone="paper" padding="md" className="h-full">
-      <div className="flex items-start gap-3">
-        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-pill bg-saathi-deep-green-tint text-saathi-deep-green">
-          <Icon className="h-5 w-5" />
-        </span>
-        <div className="space-y-1">
-          <h2 className="text-body font-semibold text-saathi-ink">
-            <T hi={title.hi} en={title.en} />
-          </h2>
-          <p className="text-body-sm text-saathi-ink-soft">
-            <T hi={body.hi} en={body.en} />
-          </p>
+    <Link href={href} className="group block">
+      <Card tone="paper" padding="md" className="h-full transition-transform group-hover:-translate-y-0.5">
+        <div className="flex items-start gap-3">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-pill bg-saathi-deep-green-tint text-saathi-deep-green">
+            <Icon className="h-5 w-5" />
+          </span>
+          <div className="min-w-0 space-y-1">
+            <h2 className="text-body font-semibold text-saathi-ink">
+              <T hi={title.hi} en={title.en} />
+            </h2>
+            <p className="text-body-sm text-saathi-ink-soft">
+              <T hi={body.hi} en={body.en} />
+            </p>
+          </div>
         </div>
-      </div>
-    </Card>
+      </Card>
+    </Link>
   );
 }
 
-function QuickAction({
-  href,
-  icon: Icon,
-  label,
-  subLabel,
-}: {
-  href: string;
-  icon: React.ElementType;
-  label: { hi: string; en: string };
-  subLabel: { hi: string; en: string };
-}) {
+function BenchmarkRow({ label, mine, cohort }: { label: { hi: string; en: string }; mine: string; cohort: string }) {
   return (
-    <Link
-      href={href}
-      className="group flex flex-col gap-2 rounded-card border border-saathi-paper-edge bg-saathi-paper p-4 shadow-soft transition-all hover:-translate-y-0.5 hover:border-saathi-deep-green/30 hover:shadow-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-saathi-deep-green/30 focus-visible:ring-offset-2 focus-visible:ring-offset-saathi-cream"
-    >
-      <div className="flex h-10 w-10 items-center justify-center rounded-pill bg-saathi-deep-green-tint text-saathi-deep-green transition-colors group-hover:bg-saathi-deep-green group-hover:text-white">
-        <Icon className="h-5 w-5" />
+    <div className="grid grid-cols-[1fr_auto_auto] items-center gap-3 rounded-card-sm bg-saathi-cream px-3 py-2 text-body-sm">
+      <span className="text-saathi-ink-soft">
+        <T hi={label.hi} en={label.en} />
+      </span>
+      <span className="font-mono font-semibold tabular-nums text-saathi-deep-green">{mine}</span>
+      <span className="font-mono tabular-nums text-saathi-ink-quiet">{cohort}</span>
+    </div>
+  );
+}
+
+function ProofRow({ activity }: { activity: (typeof SEEDED_ACTIVITY)[number] }) {
+  const icon = activity.kind === "ulip_audit" ? FileSearch : activity.kind === "bill_disputed" ? Receipt : ShieldCheck;
+  const Icon = icon;
+  return (
+    <div className="flex items-start gap-3 rounded-card-sm border border-saathi-paper-edge bg-saathi-paper px-3 py-3">
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-pill bg-saathi-deep-green-tint text-saathi-deep-green">
+        <Icon className="h-4 w-4" />
+      </span>
+      <div className="min-w-0 flex-1">
+        <div className="text-body-sm font-semibold text-saathi-ink">
+          <T hi={activity.title.hi} en={activity.title.en} />
+        </div>
+        <p className="text-caption text-saathi-ink-soft">
+          <T hi={activity.subtitle.hi} en={activity.subtitle.en} />
+        </p>
       </div>
-      <div>
-        <T as="div" hi={label.hi} en={label.en} className="text-body font-medium text-saathi-ink" />
-        <T as="div" hi={subLabel.hi} en={subLabel.en} className="text-caption text-saathi-ink-soft" />
+      {activity.amountInr ? (
+        <Currency amount={activity.amountInr} variant="compact" language="en-IN" className="shrink-0 text-body-sm font-semibold text-saathi-gold" />
+      ) : null}
+    </div>
+  );
+}
+
+function GoalRow({ name, target, progress }: { name: { hi: string; en: string }; target: number; progress: number }) {
+  return (
+    <div className="rounded-card-sm border border-saathi-paper-edge bg-saathi-paper px-3 py-3">
+      <div className="flex items-baseline justify-between gap-3">
+        <div className="text-body-sm font-semibold text-saathi-ink">
+          <T hi={name.hi} en={name.en} />
+        </div>
+        <Currency amount={target} variant="compact" language="en-IN" className="text-body-sm font-semibold text-saathi-gold" />
       </div>
-    </Link>
+      <div className="mt-2 flex items-center gap-2">
+        <div className="h-1.5 flex-1 overflow-hidden rounded-pill bg-saathi-paper-edge">
+          <div className="h-full rounded-pill bg-saathi-deep-green" style={{ width: `${progress}%` }} />
+        </div>
+        <span className="font-mono text-[10px] tabular-nums text-saathi-ink-quiet">{progress}%</span>
+      </div>
+    </div>
   );
 }
