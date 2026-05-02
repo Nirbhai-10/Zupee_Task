@@ -139,14 +139,13 @@ export default function Home() {
         <section className="saathi-paper-grain relative overflow-hidden">
           <div className="mx-auto grid max-w-6xl items-center gap-12 px-6 pb-16 pt-12 lg:grid-cols-[3fr_2fr] lg:pb-20 lg:pt-16">
             <div className="space-y-6">
-              <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="flex flex-wrap items-center gap-3">
                 <Logo size={56} />
-                <ZupeeAttribution variant="header" />
+                <Badge tone="green">
+                  <Sparkles className="h-3 w-3" />
+                  <T hi="AI-native · WhatsApp · Bharat" en="AI-native · WhatsApp · Bharat" />
+                </Badge>
               </div>
-              <Badge tone="green" className="self-start">
-                <Sparkles className="h-3 w-3" />
-                <T hi="AI-native · WhatsApp · Bharat" en="AI-native · WhatsApp · Bharat" />
-              </Badge>
 
               <div className="space-y-1">
                 <T
