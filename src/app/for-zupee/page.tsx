@@ -426,8 +426,6 @@ export default function ForZupeePage() {
           <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-3 px-6 py-6 text-caption text-saathi-ink-quiet">
             <div className="flex items-center gap-3">
               <Logo variant="lockup" size={28} />
-              <span>·</span>
-              <T hi="Bengaluru में बना" en="Made in Bengaluru" />
             </div>
             <ZupeeAttribution variant="footer" />
           </div>

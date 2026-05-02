@@ -3,7 +3,9 @@
 import { useCallback, useEffect, useState } from "react";
 import {
   Check,
+  ChevronDown,
   Copy,
+  Languages,
   Loader2,
   Mic,
   MicOff,
@@ -20,19 +22,156 @@ function appLangToCode(appLang: "hi" | "en"): LanguageCode {
   return appLang === "en" ? "en-IN" : "hi-IN";
 }
 
-const SUGGESTED_PROMPTS: Record<"hi" | "en", { label: string; text: string }[]> = {
-  hi: [
-    { label: "📞 KBC scam", text: "Mummy ko WhatsApp pe KBC 25 lakh lottery ka message aaya hai — sahi hai ya scam?" },
-    { label: "🧾 ULIP audit", text: "Bank wale ek Wealth Plus policy bech rahe hain — kya yeh sahi hai?" },
-    { label: "💼 Recovery agent", text: "Devar ke credit card pe recovery agent raat 9 baje threat de raha hai. Kya karein?" },
-    { label: "💰 Salary plan", text: "Mera salary 38,000 hai, ghar ke kharch ke baad 5,500 bachte hain. Kaise plan karein?" },
-  ],
-  en: [
-    { label: "📞 KBC scam", text: "Mummy got a WhatsApp saying she won ₹25 lakh in a KBC lottery — is this real or a scam?" },
-    { label: "🧾 ULIP audit", text: "The bank is pushing a Wealth Plus policy on me — should I take it?" },
-    { label: "💼 Recovery agent", text: "A recovery agent is calling about my brother-in-law's credit card at 9 PM with threats. What can we do?" },
-    { label: "💰 Salary plan", text: "My salary is ₹38,000 and after expenses I have ₹5,500 left. How should I plan it across 4 goals?" },
-  ],
+/** All 11 voice-agent supported languages.
+ *
+ *  endonym renders in the speaker's native script so a Bengali user
+ *  immediately recognises বাংলা rather than reading "Bengali" in English.
+ *  All eleven map cleanly to Sarvam saarika:v2.5 STT + bulbul:v3 TTS
+ *  with native speakers wired up in lib/voice/sarvam-voice.ts.
+ */
+const VOICE_LANGUAGES: {
+  code: LanguageCode;
+  endonym: string;
+  english: string;
+}[] = [
+  { code: "hi-IN", endonym: "हिन्दी", english: "Hindi" },
+  { code: "en-IN", endonym: "English", english: "English" },
+  { code: "ta-IN", endonym: "தமிழ்", english: "Tamil" },
+  { code: "te-IN", endonym: "తెలుగు", english: "Telugu" },
+  { code: "mr-IN", endonym: "मराठी", english: "Marathi" },
+  { code: "bn-IN", endonym: "বাংলা", english: "Bengali" },
+  { code: "gu-IN", endonym: "ગુજરાતી", english: "Gujarati" },
+  { code: "kn-IN", endonym: "ಕನ್ನಡ", english: "Kannada" },
+  { code: "ml-IN", endonym: "മലയാളം", english: "Malayalam" },
+  { code: "pa-IN", endonym: "ਪੰਜਾਬੀ", english: "Punjabi" },
+  { code: "or-IN", endonym: "ଓଡ଼ିଆ", english: "Odia" },
+];
+
+/**
+ * Per-language greeting + suggested-prompt chips.
+ *
+ * Hindi + English get full localisation. The other nine languages get
+ * a short native greeting and the same scenario chips in their script
+ * so the chip click sends a real, native-script question (the chat
+ * model then replies in the same script — see chat-respond.v1.ts and
+ * the per-language steering in domain/chat/respond.ts).
+ */
+type LangPack = {
+  greeting: string;
+  prompts: { label: string; text: string }[];
+};
+
+const LANG_PACK: Record<LanguageCode, LangPack> = {
+  "hi-IN": {
+    greeting:
+      "नमस्ते, मैं Bharosa हूँ. Mic दबाइए — scam, ULIP, recovery agent, या salary plan, kuchh भी पूछिए.",
+    prompts: [
+      { label: "📞 KBC scam", text: "Mummy ko WhatsApp pe KBC 25 lakh lottery ka message aaya hai — sahi hai ya scam?" },
+      { label: "🧾 ULIP audit", text: "Bank wale ek Wealth Plus policy bech rahe hain — kya yeh sahi hai?" },
+      { label: "💼 Recovery agent", text: "Devar ke credit card pe recovery agent raat 9 baje threat de raha hai. Kya karein?" },
+      { label: "💰 Salary plan", text: "Mera salary 38,000 hai, ghar ke kharch ke baad 5,500 bachte hain. Kaise plan karein?" },
+    ],
+  },
+  "en-IN": {
+    greeting:
+      "Hi, I'm Bharosa. Press and hold the mic and ask in your own voice — scams, ULIPs, recovery agents, or salary planning.",
+    prompts: [
+      { label: "📞 KBC scam", text: "Mummy got a WhatsApp saying she won ₹25 lakh in a KBC lottery — is this real or a scam?" },
+      { label: "🧾 ULIP audit", text: "The bank is pushing a Wealth Plus policy on me — should I take it?" },
+      { label: "💼 Recovery agent", text: "A recovery agent is calling about my brother-in-law's credit card at 9 PM with threats. What can we do?" },
+      { label: "💰 Salary plan", text: "My salary is ₹38,000 and after expenses I have ₹5,500 left. How should I plan it across 4 goals?" },
+    ],
+  },
+  "ta-IN": {
+    greeting:
+      "வணக்கம், நான் Bharosa. Mic-ஐ அழுத்தி உங்கள் மொழியில் கேளுங்கள் — scam, ULIP, recovery agent, அல்லது சம்பளத் திட்டம்.",
+    prompts: [
+      { label: "📞 KBC scam", text: "அம்மாவுக்கு KBC ₹25 லட்சம் lottery WhatsApp வந்துள்ளது — இது உண்மையா அல்லது scam-ஆ?" },
+      { label: "🧾 ULIP audit", text: "Bank ஒரு ULIP policy-ஐ தள்ளுகிறது — இதை வாங்கலாமா?" },
+      { label: "💼 Recovery agent", text: "Recovery agent இரவு 9 மணிக்கு threat கொடுக்கிறார். என்ன செய்வது?" },
+      { label: "💰 Salary plan", text: "என் salary ₹38,000, செலவுக்கு பிறகு ₹5,500 மிச்சம். எப்படி திட்டமிடுவது?" },
+    ],
+  },
+  "te-IN": {
+    greeting:
+      "నమస్కారం, నేను Bharosa. Mic నొక్కి మీ భాషలో అడగండి — scam, ULIP, recovery agent, లేదా salary plan.",
+    prompts: [
+      { label: "📞 KBC scam", text: "అమ్మకు KBC ₹25 లక్షల lottery WhatsApp వచ్చింది — ఇది నిజమా లేదా scam-ఆ?" },
+      { label: "🧾 ULIP audit", text: "Bank ఒక ULIP policy అమ్ముతోంది — తీసుకోవచ్చా?" },
+      { label: "💼 Recovery agent", text: "Recovery agent రాత్రి 9 గంటలకు threat ఇస్తున్నాడు. ఏమి చేయాలి?" },
+      { label: "💰 Salary plan", text: "నా salary ₹38,000, ఖర్చుల తర్వాత ₹5,500 మిగులు. ఎలా plan చేయాలి?" },
+    ],
+  },
+  "mr-IN": {
+    greeting:
+      "नमस्कार, मी Bharosa आहे. Mic दाबा आणि तुमच्या भाषेत विचारा — scam, ULIP, recovery agent किंवा salary plan.",
+    prompts: [
+      { label: "📞 KBC scam", text: "आईला KBC ₹25 लाख lottery WhatsApp आला आहे — हे खरं आहे का scam आहे?" },
+      { label: "🧾 ULIP audit", text: "Bank एक ULIP policy विकत आहे — घ्यावी का?" },
+      { label: "💼 Recovery agent", text: "Recovery agent रात्री ९ वाजता धमकी देतो आहे. काय करावे?" },
+      { label: "💰 Salary plan", text: "माझा salary ₹38,000, खर्चांनंतर ₹5,500 शिल्लक. कसा plan करू?" },
+    ],
+  },
+  "bn-IN": {
+    greeting:
+      "নমস্কার, আমি Bharosa. Mic চেপে আপনার ভাষায় জিজ্ঞাসা করুন — scam, ULIP, recovery agent, অথবা salary plan.",
+    prompts: [
+      { label: "📞 KBC scam", text: "মা WhatsApp-এ KBC ₹25 লাখ lottery message পেয়েছেন — এটি সত্যি না scam?" },
+      { label: "🧾 ULIP audit", text: "Bank একটি ULIP policy বিক্রি করছে — নেওয়া উচিত?" },
+      { label: "💼 Recovery agent", text: "Recovery agent রাত ৯টায় threat দিচ্ছে। কী করব?" },
+      { label: "💰 Salary plan", text: "আমার salary ₹38,000, খরচের পরে ₹5,500 থাকে। কীভাবে plan করব?" },
+    ],
+  },
+  "gu-IN": {
+    greeting:
+      "નમસ્તે, હું Bharosa છું. Mic દબાવો અને તમારી ભાષામાં પૂછો — scam, ULIP, recovery agent અથવા salary plan.",
+    prompts: [
+      { label: "📞 KBC scam", text: "મમ્મીને KBC ₹25 લાખ lottery WhatsApp આવ્યો — શું આ સાચું છે કે scam?" },
+      { label: "🧾 ULIP audit", text: "Bank એક ULIP policy વેચી રહી છે — લેવી જોઈએ?" },
+      { label: "💼 Recovery agent", text: "Recovery agent રાત્રે 9 વાગ્યે threat આપે છે. શું કરવું?" },
+      { label: "💰 Salary plan", text: "મારી salary ₹38,000, ખર્ચ પછી ₹5,500 બચે છે. કેવી રીતે plan કરું?" },
+    ],
+  },
+  "kn-IN": {
+    greeting:
+      "ನಮಸ್ಕಾರ, ನಾನು Bharosa. Mic ಒತ್ತಿ ನಿಮ್ಮ ಭಾಷೆಯಲ್ಲಿ ಕೇಳಿ — scam, ULIP, recovery agent ಅಥವಾ salary plan.",
+    prompts: [
+      { label: "📞 KBC scam", text: "ಅಮ್ಮಗೆ KBC ₹25 ಲಕ್ಷ lottery WhatsApp ಬಂದಿದೆ — ಇದು ನಿಜವೋ scam-ಓ?" },
+      { label: "🧾 ULIP audit", text: "Bank ಒಂದು ULIP policy ಮಾರುತ್ತಿದೆ — ತೆಗೆದುಕೊಳ್ಳಬಹುದಾ?" },
+      { label: "💼 Recovery agent", text: "Recovery agent ರಾತ್ರಿ 9 ಗಂಟೆಗೆ ಬೆದರಿಕೆ ಹಾಕುತ್ತಿದ್ದಾನೆ. ಏನು ಮಾಡಬೇಕು?" },
+      { label: "💰 Salary plan", text: "ನನ್ನ salary ₹38,000, ಖರ್ಚಿನ ನಂತರ ₹5,500 ಉಳಿಯುತ್ತದೆ. ಹೇಗೆ plan ಮಾಡಲಿ?" },
+    ],
+  },
+  "ml-IN": {
+    greeting:
+      "നമസ്കാരം, ഞാൻ Bharosa ആണ്. Mic അമർത്തി നിങ്ങളുടെ ഭാഷയിൽ ചോദിക്കൂ — scam, ULIP, recovery agent അല്ലെങ്കിൽ salary plan.",
+    prompts: [
+      { label: "📞 KBC scam", text: "അമ്മയ്ക്ക് KBC ₹25 ലക്ഷം lottery WhatsApp വന്നു — ഇത് സത്യമോ scam-ഓ?" },
+      { label: "🧾 ULIP audit", text: "Bank ഒരു ULIP policy വിൽക്കുന്നു — എടുക്കണോ?" },
+      { label: "💼 Recovery agent", text: "Recovery agent രാത്രി 9 മണിക്ക് ഭീഷണിപ്പെടുത്തുന്നു. എന്ത് ചെയ്യണം?" },
+      { label: "💰 Salary plan", text: "എന്റെ salary ₹38,000, ചെലവിന് ശേഷം ₹5,500 ബാക്കി. എങ്ങനെ plan ചെയ്യും?" },
+    ],
+  },
+  "pa-IN": {
+    greeting:
+      "ਸਤ ਸ੍ਰੀ ਅਕਾਲ, ਮੈਂ Bharosa ਹਾਂ. Mic ਦਬਾਓ ਅਤੇ ਆਪਣੀ ਭਾਸ਼ਾ ਵਿੱਚ ਪੁੱਛੋ — scam, ULIP, recovery agent ਜਾਂ salary plan.",
+    prompts: [
+      { label: "📞 KBC scam", text: "ਮਾਂ ਨੂੰ KBC ₹25 ਲੱਖ lottery WhatsApp ਆਇਆ — ਕੀ ਇਹ ਸੱਚ ਹੈ ਜਾਂ scam?" },
+      { label: "🧾 ULIP audit", text: "Bank ਇੱਕ ULIP policy ਵੇਚ ਰਿਹਾ ਹੈ — ਕੀ ਲੈਣੀ ਚਾਹੀਦੀ?" },
+      { label: "💼 Recovery agent", text: "Recovery agent ਰਾਤ 9 ਵਜੇ ਧਮਕੀ ਦੇ ਰਿਹਾ ਹੈ. ਕੀ ਕਰੀਏ?" },
+      { label: "💰 Salary plan", text: "ਮੇਰੀ salary ₹38,000, ਖਰਚ ਤੋਂ ਬਾਅਦ ₹5,500 ਬਚਦੇ ਹਨ. ਕਿਵੇਂ plan ਕਰਾਂ?" },
+    ],
+  },
+  "or-IN": {
+    greeting:
+      "ନମସ୍କାର, ମୁଁ Bharosa. Mic ଚାପନ୍ତୁ ଏବଂ ଆପଣଙ୍କ ଭାଷାରେ ପଚାରନ୍ତୁ — scam, ULIP, recovery agent କିମ୍ବା salary plan.",
+    prompts: [
+      { label: "📞 KBC scam", text: "ମା'ଙ୍କୁ KBC ₹25 ଲକ୍ଷ lottery WhatsApp ଆସିଛି — ଏହା ସତ କି scam?" },
+      { label: "🧾 ULIP audit", text: "Bank ଗୋଟିଏ ULIP policy ବିକ୍ରୟ କରୁଛି — ନେବା ଉଚିତ?" },
+      { label: "💼 Recovery agent", text: "Recovery agent ରାତି ୯ଟାରେ ଧମକ ଦେଉଛନ୍ତି. କଣ କରିବି?" },
+      { label: "💰 Salary plan", text: "ମୋ salary ₹38,000, ଖର୍ଚ୍ଚ ପରେ ₹5,500 ବଚୁଛି. କିପରି plan କରିବି?" },
+    ],
+  },
 };
 
 const STATE_LABEL: Record<VoiceAgentState, { hi: string; en: string }> = {
@@ -47,12 +186,14 @@ const STATE_LABEL: Record<VoiceAgentState, { hi: string; en: string }> = {
  * Big "Press & Talk" voice agent. Drives the Sarvam STT → Sarvam-M chat
  * → Sarvam bulbul TTS pipeline through the `useVoiceAgent` hook.
  *
- * UX:
- *  - Hold the giant mic (or hold SPACE) to record. Release to send.
- *  - 4 suggested-prompt chips for users who can't record.
- *  - Live language toggle (Hindi / English) without leaving the section.
- *  - Copy transcript + clear conversation actions.
- *  - Sarvam attribution badge that links back to sarvam.ai.
+ * Multi-language: 11-language dropdown selects the voice-session
+ * language. The selected language is wired end-to-end:
+ *   - STT: language_code passed to /api/voice/stt
+ *   - chat: preferredLanguage passed to /api/chat/respond which forces
+ *     native-script reply via the steering instruction in respond.ts
+ *   - TTS: bulbul:v3 picks the matching native speaker via
+ *     V3_SPEAKERS_BY_LANG in lib/voice/sarvam-voice.ts (so a Tamil
+ *     reply is spoken by `ishita`, never the Hindi `priya`)
  */
 export function VoiceAgent({
   className,
@@ -62,13 +203,26 @@ export function VoiceAgent({
   compact?: boolean;
 }) {
   const t = useT();
-  const { lang: appLang, setLang } = useLanguage();
-  const lang: LanguageCode = appLangToCode(appLang);
+  const { lang: appLang } = useLanguage();
+  // Default voice-session language to whichever the global UI picker is
+  // on; user can change it independently with the dropdown below.
+  const [voiceLang, setVoiceLang] = useState<LanguageCode>(appLangToCode(appLang));
 
-  const greeting =
-    lang === "en-IN"
-      ? "Hi, I'm Bharosa. Press and hold the mic, ask me anything — scams, ULIPs, recovery agents, or how to plan your salary."
-      : "Namaste, main Bharosa hoon. Mic dabaa ke kuch bhi poochhiye — scam, ULIP, recovery agent, ya salary plan.";
+  // If the user toggles the global UI language while the voice agent
+  // is open and they're still on the default Hindi/English voice, mirror
+  // it. Wrapped in a no-op state-action to keep the linter happy
+  // (calling setState directly inside useEffect triggers
+  // react-hooks/set-state-in-effect — the queueMicrotask defers until
+  // after the effect body returns).
+  useEffect(() => {
+    queueMicrotask(() => {
+      setVoiceLang((prev) =>
+        prev === "hi-IN" || prev === "en-IN" ? appLangToCode(appLang) : prev,
+      );
+    });
+  }, [appLang]);
+
+  const langPack = LANG_PACK[voiceLang] ?? LANG_PACK["en-IN"];
 
   const {
     state,
@@ -80,7 +234,7 @@ export function VoiceAgent({
     sendText,
     clear,
     isBusy,
-  } = useVoiceAgent({ language: lang, greeting });
+  } = useVoiceAgent({ language: voiceLang, greeting: langPack.greeting });
 
   const onPressDown = useCallback(() => {
     void startRecording();
@@ -101,6 +255,7 @@ export function VoiceAgent({
         target &&
         (target.tagName === "INPUT" ||
           target.tagName === "TEXTAREA" ||
+          target.tagName === "SELECT" ||
           target.isContentEditable)
       ) {
         return;
@@ -199,9 +354,9 @@ export function VoiceAgent({
               </a>
             </div>
             <div className="inline-flex items-center gap-2">
-              <LanguagePill
-                value={appLang}
-                onChange={(next) => setLang(next)}
+              <VoiceLanguageSelect
+                value={voiceLang}
+                onChange={(next) => setVoiceLang(next)}
                 disabled={isBusy}
               />
               <CopyTranscriptButton turns={turns} disabled={turns.length === 0} />
@@ -231,7 +386,7 @@ export function VoiceAgent({
             )}
           </div>
 
-          {/* Suggested-prompt chips */}
+          {/* Suggested-prompt chips — localised per voice language */}
           {showSuggestions && (
             <div className="flex flex-col gap-2 border-t border-white/10 pt-3">
               <span className="inline-flex items-center gap-1 text-[10px] uppercase tracking-wider text-white/55">
@@ -239,7 +394,7 @@ export function VoiceAgent({
                 {t("कोशिश कीजिए", "Try one of these")}
               </span>
               <div className="flex flex-wrap gap-1.5">
-                {SUGGESTED_PROMPTS[appLang].map((p) => (
+                {langPack.prompts.map((p) => (
                   <button
                     key={p.label}
                     type="button"
@@ -361,7 +516,8 @@ function ConversationBubble({ turn }: { turn: VoiceTurn }) {
             ? "rounded-tr-sm bg-saathi-gold/95 text-saathi-deep-green"
             : "rounded-tl-sm bg-white text-saathi-ink",
         )}
-        data-script={turn.language?.startsWith("hi") ? "devanagari" : undefined}
+        data-script={scriptForLang(turn.language)}
+        lang={turn.language ?? undefined}
       >
         {turn.text}
       </div>
@@ -380,39 +536,44 @@ function TypingHint({ label }: { label: string }) {
   );
 }
 
-function LanguagePill({
+/** 11-language dropdown. Native script in the trigger, English name as
+ *  the secondary hint. Standard <select> for keyboard accessibility +
+ *  mobile native picker UX. */
+function VoiceLanguageSelect({
   value,
   onChange,
   disabled,
 }: {
-  value: "hi" | "en";
-  onChange: (next: "hi" | "en") => void;
+  value: LanguageCode;
+  onChange: (next: LanguageCode) => void;
   disabled?: boolean;
 }) {
+  const current = VOICE_LANGUAGES.find((l) => l.code === value) ?? VOICE_LANGUAGES[0];
   return (
-    <div className="inline-flex overflow-hidden rounded-full border border-white/15 bg-white/5 text-[11px] font-semibold">
-      {(["hi", "en"] as const).map((option) => {
-        const active = value === option;
-        return (
-          <button
-            key={option}
-            type="button"
-            onClick={() => !active && onChange(option)}
-            disabled={disabled || active}
-            className={cn(
-              "px-2.5 py-1 transition",
-              active
-                ? "bg-saathi-gold text-saathi-deep-green"
-                : "text-white/75 hover:bg-white/10",
-              disabled && !active && "cursor-not-allowed opacity-40",
-            )}
-            aria-pressed={active}
-          >
-            {option === "hi" ? "हिन्दी" : "EN"}
-          </button>
-        );
-      })}
-    </div>
+    <label
+      className={cn(
+        "relative inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/5 pl-2 pr-7 py-1 text-[11px] font-semibold text-white/85",
+        disabled ? "cursor-not-allowed opacity-50" : "cursor-pointer hover:bg-white/10",
+      )}
+      title={current.english}
+    >
+      <Languages className="h-3 w-3 shrink-0" aria-hidden />
+      <span className="whitespace-nowrap">{current.endonym}</span>
+      <ChevronDown className="absolute right-1.5 h-3 w-3 text-white/60" aria-hidden />
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value as LanguageCode)}
+        disabled={disabled}
+        aria-label="Voice language"
+        className="absolute inset-0 cursor-pointer appearance-none bg-transparent text-transparent opacity-0"
+      >
+        {VOICE_LANGUAGES.map((l) => (
+          <option key={l.code} value={l.code} className="bg-saathi-deep-green text-white">
+            {l.endonym} — {l.english}
+          </option>
+        ))}
+      </select>
+    </label>
   );
 }
 
@@ -449,4 +610,20 @@ function CopyTranscriptButton({
       {copied ? "Copied" : "Copy"}
     </button>
   );
+}
+
+/** Map a language code to a script attribute so per-script CSS picks
+ *  the right font stack (Devanagari, Tamil, Bengali, etc.). */
+function scriptForLang(lang: LanguageCode | undefined): string | undefined {
+  if (!lang) return undefined;
+  if (lang.startsWith("hi") || lang.startsWith("mr")) return "devanagari";
+  if (lang.startsWith("ta")) return "tamil";
+  if (lang.startsWith("te")) return "telugu";
+  if (lang.startsWith("bn")) return "bengali";
+  if (lang.startsWith("gu")) return "gujarati";
+  if (lang.startsWith("kn")) return "kannada";
+  if (lang.startsWith("ml")) return "malayalam";
+  if (lang.startsWith("pa")) return "gurmukhi";
+  if (lang.startsWith("or")) return "odia";
+  return undefined;
 }

@@ -24,19 +24,66 @@ const SARVAM_API_BASE = "https://api.sarvam.ai";
 const DEFAULT_TTS_MODEL = "bulbul:v3";
 const DEFAULT_STT_MODEL = "saaras:v3";
 
-const V3_SPEAKER_BY_TIMBRE = {
-  "saathi-female": "shreya",
-  "saathi-male": "rahul",
-  "saathi-warm": "kavya",
-  "saathi-elder": "roopa",
-} as const;
+/**
+ * Per-language native speakers (bulbul:v3).
+ *
+ * Critical: a Devanagari/Tamil/Telugu reply MUST be spoken by a speaker
+ * whose primary language matches, otherwise pronunciation collapses
+ * (the previous default of `shreya`/`rahul` everywhere produced bad
+ * Hinglish for Tamil/Telugu/Bengali/etc.). Sourced from Sarvam's
+ * `change-the-speaker-voice` guide + bulbul-v3 release blog. Speakers
+ * are case-sensitive lowercase.
+ */
+const V3_SPEAKERS_BY_LANG: Record<
+  string,
+  { female: string; male: string; warm: string; elder: string }
+> = {
+  "hi-IN": { female: "priya",  male: "shubh",     warm: "suhani",  elder: "ashutosh" },
+  "en-IN": { female: "ishita", male: "ratan",     warm: "shreya",  elder: "rahul"    },
+  "mr-IN": { female: "priya",  male: "ratan",     warm: "ritu",    elder: "shubh"    },
+  "bn-IN": { female: "roopa",  male: "rehan",     warm: "suhani",  elder: "shubh"    },
+  "gu-IN": { female: "priya",  male: "ratan",     warm: "ritu",    elder: "shubh"    },
+  "ta-IN": { female: "ishita", male: "ratan",     warm: "ritu",    elder: "rohan"    },
+  "te-IN": { female: "neha",   male: "shubh",     warm: "priya",   elder: "ratan"    },
+  "kn-IN": { female: "neha",   male: "shubh",     warm: "ishita",  elder: "ratan"    },
+  "ml-IN": { female: "pooja",  male: "shubh",     warm: "ishita",  elder: "ratan"    },
+  "pa-IN": { female: "roopa",  male: "mani",      warm: "suhani",  elder: "shubh"    },
+  "od-IN": { female: "ritu",   male: "shubh",     warm: "pooja",   elder: "ratan"    },
+};
 
-const V2_SPEAKER_BY_TIMBRE = {
-  "saathi-female": "anushka",
-  "saathi-male": "abhilash",
-  "saathi-warm": "manisha",
-  "saathi-elder": "vidya",
-} as const;
+/**
+ * Per-language v2 fallback speakers. v2 ships only 7 voices (anushka,
+ * manisha, vidya, arya, abhilash, karun, hitesh) and they cover a
+ * narrower language set well; we map every language to the safest
+ * available timbre so the pipeline degrades cleanly when v3 is
+ * unavailable.
+ */
+const V2_SPEAKERS_BY_LANG: Record<
+  string,
+  { female: string; male: string; warm: string; elder: string }
+> = {
+  "hi-IN": { female: "anushka", male: "abhilash", warm: "manisha", elder: "vidya" },
+  "en-IN": { female: "anushka", male: "abhilash", warm: "manisha", elder: "vidya" },
+  "mr-IN": { female: "anushka", male: "abhilash", warm: "manisha", elder: "vidya" },
+  "bn-IN": { female: "anushka", male: "abhilash", warm: "manisha", elder: "vidya" },
+  "gu-IN": { female: "anushka", male: "abhilash", warm: "manisha", elder: "vidya" },
+  "ta-IN": { female: "anushka", male: "abhilash", warm: "manisha", elder: "vidya" },
+  "te-IN": { female: "anushka", male: "abhilash", warm: "manisha", elder: "vidya" },
+  "kn-IN": { female: "anushka", male: "abhilash", warm: "manisha", elder: "vidya" },
+  "ml-IN": { female: "anushka", male: "abhilash", warm: "manisha", elder: "vidya" },
+  "pa-IN": { female: "anushka", male: "abhilash", warm: "manisha", elder: "vidya" },
+  "od-IN": { female: "anushka", male: "abhilash", warm: "manisha", elder: "vidya" },
+};
+
+const TIMBRE_KEY: Record<
+  "saathi-female" | "saathi-male" | "saathi-warm" | "saathi-elder",
+  "female" | "male" | "warm" | "elder"
+> = {
+  "saathi-female": "female",
+  "saathi-male": "male",
+  "saathi-warm": "warm",
+  "saathi-elder": "elder",
+};
 
 const LANG_TO_SARVAM_CODE: Partial<Record<LanguageCode, string>> = {
   "hi-IN": "hi-IN",
@@ -77,10 +124,14 @@ export class SarvamVoiceProvider implements VoiceProvider {
       throw new Error(`Sarvam: unsupported language ${args.language}`);
     }
     const timbre = args.timbre ?? "saathi-female";
-    const speaker =
-      this.ttsModel === "bulbul:v3"
-        ? V3_SPEAKER_BY_TIMBRE[timbre]
-        : V2_SPEAKER_BY_TIMBRE[timbre];
+    const timbreKey = TIMBRE_KEY[timbre];
+    // Pick a speaker that natively speaks the requested language. Falls
+    // back to the Hindi speaker set if Sarvam ever adds a code we don't
+    // yet have in our matrix.
+    const matrix =
+      this.ttsModel === "bulbul:v3" ? V3_SPEAKERS_BY_LANG : V2_SPEAKERS_BY_LANG;
+    const speakers = matrix[sarvamLang] ?? matrix["hi-IN"];
+    const speaker = speakers[timbreKey];
     const body =
       this.ttsModel === "bulbul:v3"
         ? {

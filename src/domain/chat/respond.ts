@@ -56,7 +56,7 @@ export async function respondToChat(
       feature: "chat-respond",
       tier: "haiku",
       system: CHAT_RESPOND_SYSTEM_V1,
-      prompt: `Visitor's preferred language: ${preferredLanguage} (${preferredLanguage === "en-IN" ? "FULLY ENGLISH — no Hinglish, no romanised Hindi like 'main hoon' or 'aap'. Brand 'Bharosa' stays as-is" : "Hindi or Hinglish — mirror the user's script"}).\n\nConversation so far:\n${transcriptForPrompt}\n\nReply to the user's latest message in their preferred language. JSON only.`,
+      prompt: `Visitor's preferred language: ${preferredLanguage}.\n\n${languageSteeringInstruction(preferredLanguage)}\n\nConversation so far:\n${transcriptForPrompt}\n\nReply to the user's latest message strictly in the preferred language above. The "language" field of your JSON must equal "${preferredLanguage}". JSON only.`,
       temperature: 0.5,
       maxOutputTokens: 2000,
     });
@@ -73,6 +73,41 @@ export async function respondToChat(
       return mockReply(last.text, preferredLanguage);
     }
     throw error;
+  }
+}
+
+/**
+ * Per-language steering instruction injected into the prompt body.
+ * Forces Sarvam-M to honour native script output and gives examples for
+ * pure-script languages (Tamil/Telugu/Bengali/etc.) where mid-reply
+ * Latin leakage would corrupt TTS pronunciation.
+ */
+function languageSteeringInstruction(lang: LanguageCode): string {
+  switch (lang) {
+    case "en-IN":
+      return "Reply in fully formed English. No romanised Hindi (no 'main hoon', no 'aap', no 'ji'). Indian English idioms (lakh, crore) are fine.";
+    case "hi-IN":
+      return "Reply in Devanagari (देवनागरी). Hinglish acceptable for fintech terms (SIP, FD, ULIP) when natural. NEVER reply in Latin-only Hindi.";
+    case "ta-IN":
+      return "Reply ONLY in Tamil script (தமிழ்). Transliterate fintech terms into Tamil (யுபிஐ, ஓடிபி, கேவைசி). No English words, no Hindi words.";
+    case "te-IN":
+      return "Reply ONLY in Telugu script (తెలుగు). Transliterate fintech terms (యూపీఐ, ఓటీపీ, కేవైసీ).";
+    case "mr-IN":
+      return "Reply ONLY in Marathi (मराठी, Devanagari). Use Marathi grammar — do not reply in Hindi by mistake.";
+    case "bn-IN":
+      return "Reply ONLY in Bangla script (বাংলা). Transliterate fintech terms (ইউপিআই, ওটিপি, কেওয়াইসি).";
+    case "gu-IN":
+      return "Reply ONLY in Gujarati script (ગુજરાતી).";
+    case "kn-IN":
+      return "Reply ONLY in Kannada script (ಕನ್ನಡ).";
+    case "ml-IN":
+      return "Reply ONLY in Malayalam script (മലയാളം).";
+    case "pa-IN":
+      return "Reply ONLY in Gurmukhi script (ਪੰਜਾਬੀ).";
+    case "or-IN":
+      return "Reply ONLY in Odia script (ଓଡ଼ିଆ).";
+    default:
+      return "Reply in the user's preferred language.";
   }
 }
 

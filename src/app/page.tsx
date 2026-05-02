@@ -476,12 +476,6 @@ export default function Home() {
           <div className="mx-auto grid max-w-6xl gap-8 px-6 py-12 md:grid-cols-4">
             <div className="space-y-2">
               <Logo variant="lockup" size={32} />
-              <T
-                as="p"
-                hi="Bengaluru में बना। 100M+ Bharat households के लिए।"
-                en="Made in Bengaluru. For 100M+ Bharat households."
-                className="text-caption text-saathi-ink-quiet"
-              />
             </div>
             <FooterColumn
               title={{ hi: "Product", en: "Product" }}
