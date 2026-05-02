@@ -340,7 +340,8 @@ export default function Home() {
                         />
                       </div>
                     </div>
-                    <div className="mt-5 rounded-card-sm bg-saathi-gold-tint px-3 py-2 text-caption font-medium text-saathi-gold">
+                    <div className="mt-5 inline-flex items-center gap-2 rounded-card-sm border border-zupee-indigo/15 bg-zupee-yellow-tint px-3 py-2 text-caption font-semibold text-zupee-indigo">
+                      <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-zupee-yellow" />
                       <T hi={card.stat.hi} en={card.stat.en} />
                     </div>
                   </Card>
@@ -419,18 +420,20 @@ export default function Home() {
                   </Link>
                 </Button>
               </div>
-              <div className="space-y-3 rounded-card-sm bg-saathi-paper p-5 text-saathi-ink shadow-soft">
+              <div className="relative space-y-3 overflow-hidden rounded-card-sm bg-saathi-paper p-5 text-saathi-ink shadow-soft">
+                {/* Indigo accent rule on the left edge */}
+                <span aria-hidden className="absolute left-0 top-0 h-full w-1 bg-zupee-indigo/85" />
                 <div className="flex items-baseline justify-between">
                   <T
                     hi="मासिक mandate"
                     en="Monthly mandate"
-                    className="text-caption uppercase tracking-wide text-saathi-ink-quiet"
+                    className="text-caption uppercase tracking-wide text-zupee-indigo/80"
                   />
                   <Currency
                     amount={5500}
                     variant="full"
                     language="en-IN"
-                    className="text-h3 font-semibold text-saathi-deep-green"
+                    className="text-h3 font-semibold text-zupee-indigo"
                   />
                 </div>
                 {[
@@ -449,17 +452,27 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Trust strip */}
-        <section className="border-y border-saathi-paper-edge bg-saathi-paper">
-          <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-6 py-6 text-caption text-saathi-ink-quiet">
-            {TRUST_BADGES.map((badge) => (
-              <T key={badge.en} hi={badge.hi} en={badge.en} />
+        {/* Trust strip — Zupee yellow tint, indigo separator dots */}
+        <section className="border-y border-zupee-indigo/15 bg-zupee-yellow-tint/60">
+          <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-x-5 gap-y-2 px-6 py-5 text-caption font-medium text-zupee-indigo">
+            {TRUST_BADGES.map((badge, i) => (
+              <span key={badge.en} className="inline-flex items-center gap-3">
+                {i > 0 && (
+                  <span aria-hidden className="hidden h-1 w-1 rounded-full bg-zupee-indigo/40 sm:inline-block" />
+                )}
+                <T hi={badge.hi} en={badge.en} />
+              </span>
             ))}
           </div>
         </section>
 
         {/* Footer */}
         <footer className="bg-saathi-cream-deep">
+          {/* Mirror of the nav: 3px yellow → indigo accent stripe */}
+          <div
+            aria-hidden
+            className="h-[3px] w-full bg-gradient-to-r from-zupee-yellow via-zupee-yellow to-zupee-indigo"
+          />
           <div className="mx-auto grid max-w-6xl gap-8 px-6 py-12 md:grid-cols-4">
             <div className="space-y-2">
               <Logo variant="lockup" size={32} />
@@ -533,7 +546,7 @@ function FooterColumn({
       <T
         hi={title.hi}
         en={title.en}
-        className="text-caption uppercase tracking-wide text-saathi-ink-quiet"
+        className="text-caption font-semibold uppercase tracking-wide text-zupee-indigo"
       />
       <ul className="space-y-1.5">
         {links.map((l) => (

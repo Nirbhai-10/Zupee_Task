@@ -21,7 +21,7 @@ import { T } from "@/components/shared/T";
 
 export const metadata = {
   title: "For Zupee · The thesis",
-  description: "Bharosa is a thesis-style submission for Zupee's AI-native product brief — Theme 3, Investments. The defense-first wedge for 100M+ Bharat households.",
+  description: "Bharosa for Zupee — AI × Investments for Bharat. The defense-first wedge for 100M+ Bharat households.",
 };
 
 const COMPETITIVE_LANDSCAPE = [
@@ -86,12 +86,18 @@ export default function ForZupeePage() {
       <MarketingNav />
       <main className="flex flex-1 flex-col bg-saathi-cream">
         {/* Hero */}
-        <section className="border-b border-saathi-paper-edge bg-saathi-paper">
+        <section className="relative overflow-hidden border-b border-saathi-paper-edge bg-saathi-paper">
+          {/* Yellow → indigo accent stripe — partner mark on every Zupee surface */}
+          <div
+            aria-hidden
+            className="absolute inset-x-0 top-0 h-[3px] bg-gradient-to-r from-zupee-yellow via-zupee-yellow to-zupee-indigo"
+          />
           <div className="mx-auto max-w-5xl px-6 py-14">
             <div className="flex flex-wrap items-center gap-2">
-              <Badge tone="green">
-                <T hi="Theme 3 · Investments" en="Theme 3 · Investments" />
-              </Badge>
+              <span className="inline-flex items-center gap-2 rounded-pill border border-zupee-indigo/20 bg-zupee-yellow-tint px-3 py-1 text-caption font-semibold text-zupee-indigo">
+                <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-zupee-yellow" />
+                <T hi="AI × निवेश · Bharat के लिए" en="AI × Investments · for Bharat" />
+              </span>
               <ZupeeAttribution variant="header" />
             </div>
 

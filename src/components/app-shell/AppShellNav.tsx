@@ -48,6 +48,11 @@ export function AppShellNav({ statusPill, languageToggle }: AppShellNavProps) {
   return (
     <aside className="hidden w-[260px] shrink-0 border-r border-saathi-paper-edge bg-saathi-paper md:block">
       <div className="sticky top-0 flex h-screen flex-col">
+        {/* Yellow → indigo accent stripe — Zupee co-mark on the dashboard */}
+        <div
+          aria-hidden
+          className="h-[3px] w-full bg-gradient-to-r from-zupee-yellow via-zupee-yellow to-zupee-indigo"
+        />
         <div className="flex min-h-[72px] items-center justify-between gap-3 border-b border-saathi-paper-edge px-4 py-3">
           <Link href="/" className="flex min-w-0 items-center rounded-card-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-saathi-deep-green/30">
             <Logo size={40} className="min-w-0" />
@@ -69,16 +74,22 @@ export function AppShellNav({ statusPill, languageToggle }: AppShellNavProps) {
                   <Link
                     href={item.href}
                     className={cn(
-                      "group flex items-center gap-3 rounded-card-sm px-3 py-2 text-body-sm transition-colors",
+                      "group relative flex items-center gap-3 rounded-card-sm px-3 py-2 text-body-sm transition-colors",
                       isActive
-                        ? "bg-saathi-deep-green-tint text-saathi-deep-green"
+                        ? "bg-zupee-yellow-tint text-zupee-indigo"
                         : "text-saathi-ink-soft hover:bg-saathi-cream-deep hover:text-saathi-ink",
                     )}
                   >
+                    {isActive && (
+                      <span
+                        aria-hidden
+                        className="absolute left-0 top-1/2 h-5 -translate-y-1/2 w-1 rounded-full bg-zupee-indigo"
+                      />
+                    )}
                     <Icon
                       className={cn(
                         "h-4 w-4 shrink-0 transition-colors",
-                        isActive ? "text-saathi-deep-green" : "text-saathi-ink-quiet group-hover:text-saathi-ink-soft",
+                        isActive ? "text-zupee-indigo" : "text-saathi-ink-quiet group-hover:text-saathi-ink-soft",
                       )}
                     />
                     <span className="flex-1 font-medium">{t(item.label.hi, item.label.en)}</span>
