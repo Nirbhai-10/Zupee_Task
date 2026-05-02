@@ -1,6 +1,8 @@
 import Image from "next/image";
 import { cn } from "@/lib/utils/cn";
 
+const BHAROSA_MARK_SRC = "/brand/bharosa-mark.png";
+
 type LogoProps = {
   /** Mark only, mark+wordmark, wordmark only. */
   variant?: "mark" | "lockup" | "wordmark";
@@ -12,39 +14,49 @@ type LogoProps = {
 };
 
 /**
- * Bharosa brand mark. SVG placeholder lives at /public/brand/logo.svg —
- * replace with the PNG when the user delivers their final brand asset.
- *
- * The lockup variant pairs the mark with the देवनागरी "भरोसा" wordmark
- * (Mukta 700, deep-green). On mobile we collapse to mark-only via the
- * `hideWordmarkBelow` utility on consumers.
+ * Primary Bharosa brand mark using a cropped web asset from the supplied PNG.
+ * The lockup keeps a readable text label beside the square mark so the
+ * detailed logo remains crisp in compact navigation areas.
  */
 export function Logo({ variant = "lockup", size = 32, tone = "default", className }: LogoProps) {
-  const src = tone === "light" ? "/brand/logo-white.svg" : "/brand/logo.svg";
   const wordmarkClass = tone === "light" ? "text-saathi-cream" : "text-saathi-deep-green";
+  const tileClass =
+    tone === "light"
+      ? "border-white/20 bg-black/20 shadow-soft"
+      : "border-saathi-paper-edge bg-saathi-cream-deep shadow-soft";
+  const wordmarkSize = Math.max(18, Math.round(size * 0.58));
+
   return (
-    <span className={cn("inline-flex items-center gap-2", className)}>
+    <span className={cn("inline-flex min-w-0 items-center gap-2.5", className)}>
       {variant !== "wordmark" ? (
-        <Image
-          src={src}
-          alt="Bharosa"
-          width={size}
-          height={size}
-          priority
-          className="shrink-0"
-        />
+        <span
+          className={cn(
+            "inline-flex shrink-0 overflow-hidden rounded-card-sm border",
+            tileClass,
+          )}
+          style={{ width: size, height: size }}
+        >
+          <Image
+            src={BHAROSA_MARK_SRC}
+            alt={variant === "mark" ? "Bharosa" : ""}
+            width={size}
+            height={size}
+            priority
+            sizes={`${size}px`}
+            className="h-full w-full object-cover"
+          />
+        </span>
       ) : null}
       {variant !== "mark" ? (
         <span
-          lang="hi"
-          data-script="devanagari"
+          data-logo-text
           className={cn(
-            "font-deva font-bold leading-none tracking-tight",
+            "min-w-0 truncate font-semibold leading-none",
             wordmarkClass,
           )}
-          style={{ fontSize: `${Math.round(size * 0.72)}px` }}
+          style={{ fontSize: `${wordmarkSize}px` }}
         >
-          भरोसा
+          Bharosa
         </span>
       ) : null}
     </span>

@@ -139,10 +139,14 @@ export default function Home() {
         <section className="saathi-paper-grain relative overflow-hidden">
           <div className="mx-auto grid max-w-6xl items-center gap-12 px-6 pb-16 pt-12 lg:grid-cols-[3fr_2fr] lg:pb-20 lg:pt-16">
             <div className="space-y-6">
-              <Badge tone="green">
-                <Sparkles className="h-3 w-3" />
-                <T hi="AI-native · WhatsApp · Bharat" en="AI-native · WhatsApp · Bharat" />
-              </Badge>
+              <div className="flex flex-wrap items-center gap-3">
+                <Logo size={56} />
+                <Badge tone="green">
+                  <Sparkles className="h-3 w-3" />
+                  <T hi="AI-native · WhatsApp · Bharat" en="AI-native · WhatsApp · Bharat" />
+                </Badge>
+                <ZupeeAttribution variant="header" className="ml-auto" />
+              </div>
 
               <div className="space-y-1">
                 <T
@@ -215,22 +219,49 @@ export default function Home() {
           </div>
         </section>
 
+        {/* Voice agent — moved right after the hero so first-time visitors
+            can speak to Bharosa before they read anything else.
+            Sarvam STT → Sarvam-M chat → Sarvam TTS. */}
+        <section id="voice" className="border-y border-saathi-paper-edge bg-saathi-cream-deep">
+          <div className="mx-auto max-w-6xl px-6 py-14">
+            <div className="mb-6 max-w-3xl space-y-3">
+              <Badge tone="green">
+                <T hi="आवाज़ से पूछिए" en="Ask by voice" />
+              </Badge>
+              <T
+                as="h2"
+                hi="अपनी भाषा में, एक सवाल पूछकर देखिए."
+                en="Ask one question, in your own language."
+                className="text-h1 font-semibold tracking-tight text-saathi-ink"
+              />
+              <T
+                as="p"
+                hi="Mic दबाइए — scam check, policy audit, या salary plan। Sarvam-M आपकी Hindi/Hinglish समझता है, और असली Indian voice में जवाब देता है."
+                en="Hold the mic — scam check, policy audit, or salary plan. Sarvam-M understands your Hindi/Hinglish, and replies in a real Indian voice."
+                className="text-body-lg text-saathi-ink-soft"
+              />
+            </div>
+            <VoiceAgent />
+          </div>
+        </section>
+
+        {/* How it works — three jobs, one moat */}
         <section className="border-y border-saathi-paper-edge bg-saathi-paper">
           <div className="mx-auto max-w-6xl px-6 py-12">
             <div className="max-w-3xl space-y-3">
               <Badge tone="green">
-                <T hi="To the point" en="To the point" />
+                <T hi="Bharosa कैसे काम करता है" en="How Bharosa works" />
               </Badge>
               <T
                 as="h2"
                 hi="तीन jobs, एक moat."
-                en="Three jobs, one moat."
+                en="Three jobs. One compounding moat."
                 className="text-h2 font-semibold tracking-tight text-saathi-ink"
               />
               <T
                 as="p"
-                hi="Customer को feature maze नहीं दिखता. पहले risk check, फिर product truth, फिर salary-day execution. Moat है household financial memory — private reflection पीछे की signal layer है."
-                en="The customer does not see a maze of features. First risk checks, then product truth, then salary-day execution. The moat is household financial memory; private reflection stays as a quiet signal layer."
+                hi="कोई feature maze नहीं. पहले risk check, फिर product truth, फिर salary-day execution. Moat है household financial memory — हर catch, audit और transfer अगली सलाह को ज़्यादा personal बनाता है."
+                en="No feature maze. First a risk check, then product truth, then salary-day execution. The moat is household financial memory — every catch, audit, and transfer makes the next recommendation more personal."
                 className="text-body-lg text-saathi-ink-soft"
               />
             </div>
@@ -261,30 +292,6 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Voice agent — press & talk. Sarvam STT → Sarvam-M chat → Sarvam TTS. */}
-        <section id="voice" className="border-y border-saathi-paper-edge bg-saathi-cream-deep">
-          <div className="mx-auto max-w-6xl px-6 py-14">
-            <div className="mb-6 max-w-3xl space-y-3">
-              <Badge tone="green">
-                <T hi="आवाज़ से बात करें" en="Talk to Bharosa" />
-              </Badge>
-              <T
-                as="h2"
-                hi="Typing मुश्किल हो तो आवाज़ से पूछिए."
-                en="When typing is hard, ask by voice."
-                className="text-h1 font-semibold tracking-tight text-saathi-ink"
-              />
-              <T
-                as="p"
-                hi="Voice primary product नहीं है — यह assistive layer है. Mic दबाकर risk, policy audit या salary plan पूछिए."
-                en="Voice is not the primary product — it is the assistive layer. Press the mic to ask about risk, policy audits, or salary planning."
-                className="text-body-lg text-saathi-ink-soft"
-              />
-            </div>
-            <VoiceAgent />
-          </div>
-        </section>
-
         {/* Live trust counter — animated scale numbers on scroll */}
         <LiveTrustCounter />
 
@@ -300,14 +307,14 @@ export default function Home() {
               </Badge>
               <T
                 as="h2"
-                hi="हम जिन-जिन हमलों को रोकते हैं।"
-                en="The four classes of harm we defend against."
+                hi="चार तरह के नुक़सान, जिनसे हम आपको बचाते हैं।"
+                en="Four kinds of household harm — and how Bharosa stops them."
                 className="text-h1 font-semibold tracking-tight text-saathi-ink"
               />
               <T
                 as="p"
-                hi="हर Indian fintech आपको product बेचता है। Bharosa पहले आपको products से बचाता है। फिर आपके पैसे को सम्भालता है। Trust पहले, products बाद में।"
-                en="Every Indian fintech sells you a product. Bharosa defends you from products first, then helps you grow money. Trust before products."
+                hi="हर Indian fintech पहले product बेचता है. Bharosa पहले family को नुक़सान से बचाता है, फिर पैसे को बढ़ाता है — trust पहले, products बाद में."
+                en="Every Indian fintech leads with a product. Bharosa leads with protecting the household, then grows money — trust first, products second."
                 className="text-body-lg text-saathi-ink-soft"
               />
             </div>
@@ -499,12 +506,20 @@ export default function Home() {
             />
           </div>
           <div className="border-t border-saathi-paper-edge py-4">
-            <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-6 text-caption text-saathi-ink-quiet">
+            <div className="mx-auto flex max-w-6xl flex-col items-start justify-between gap-3 px-6 text-caption text-saathi-ink-quiet sm:flex-row sm:items-center">
               <ZupeeAttribution variant="footer" />
-              <T
-                hi="विश्वास, हमारे काम का पहला नियम है।"
-                en="Trust is the first rule of our work."
-              />
+              <div className="flex flex-col items-start gap-0.5 sm:items-end">
+                <span className="text-saathi-ink-soft">
+                  Developed by{" "}
+                  <span className="font-semibold text-saathi-ink">Nirbhai Verma</span>
+                </span>
+                <a
+                  href="mailto:f20212316@pilani.bits-pilani.ac.in"
+                  className="font-mono text-[11px] text-saathi-ink-quiet transition-colors hover:text-saathi-deep-green"
+                >
+                  f20212316@pilani.bits-pilani.ac.in
+                </a>
+              </div>
             </div>
           </div>
         </footer>

@@ -9,9 +9,10 @@ type ZupeeAttributionProps = {
 };
 
 /**
- * Bharosa is a thesis-style submission for Zupee's AI-native product
- * brief. Render this in the footer + the dedicated /for-zupee page so
- * the attribution is unambiguous.
+ * Zupee co-mark for Bharosa. Renders the Zupee logo + a short theme line
+ * ("AI × Investments · for Bharat"). Rendered in the marketing nav,
+ * footer, and the dedicated /for-zupee page so the partnership is
+ * unambiguous without naming any submission round.
  *
  * Uses the supplied Zupee PNG in /public/brand/zupee.png.
  */
@@ -26,7 +27,7 @@ export function ZupeeAttribution({ variant = "footer", className }: ZupeeAttribu
         isCompact ? "px-2.5 py-1.5" : "px-3 py-1.5",
         className,
       )}
-      aria-label="Submission for Zupee — read the thesis"
+      aria-label="For Zupee — read the thesis"
     >
       <Image
         src="/brand/zupee.png"
@@ -37,8 +38,8 @@ export function ZupeeAttribution({ variant = "footer", className }: ZupeeAttribu
         priority
       />
       {showCopy ? (
-        <span className="text-caption text-saathi-ink-soft">
-          <T hi="Submission · Zupee Theme 3" en="Submission · Zupee Theme 3" />
+        <span className="text-caption font-medium text-saathi-ink-soft">
+          <T hi="AI × निवेश · Bharat के लिए" en="AI × Investments · for Bharat" />
         </span>
       ) : null}
     </Link>

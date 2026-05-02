@@ -14,6 +14,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Logo } from "@/components/brand/Logo";
 import { Currency } from "@/components/shared/Currency";
 import { T } from "@/components/shared/T";
 import { VoiceAgent } from "@/components/voice/VoiceAgent";
@@ -79,10 +80,13 @@ export default function HomePage() {
     <main className="flex flex-1 flex-col gap-8 bg-saathi-cream px-6 py-10">
       <header className="mx-auto grid w-full max-w-6xl gap-6 lg:grid-cols-[1.4fr_1fr] lg:items-end">
         <div className="space-y-4">
-          <Badge tone="gold">
-            <Sparkles className="h-3 w-3" />
-            <T hi="Household Financial Memory" en="Household Financial Memory" />
-          </Badge>
+          <div className="flex flex-wrap items-center gap-3">
+            <Logo size={48} />
+            <Badge tone="gold">
+              <Sparkles className="h-3 w-3" />
+              <T hi="Household Financial Memory" en="Household Financial Memory" />
+            </Badge>
+          </div>
           <div className="space-y-2">
             <h1 className="text-h1 font-semibold tracking-tight text-saathi-ink">
               <T

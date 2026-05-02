@@ -20,7 +20,7 @@ export function MarketingNav() {
         </Link>
         <MarketingNavCenterLinks />
         <div className="ml-auto flex min-w-0 items-center justify-end gap-2.5">
-          <ZupeeAttribution variant="header" className="hidden xl:inline-flex" />
+          <ZupeeAttribution variant="header" className="hidden md:inline-flex" />
           <LanguageToggle className="inline-flex" />
           <Button asChild variant="primary" size="sm" className="shrink-0 px-3.5 sm:px-4">
             <Link href="/demo/simulator">

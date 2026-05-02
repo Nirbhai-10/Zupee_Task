@@ -15,7 +15,8 @@ import {
   Users,
   Wallet,
 } from "lucide-react";
-import { Wordmark } from "@/components/brand/Wordmark";
+import { Logo } from "@/components/brand/Logo";
+import { ZupeeAttribution } from "@/components/brand/ZupeeAttribution";
 import { useT } from "@/lib/i18n/language-context";
 import { cn } from "@/lib/utils/cn";
 
@@ -47,12 +48,9 @@ export function AppShellNav({ statusPill, languageToggle }: AppShellNavProps) {
   return (
     <aside className="hidden w-[260px] shrink-0 border-r border-saathi-paper-edge bg-saathi-paper md:block">
       <div className="sticky top-0 flex h-screen flex-col">
-        <div className="flex items-center justify-between gap-2 border-b border-saathi-paper-edge px-4 py-3">
-          <Link href="/" className="flex items-center gap-2">
-            <Wordmark className="text-h2" />
-            <span className="text-caption uppercase tracking-wider text-saathi-ink-quiet">
-              Bharosa
-            </span>
+        <div className="flex min-h-[72px] items-center justify-between gap-3 border-b border-saathi-paper-edge px-4 py-3">
+          <Link href="/" className="flex min-w-0 items-center rounded-card-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-saathi-deep-green/30">
+            <Logo size={40} className="min-w-0" />
           </Link>
           {languageToggle}
         </div>
@@ -102,7 +100,7 @@ export function AppShellNav({ statusPill, languageToggle }: AppShellNavProps) {
           </div>
         </nav>
 
-        <div className="border-t border-saathi-paper-edge px-4 py-3 text-caption text-saathi-ink-quiet">
+        <div className="space-y-3 border-t border-saathi-paper-edge px-4 py-3 text-caption text-saathi-ink-quiet">
           <div className="flex items-center gap-2">
             <span className="inline-flex h-7 w-7 items-center justify-center rounded-pill bg-saathi-deep-green text-[10px] font-semibold text-white">
               AS
@@ -116,6 +114,7 @@ export function AppShellNav({ statusPill, languageToggle }: AppShellNavProps) {
               </div>
             </div>
           </div>
+          <ZupeeAttribution variant="header" className="w-full justify-start" />
         </div>
       </div>
     </aside>
@@ -149,5 +148,20 @@ export function AppShellMobileBar() {
         })}
       </ul>
     </div>
+  );
+}
+
+export function AppShellMobileHeader({ languageToggle }: { languageToggle?: React.ReactNode }) {
+  return (
+    <header className="sticky top-0 z-30 flex min-h-16 items-center justify-between gap-3 border-b border-saathi-paper-edge bg-saathi-paper/95 px-4 py-2 backdrop-blur md:hidden">
+      <Link
+        href="/home"
+        className="flex min-w-0 items-center rounded-card-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-saathi-deep-green/30"
+        aria-label="Bharosa home"
+      >
+        <Logo size={38} className="min-w-0" />
+      </Link>
+      {languageToggle}
+    </header>
   );
 }

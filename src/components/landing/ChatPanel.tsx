@@ -1,8 +1,8 @@
 "use client";
 
 import * as React from "react";
-import Image from "next/image";
 import { Eraser, MoreVertical, X } from "lucide-react";
+import { Logo } from "@/components/brand/Logo";
 import { conversationStore } from "@/lib/chat/conversation-store";
 import type { ChatMessage } from "@/lib/chat/types";
 import { useLanguage, useT } from "@/lib/i18n/language-context";
@@ -160,15 +160,7 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
           >
             <X className="h-4 w-4" />
           </button>
-          <div className="flex h-10 w-10 items-center justify-center rounded-pill border border-white/20 bg-white shadow-soft">
-            <Image
-              src="/brand/logo.svg"
-              alt="Bharosa"
-              width={28}
-              height={28}
-              priority
-            />
-          </div>
+          <Logo variant="mark" size={40} tone="light" className="shrink-0" />
           <div className="min-w-0 flex-1 py-0.5">
             <div className="flex items-center gap-1 text-sm font-semibold leading-tight text-white">
               Bharosa

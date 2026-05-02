@@ -1,4 +1,8 @@
-import { AppShellNav, AppShellMobileBar } from "@/components/app-shell/AppShellNav";
+import {
+  AppShellMobileBar,
+  AppShellMobileHeader,
+  AppShellNav,
+} from "@/components/app-shell/AppShellNav";
 import { LanguageToggle } from "@/components/shared/LanguageToggle";
 import { StatusPill } from "@/components/shared/StatusPill";
 import { DemoBadge } from "@/components/app-shell/DemoBadge";
@@ -15,6 +19,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         languageToggle={<LanguageToggle />}
       />
       <div className="flex min-w-0 flex-1 flex-col pb-16 md:pb-0">
+        <AppShellMobileHeader languageToggle={<LanguageToggle />} />
         <DemoBadge />
         {children}
       </div>
