@@ -42,6 +42,17 @@
   --color-saathi-voice: #5C8A7F;
   --color-saathi-voice-tint: #DDE9E5;
 
+  /* Zupee co-mark palette — used sparingly, only on Zupee-attribution
+   * surfaces (badges, partner pills, top accent stripe). Bharosa green
+   * stays the primary brand colour; Zupee yellow + indigo are accents. */
+  --color-zupee-yellow: #FFD400;
+  --color-zupee-yellow-soft: #FFE36B;
+  --color-zupee-yellow-tint: #FFF6CC;
+  --color-zupee-indigo: #2E1A87;
+  --color-zupee-indigo-soft: #4F38B5;
+  --color-zupee-indigo-tint: #E5E0F4;
+  --color-zupee-white: #FFFFFF;
+
   /* Font families. The --font-manrope / --font-mukta / --font-jetbrains
    * variables are emitted by next/font/google in layout.tsx. */
   --font-sans: var(--font-manrope), ui-sans-serif, system-ui, -apple-system, sans-serif;

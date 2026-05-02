@@ -10,7 +10,13 @@ import { ZupeeAttribution } from "@/components/brand/ZupeeAttribution";
 export function MarketingNav() {
   return (
     <nav className="sticky top-0 z-30 border-b border-saathi-paper-edge bg-saathi-cream/95 backdrop-blur-md">
-      <div className="mx-auto grid min-h-20 max-w-6xl grid-cols-[auto_1fr] items-center gap-x-5 gap-y-3 px-4 py-3 sm:px-6 lg:grid-cols-[auto_1fr_auto]">
+      {/* Slim Zupee-yellow → indigo accent stripe — quiet partner mark
+          that runs the full width of the nav at all breakpoints. */}
+      <div
+        aria-hidden
+        className="h-[3px] w-full bg-gradient-to-r from-zupee-yellow via-zupee-yellow to-zupee-indigo"
+      />
+      <div className="mx-auto grid min-h-16 max-w-6xl grid-cols-[auto_1fr] items-center gap-x-5 gap-y-3 px-4 py-3 sm:min-h-20 sm:px-6 lg:grid-cols-[auto_1fr_auto]">
         <Link
           href="/"
           className="inline-flex min-w-0 items-center rounded-pill focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-saathi-deep-green/30"

@@ -186,12 +186,12 @@ export function VoiceAgent({
                 href="https://sarvam.ai"
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-1 rounded-full bg-emerald-400/15 px-2 py-0.5 text-[10px] font-semibold text-emerald-100 transition hover:bg-emerald-400/25"
+                className="inline-flex items-center gap-1.5 rounded-full bg-emerald-400/15 px-2 py-0.5 text-[10px] font-semibold text-emerald-100 transition hover:bg-emerald-400/25"
                 title="Powered by Sarvam-M, bulbul:v3 TTS, saarika:v2.5 STT"
               >
                 <span
                   className={cn(
-                    "h-1.5 w-1.5 rounded-full bg-emerald-300",
+                    "h-1.5 w-1.5 rounded-full bg-zupee-yellow",
                     isBusy && "animate-pulse",
                   )}
                 />

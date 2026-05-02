@@ -139,14 +139,14 @@ export default function Home() {
         <section className="saathi-paper-grain relative overflow-hidden">
           <div className="mx-auto grid max-w-6xl items-center gap-12 px-6 pb-16 pt-12 lg:grid-cols-[3fr_2fr] lg:pb-20 lg:pt-16">
             <div className="space-y-6">
-              <div className="flex flex-wrap items-center gap-3">
+              <div className="flex flex-wrap items-center justify-between gap-3">
                 <Logo size={56} />
-                <Badge tone="green">
-                  <Sparkles className="h-3 w-3" />
-                  <T hi="AI-native · WhatsApp · Bharat" en="AI-native · WhatsApp · Bharat" />
-                </Badge>
-                <ZupeeAttribution variant="header" className="ml-auto" />
+                <ZupeeAttribution variant="header" />
               </div>
+              <Badge tone="green" className="self-start">
+                <Sparkles className="h-3 w-3" />
+                <T hi="AI-native · WhatsApp · Bharat" en="AI-native · WhatsApp · Bharat" />
+              </Badge>
 
               <div className="space-y-1">
                 <T
@@ -194,17 +194,10 @@ export default function Home() {
                 <WhatsAppHeroCta />
                 <Button asChild variant="outline" size="md" className="h-12 px-5">
                   <Link href="/api/demo/login">
-                    <T hi="Anjali का dashboard देखें" en="See Anjali's dashboard" />
+                    <T hi="Anjali का dashboard" en="See Anjali's dashboard" />
                     <ArrowRight className="h-4 w-4" />
                   </Link>
                 </Button>
-                <Link
-                  href="#playground"
-                  className="inline-flex h-12 items-center gap-1.5 rounded-pill px-2 text-body-sm font-medium text-saathi-deep-green transition-colors hover:text-saathi-deep-green-soft"
-                >
-                  <T hi="Live classifier try करें" en="Try the live classifier" />
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
               </div>
 
               <T
@@ -511,11 +504,11 @@ export default function Home() {
               <div className="flex flex-col items-start gap-0.5 sm:items-end">
                 <span className="text-saathi-ink-soft">
                   Developed by{" "}
-                  <span className="font-semibold text-saathi-ink">Nirbhai Verma</span>
+                  <span className="font-semibold text-zupee-indigo">Nirbhai Verma</span>
                 </span>
                 <a
                   href="mailto:f20212316@pilani.bits-pilani.ac.in"
-                  className="font-mono text-[11px] text-saathi-ink-quiet transition-colors hover:text-saathi-deep-green"
+                  className="font-mono text-[11px] text-saathi-ink-quiet transition-colors hover:text-zupee-indigo"
                 >
                   f20212316@pilani.bits-pilani.ac.in
                 </a>

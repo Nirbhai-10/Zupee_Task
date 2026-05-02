@@ -23,7 +23,8 @@ export function ZupeeAttribution({ variant = "footer", className }: ZupeeAttribu
     <Link
       href="/for-zupee"
       className={cn(
-        "group inline-flex items-center gap-2 rounded-pill border border-saathi-paper-edge bg-saathi-paper transition-colors hover:bg-saathi-cream-deep",
+        // Zupee yellow tint background, indigo border + label.
+        "group inline-flex items-center gap-2 rounded-pill border border-zupee-indigo/20 bg-zupee-yellow-tint transition-colors hover:border-zupee-indigo/35 hover:bg-zupee-yellow-soft/40",
         isCompact ? "px-2.5 py-1.5" : "px-3 py-1.5",
         className,
       )}
@@ -38,7 +39,7 @@ export function ZupeeAttribution({ variant = "footer", className }: ZupeeAttribu
         priority
       />
       {showCopy ? (
-        <span className="text-caption font-medium text-saathi-ink-soft">
+        <span className="text-caption font-semibold text-zupee-indigo">
           <T hi="AI × निवेश · Bharat के लिए" en="AI × Investments · for Bharat" />
         </span>
       ) : null}
