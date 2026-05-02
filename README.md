@@ -3,14 +3,14 @@
 > **पहले हम आपको बचाते हैं। फिर आपके पैसे को बढ़ाते हैं।**
 > *First we defend you. Then we grow your money.*
 
-Bharosa is an **AI-native, defense-first, WhatsApp-native financial co-pilot for Bharat** — built for the 100M+ Hindi-first households that India's existing fintechs treat as either a fraud risk or a feature wishlist. Submitted for **Zupee's AI-Native Product Theme-3** brief.
+Bharosa is an **AI-native, defense-first, WhatsApp-native financial co-pilot for Bharat** — built for the 100M+ Hindi-first households that India's existing fintechs treat as either a fraud risk or a feature wishlist. Built for **Zupee · AI × Investments for Bharat**.
 
 The defense layer is **free for life**. It catches WhatsApp scams aimed at the family, audits mis-sold ULIPs/endowments, fights recovery-agent harassment using RBI Master Circular references, and prepares vernacular voice calls + cease-and-desist letters in seconds. Only after **trust is earned** do we graduate the household into goal-anchored investments — Sukanya Samriddhi, FDs, gold, and PPF first; mutual funds only when the family is ready.
 
 The intelligence + voice layer runs on **[Sarvam.ai](https://www.sarvam.ai)** — Bharat-native LLM (`sarvam-m`), Indian-language TTS (`bulbul:v3`) and STT (`saaras:v3` / `saarika:v2.5`). Local **Ollama (Gemma 4 8B)** is the offline fallback.
 
-🌐 **Live demo:** https://saathi-tau.vercel.app
-🎙️ **Press-and-talk voice agent:** [/#voice](https://saathi-tau.vercel.app/#voice)
+🌐 **Live demo:** https://nirbhai-zupee-bharosa.vercel.app
+🎙️ **Press-and-talk voice agent:** [/#voice](https://nirbhai-zupee-bharosa.vercel.app/#voice)
 📦 **Repo:** https://github.com/Nirbhai-10/Zupee_Task
 
 ---
@@ -197,7 +197,7 @@ vercel env add SARVAM_API_KEY production
 vercel --prod --yes
 ```
 
-The canonical production URL is **https://saathi-tau.vercel.app** (the project was originally named "saathi" before the rename to Bharosa). Set `LLM_PROVIDER=sarvam` in the Vercel environment to make Sarvam the primary chat + voice provider.
+Production URL: **https://nirbhai-zupee-bharosa.vercel.app** (the legacy alias https://saathi-tau.vercel.app still resolves). Set `LLM_PROVIDER=sarvam` in the Vercel environment to make Sarvam the primary chat + voice provider.
 
 ---
 
@@ -211,7 +211,7 @@ To go production: provision a WhatsApp Business number + Cloud API, point the we
 
 ## What makes the moat
 
-(Detailed thesis at [/for-zupee](https://saathi-tau.vercel.app/for-zupee))
+(Detailed thesis at [/for-zupee](https://nirbhai-zupee-bharosa.vercel.app/for-zupee))
 
 1. **Outcome ledger**: Every scam catch, ULIP refusal, refund recovered, and salary-day transfer is persisted with hard `paise_saved` numbers. After 12 months we know exactly which households we kept solvent — no other Indian fintech has this row.
 2. **Salary-day behavior**: We see what each household actually spends on the 7th of every month. That's better behavioral data than 50 KYC fields.

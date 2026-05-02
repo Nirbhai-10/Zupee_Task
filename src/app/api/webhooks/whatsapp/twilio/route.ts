@@ -76,7 +76,7 @@ export async function POST(req: Request) {
 
   const reply = await respondToChat(messages, detectedLanguage);
   const cta = reply.cta
-    ? `\n\n${reply.cta.label}: ${process.env.NEXT_PUBLIC_APP_URL ?? "https://saathi-tau.vercel.app"}${reply.cta.href}`
+    ? `\n\n${reply.cta.label}: ${process.env.NEXT_PUBLIC_APP_URL ?? "https://nirbhai-zupee-bharosa.vercel.app"}${reply.cta.href}`
     : "";
 
   const text = `${reply.text}${cta}`;
