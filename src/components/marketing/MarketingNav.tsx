@@ -17,26 +17,46 @@ export function MarketingNav() {
         className="h-[3px] w-full bg-gradient-to-r from-zupee-yellow via-zupee-yellow to-zupee-indigo"
       />
 
-      {/* Submission banner — slim, sticky, single line.
-          Tells a Zupee evaluator at first glance that the same Bharosa
-          ships as a downloadable APK alongside the live web app, and
-          gives them a one-click download. The .apk file lives at
-          /public/Bharosa.apk and is served directly by Vercel. */}
+      {/* APK submission banner — deliberately loud.
+          Solid Zupee yellow background, indigo text, oversized download
+          pill with an animated bouncing arrow + a soft pulsing halo.
+          Designed so a Zupee evaluator landing on the page cannot miss
+          the download. Bharosa.apk lives in /public, served directly by
+          Vercel with the .apk MIME type so click = native Save dialog. */}
       <a
         href="/Bharosa.apk"
         download="Bharosa.apk"
-        className="group block w-full border-b border-zupee-indigo/15 bg-zupee-yellow-tint/80 transition-colors hover:bg-zupee-yellow/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zupee-indigo/40"
+        className="group relative block w-full overflow-hidden border-b-2 border-zupee-indigo/40 bg-zupee-yellow transition-colors hover:bg-zupee-yellow-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zupee-indigo/60"
       >
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-x-4 gap-y-1.5 px-4 py-2 sm:px-6">
-          <span className="inline-flex min-w-0 items-center gap-2 text-[12px] font-medium text-zupee-indigo">
-            <Smartphone className="h-3.5 w-3.5 shrink-0" aria-hidden />
-            <span className="truncate">
-              Submitted to Zupee as a downloadable APK — same Bharosa, native shell.
+        {/* Subtle indigo shimmer sweep across the banner, slowed-down */}
+        <span
+          aria-hidden
+          className="pointer-events-none absolute inset-y-0 -left-1/3 w-1/3 -skew-x-12 bg-gradient-to-r from-transparent via-zupee-indigo/15 to-transparent opacity-70 animate-[shimmer_4s_ease-in-out_infinite]"
+        />
+        <div className="relative mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 py-2.5 sm:px-6 sm:py-3">
+          <span className="inline-flex min-w-0 items-center gap-2.5 text-zupee-indigo">
+            <span className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-zupee-indigo text-zupee-yellow shadow-card">
+              <Smartphone className="h-4 w-4" aria-hidden />
+            </span>
+            <span className="flex flex-col leading-tight">
+              <span className="text-[13px] font-bold uppercase tracking-wide sm:text-[14px]">
+                Bharosa Android APK · Zupee Submission
+              </span>
+              <span className="text-[11px] font-medium text-zupee-indigo/85 sm:text-[12px]">
+                Same Bharosa, native shell — install on any Android phone in 30 seconds.
+              </span>
             </span>
           </span>
-          <span className="inline-flex shrink-0 items-center gap-1.5 rounded-pill bg-zupee-indigo px-3 py-1 text-[11px] font-semibold text-white shadow-soft transition-transform group-hover:-translate-y-px">
-            <Download className="h-3 w-3" aria-hidden />
-            <span>Download Bharosa.apk · 3.6 MB</span>
+          <span className="relative inline-flex shrink-0">
+            {/* Pulsing halo behind the button */}
+            <span
+              aria-hidden
+              className="absolute inset-0 -z-10 animate-ping rounded-pill bg-zupee-indigo/35"
+            />
+            <span className="relative inline-flex items-center gap-2 rounded-pill bg-zupee-indigo px-4 py-2 text-[12px] font-bold uppercase tracking-wide text-white shadow-lift transition-transform group-hover:-translate-y-0.5 sm:text-[13px]">
+              <Download className="h-4 w-4 animate-bounce" aria-hidden />
+              <span>Download .APK&nbsp;·&nbsp;3.6 MB</span>
+            </span>
           </span>
         </div>
       </a>
